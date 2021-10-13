@@ -1,8 +1,28 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitWeb", "TransitWeb\TransitWeb.csproj", "{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeDataCrawler", "RealTimeDataCrawler\RealTimeDataCrawler.csproj", "{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeModels", "RealTimeModels\RealTimeModels.csproj", "{5FBE03FC-1A14-4317-9B20-465976BA0D96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
