@@ -61,6 +61,51 @@ public static class RealTimeToDotMatrix
         page.Add($"Seite {pageNumber}/{pageCount}%GAP%{time:dd.MM.yyyy hh:mm:ss}");
         page[^1] = page[^1].Replace("%GAP%", new string(' ', cols - page[^1].Length + "%GAP%".Length));
     }
+
+    private static void AddDestinationToPage(List<string> page, RealTimeEntry realTimeEntry, int maxDirectionWidth)
+    {
+        string destinationLine = string.Empty;
+        string lineNumber =
+            realTimeEntry.PatternText is string && string.IsNullOrWhiteSpace(realTimeEntry.PatternText!) == false
+                ? realTimeEntry.PatternText!
+                : realTimeEntry.Route.LineName;
+        destinationLine += lineNumber.Length switch
+        {
+            0 => $"  ??  ",
+            1 => $"   {lineNumber}  ",
+            2 => $"  {lineNumber}  ",
+            3 => $" {lineNumber}  ",
+            4 => $"{lineNumber}  ",
+            5 => $"{lineNumber} ",
+            6 => $"{lineNumber}",
+            _ => $"??????"
+        };
+        destinationLine += "| ";
+        destinationLine += realTimeEntry.Direction;
+        destinationLine += new string(' ', maxDirectionWidth - realTimeEntry.Direction.Length);
+        destinationLine += " |";
+        string mixedTime = realTimeEntry.MixedTime;
+        mixedTime = mixedTime.Replace("%UNIT_MIN%", "");
+        mixedTime = mixedTime.Trim();
+        destinationLine += mixedTime.Length switch
+        {
+            0 => $"  ?  ",
+            1 => $"  {mixedTime}  ",
+            2 => $" {mixedTime}  ",
+            3 => $" {mixedTime} ",
+            4 => $" {mixedTime}",
+            5 => $"{mixedTime}",
+            _ => $"?????"
+        };
+        page.Add(destinationLine);
+        if (realTimeEntry.Vias is null)
+            return;
+        foreach (var via in realTimeEntry.Vias)
+        {
+            string viaLine = $"{new string(' ', 6)}| {via}{new string(' ', maxDirectionWidth - via.Length)} |";
+            page.Add(viaLine);
+        }
+    }
     private static (string[] messages, (uint cols, uint rows) dimensions) GenerateTarget(Station station)
     {
         int pageCount = station.Alerts.Count + 1;
@@ -110,20 +155,23 @@ public static class RealTimeToDotMatrix
             AddHeaderToPage(station, page, targetCols, maxDestinationWidth);
             foreach (var realTimeEntry in pagedEntry)
             {
-                page.Add(realTimeEntry.Direction);
+                AddDestinationToPage(page, realTimeEntry, maxDestinationWidth);
             }
             pages.Add(page);
             AddFooterToPage(page, targetCols, DateTime.Now, pages.Count, pageCount);
         }
 
-        return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), (0, 0));
+        return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), ((uint)targetCols, MaximalRows));
     }
-    public static string Convert(Station station)
+    public static Stream Convert(Station station)
     {
         var (messages, dimensions) = GenerateTarget(station);
-        //var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
+        var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
         // DotMatrixPicture picture = new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions);
-        //return pictures.ElementAt(0).GetPicture();
-        return string.Join($"{Environment.NewLine}NEW_LINE{Environment.NewLine}", messages);
+        Stream gif = Animator.GifCreator.ConvertImageStreamsToGifStream(pictures.Select(picture => picture.GetPicture()));
+        return gif;
+        
+        // return pictures.ElementAt(0).GetPicture();
+        //return string.Join($"{Environment.NewLine}NEW_LINE{Environment.NewLine}", messages);
     }
 }

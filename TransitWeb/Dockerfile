@@ -3,6 +3,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+# Install ImageMagick (see https://askubuntu.com/a/648245)
+RUN apt update
+RUN apt install imagemagick -y
+RUN mkdir /tmp/pngs
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["TransitWeb/TransitWeb.csproj", "TransitWeb/"]
