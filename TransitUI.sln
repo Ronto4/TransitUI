@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeDataCrawler", "Real
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeModels", "RealTimeModels\RealTimeModels.csproj", "{5FBE03FC-1A14-4317-9B20-465976BA0D96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeToDotMatrix", "RealTimeToDotMatrix\RealTimeToDotMatrix.csproj", "{255C84A6-088C-495A-A61A-D8048A42D4ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FBE03FC-1A14-4317-9B20-465976BA0D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{255C84A6-088C-495A-A61A-D8048A42D4ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{255C84A6-088C-495A-A61A-D8048A42D4ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{255C84A6-088C-495A-A61A-D8048A42D4ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{255C84A6-088C-495A-A61A-D8048A42D4ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

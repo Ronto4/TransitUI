@@ -30,9 +30,9 @@ public class TransitController : Controller
         try
         {
             Station station = Crawler.GetFromWeb(id);
-            //Stream stream = RealTimeToDotMatrix.RealTimeToDotMatrix.Convert(station);
+            string stream = RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station);
             //return File(stream, "image/png");
-            return Content(station.ToString());
+             return Content(stream);
             // return station.ToString();
         }
         catch (System.Net.WebException ex)

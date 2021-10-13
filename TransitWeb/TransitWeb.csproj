@@ -23,6 +23,7 @@
     <ItemGroup>
       <ProjectReference Include="..\RealTimeDataCrawler\RealTimeDataCrawler.csproj" />
       <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
+      <ProjectReference Include="..\RealTimeToDotMatrix\RealTimeToDotMatrix.csproj" />
     </ItemGroup>
 
 </Project>
