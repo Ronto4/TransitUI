@@ -58,7 +58,7 @@ public static class RealTimeToDotMatrix
         while(page.Count < MaximalRows - 2)
             page.Add("");
         page.Add(new string('-', cols));
-        page.Add($"Seite {pageNumber}/{pageCount}%GAP%{time:dd.MM.yyyy hh:mm:ss}");
+        page.Add($"Seite {pageNumber}/{pageCount}%GAP%{time:dd.MM.yyyy HH:mm:ss}");
         page[^1] = page[^1].Replace("%GAP%", new string(' ', cols - page[^1].Length + "%GAP%".Length));
     }
 

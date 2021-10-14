@@ -8,6 +8,10 @@ RUN apt update
 RUN apt install imagemagick -y
 RUN mkdir /tmp/pngs
 
+# Set time zone to Berlin (see https://serverfault.com/a/683651)
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["TransitWeb/TransitWeb.csproj", "TransitWeb/"]
