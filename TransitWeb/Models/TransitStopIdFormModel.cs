@@ -14,7 +14,8 @@ public class TransitStopIdFormModel
     private const string UrlMainPart = @"https://transit.ronto4.dynv6.net";
     // private const string UrlMainPart = @"https://localhost";//:3654";
 
-    private const string Port = "3654";
+    // private const string Port = "3654";
+    private const string Port = "443";
     // Attributes
     [DisplayName("ID der Haltestelle")]
     public int StopId { get; set; }
