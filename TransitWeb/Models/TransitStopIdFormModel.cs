@@ -11,8 +11,8 @@ namespace TransitWeb.Models;
 public class TransitStopIdFormModel
 {
     // Const
-    // private const string UrlMainPart = @"https://transit.ronto4.dynv6.net";
-    private const string UrlMainPart = @"http://localhost";//:3654";
+    private const string UrlMainPart = @"https://transit.ronto4.dynv6.net";
+    // private const string UrlMainPart = @"https://localhost";//:3654";
 
     private const string Port = "3654";
     // Attributes
