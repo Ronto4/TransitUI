@@ -49,8 +49,8 @@ public static class RealTimeToDotMatrix
         emptyPage.Add(station.StationName);
         emptyPage.Add(new string('-', cols));
         emptyPage.Add($"Linie | Ziel/Richtung %GAP% | Abf.");
-        emptyPage[^1] = emptyPage[^1].Replace("%GAP%", new string(' ', cols - emptyPage[^1].Length + "%GAP%".Length));
-        emptyPage.Add($"------|-{new string('-', gap)}-|-----");
+        emptyPage[^1] = emptyPage[^1].Replace("%GAP%", new string(' ', Math.Max(cols - emptyPage[^1].Length + "%GAP%".Length, 0)));
+        emptyPage.Add($"------|-{new string('-', Math.Max(gap, 15))}-|-----");
     }
 
     private static void AddFooterToPage(List<string> page, int cols, DateTime time, int pageNumber, int pageCount)
@@ -58,8 +58,8 @@ public static class RealTimeToDotMatrix
         while(page.Count < MaximalRows - 2)
             page.Add("");
         page.Add(new string('-', cols));
-        page.Add($"Seite {pageNumber}/{pageCount}%GAP%{time:dd.MM.yyyy HH:mm:ss}");
-        page[^1] = page[^1].Replace("%GAP%", new string(' ', cols - page[^1].Length + "%GAP%".Length));
+        page.Add($"Seite {pageNumber}/{pageCount} %GAP% {time:dd.MM.yyyy HH:mm:ss}");
+        page[^1] = page[^1].Replace("%GAP%", new string(' ', Math.Max(cols - page[^1].Length + "%GAP%".Length, 0)));
     }
 
     private static void AddDestinationToPage(List<string> page, RealTimeEntry realTimeEntry, int maxDirectionWidth)
@@ -129,7 +129,7 @@ public static class RealTimeToDotMatrix
                 : Math.Max(realTimeEntry.Direction.Length, maxDestinationWidth);
         }
 
-        int targetCols = maxDestinationWidth + 15;
+        int targetCols = Math.Max(maxDestinationWidth + 15, 30);
         if (station.StationName.Length > targetCols)
         {
             targetCols = station.StationName.Length;
