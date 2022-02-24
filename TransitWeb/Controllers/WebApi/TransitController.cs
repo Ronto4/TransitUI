@@ -12,11 +12,11 @@ namespace TransitWeb.Controllers.WebApi;
 public class TransitController : Controller
 {
     [HttpGet("vip/{id}")]
-    public IActionResult CheckIfStationExists(int id)
+    public async Task<IActionResult> CheckIfStationExists(int id)
     {
         try
         {
-            Crawler.GetFromWeb(id);
+            await Crawler.GetFromWeb(id);
             return Ok();
         }
         catch
@@ -25,12 +25,12 @@ public class TransitController : Controller
         }
     }
     [HttpGet("vip/{id}/dotmatrix")]
-    public IActionResult GetDotMatrixById(int id)
+    public async Task<IActionResult> GetDotMatrixById(int id)
     {
         try
         {
-            Station station = Crawler.GetFromWeb(id);
-            Stream stream = RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station);
+            var station = await Crawler.GetFromWeb(id);
+            var stream = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station);
             // FileStream gif = System.IO.File.OpenRead(gifPath);
             return File(stream, "image/gif");
             // return Content(stream);
@@ -39,37 +39,37 @@ public class TransitController : Controller
         catch (System.Net.WebException ex)
         {
             ApiErrorViewModel error = new(ex);
-            string json = JsonSerializer.Serialize(error);
+            var json = JsonSerializer.Serialize(error);
             return NotFound(json);
         }
     }
     [HttpGet("vip/{id}/info")]
-    public IActionResult GetInfoById(int id)
+    public async Task<IActionResult> GetInfoById(int id)
     {
         try
         {
-            Station station = Crawler.GetFromWeb(id);
+            Station station = await Crawler.GetFromWeb(id);
             return Content(station.ToString());
         }
         catch (System.Net.WebException ex)
         {
-            ApiErrorViewModel error = new ApiErrorViewModel(ex);
-            string json = JsonSerializer.Serialize(error);
+            ApiErrorViewModel error = new(ex);
+            var json = JsonSerializer.Serialize(error);
             return NotFound(json);
         }
     }
     [HttpGet("vip/{id}/json")]
-    public IActionResult GetJsonSourceById(int id)
+    public async Task<IActionResult> GetJsonSourceById(int id)
     {
         try
         {
-            string jsonSource = Crawler.GetJsonSource(id);
+            var jsonSource = await Crawler.GetJsonSource(id);
             return Content(jsonSource, "application/json");
         }
         catch (System.Net.WebException ex)
         {
-            ApiErrorViewModel error = new ApiErrorViewModel(ex);
-            string json = JsonSerializer.Serialize(error);
+            ApiErrorViewModel error = new(ex);
+            var json = JsonSerializer.Serialize(error);
             return NotFound(json);
         }
     }
