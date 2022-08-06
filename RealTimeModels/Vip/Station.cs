@@ -33,13 +33,18 @@ public class Station
             Actual = json.actual.Select((actual) => new RealTimeEntry(new TimeSpan(0, 0, actual.actualRelativeTime), actual.actualTime is null ? (DateTime?)null : DateTime.Parse(actual.actualTime), actual.alerts?.Select((alert) => new Alert(alert)).ToList(), actual.direction, actual.mixedTime, Convert.ToInt64(actual.passageid), actual.patternText, DateTime.Parse(actual.plannedTime), Routes.Where((route) => route.Id == Convert.ToInt64(actual.routeId)).First(), actual.status, Convert.ToInt64(actual.tripId), null, actual.vias)).ToList();
         }
         // Methods
-        public static Station GetFromJsonString(string jsonString)
+        public static Station GetFromJsonString(string jsonString, bool catalogue = true)
         {
             var json = JsonSerializer.Deserialize<PredictionJsonObject>(jsonString);
             if (json is null)
                 throw new ArgumentNullException(nameof(json), $"JsonSerializer returned null.");
 
-            return new Station(json);
+            Station station = new(json);
+            if (catalogue)
+            {
+            }
+
+            return station;
         }
         public override string ToString()
         {

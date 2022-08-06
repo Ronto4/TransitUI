@@ -43,7 +43,7 @@ public static class RealTimeToDotMatrix
         message = message.Trim();
         lines.Add($"{message}");
     }
-    
+
     private static void AddHeaderToPage(Station station, List<string> emptyPage, int cols, int gap)
     {
         emptyPage.Add(station.StationName);
@@ -163,14 +163,14 @@ public static class RealTimeToDotMatrix
 
         return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), ((uint)targetCols, MaximalRows));
     }
-    public static Stream Convert(Station station)
+    public static async Task<Stream> Convert(Station station)
     {
         var (messages, dimensions) = GenerateTarget(station);
         var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
         // DotMatrixPicture picture = new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions);
-        Stream gif = Animator.GifCreator.ConvertImageStreamsToGifStream(pictures.Select(picture => picture.GetPicture()));
+        Stream gif = await Animator.GifCreator.ConvertImageStreamsToGifStream(pictures.Select(picture => picture.GetPicture()));
         return gif;
-        
+
         // return pictures.ElementAt(0).GetPicture();
         //return string.Join($"{Environment.NewLine}NEW_LINE{Environment.NewLine}", messages);
     }
