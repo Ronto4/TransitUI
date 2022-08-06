@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitWeb", "TransitWeb\TransitWeb.csproj", "{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeDataCrawler", "RealTimeDataCrawler\RealTimeDataCrawler.csproj", "{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}"
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeToDotMatrix", "RealTimeToDotMatrix\RealTimeToDotMatrix.csproj", "{255C84A6-088C-495A-A61A-D8048A42D4ED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Animator", "Animator\Animator.csproj", "{171808B1-0475-4653-87F2-D73A8B20689D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitApi", "TransitApi\TransitApi.csproj", "{EF85351B-0E31-4264-8A04-946443B0519E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,5 +39,9 @@ Global
 		{171808B1-0475-4653-87F2-D73A8B20689D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{171808B1-0475-4653-87F2-D73A8B20689D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{171808B1-0475-4653-87F2-D73A8B20689D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF85351B-0E31-4264-8A04-946443B0519E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF85351B-0E31-4264-8A04-946443B0519E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF85351B-0E31-4264-8A04-946443B0519E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF85351B-0E31-4264-8A04-946443B0519E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
