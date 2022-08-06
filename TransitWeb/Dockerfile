@@ -2,6 +2,7 @@
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
+EXPOSE 3654
 
 # Install ImageMagick (see https://askubuntu.com/a/648245)
 RUN apt update

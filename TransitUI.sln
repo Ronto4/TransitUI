@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitWeb", "TransitWeb\TransitWeb.csproj", "{DA1B73A1-9B61-4C62-9EB4-B4A3FF6980C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTimeDataCrawler", "RealTimeDataCrawler\RealTimeDataCrawler.csproj", "{4BC68B1E-F133-4C78-81FA-B07B1EE4E614}"

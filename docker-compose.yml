@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    container_name: transit_postgres
+    volumes:
+      - transit_db:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=transit_vip
+  app:
+    build:
+      context: .
+      dockerfile: TransitWeb/Dockerfile
+    depends_on:
+      - db
+    container_name: transit-web
+    ports:
+      - "127.0.0.1:3654:80"
+    expose:
+      - 3654
+
+volumes:
+  transit_db:
