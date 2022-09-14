@@ -10,11 +10,11 @@ namespace TransitApi.Controllers;
 public class VipController : ControllerBase
 {
     [HttpGet("{id:int}")]
-    public IActionResult CheckIfStationExists(int id)
+    public async Task<IActionResult> CheckIfStationExists(int id, CancellationToken cancellationToken)
     {
         try
         {
-            Crawler.GetFromWeb(id);
+            await Crawler.GetFromWeb(id, cancellationToken);
             return Ok();
         }
         catch (WebException)
@@ -22,13 +22,14 @@ public class VipController : ControllerBase
             return NotFound();
         }
     }
+
     [HttpGet("{id:int}/dotmatrix")]
-    public IActionResult GetDotMatrixById(int id)
+    public async Task<IActionResult> GetDotMatrixById(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var station = Crawler.GetFromWeb(id);
-            var stream = RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station);
+            var station = await Crawler.GetFromWeb(id, cancellationToken);
+            var stream = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station, cancellationToken);
             return File(stream, "image/gif");
         }
         catch (WebException ex)
@@ -37,12 +38,13 @@ public class VipController : ControllerBase
             return NotFound(json);
         }
     }
+
     [HttpGet("{id:int}/info")]
-    public IActionResult GetInfoById(int id)
+    public async Task<IActionResult> GetInfoById(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var station = Crawler.GetFromWeb(id);
+            var station = await Crawler.GetFromWeb(id, cancellationToken);
             return Content(station.ToString());
         }
         catch (WebException ex)
@@ -51,12 +53,13 @@ public class VipController : ControllerBase
             return NotFound(json);
         }
     }
+
     [HttpGet("{id:int}/json")]
-    public IActionResult GetJsonSourceById(int id)
+    public async Task<IActionResult> GetJsonSourceById(int id, CancellationToken cancellationToken)
     {
         try
         {
-            var jsonSource = Crawler.GetJsonSource(id);
+            var jsonSource = await Crawler.GetJsonSource(id, cancellationToken);
             return Content(jsonSource, "application/json");
         }
         catch (WebException ex)
