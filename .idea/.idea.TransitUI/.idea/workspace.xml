@@ -10,13 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Animator/GifCreator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Animator/GifCreator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeDataCrawler/Vip/Crawler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeDataCrawler/Vip/Crawler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWeb/Controllers/WebApi/TransitController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWeb/Controllers/WebApi/TransitController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitApi/WeatherForecast.cs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +28,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c19f9f9e80c9a742a13890d335f186b50f7b41e9b2f444af638925c8791695/ViewDataDictionaryOfT.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/Animator/GifCreator.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/RealTimeDataCrawler/Vip/Crawler.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/TransitApi/Controllers/VipController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/TransitWeb/Controllers/WebApi/TransitController.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -184,7 +181,7 @@
       <workItem from="1663075868514" duration="785000" />
       <workItem from="1663077000335" duration="2220000" />
       <workItem from="1663163362813" duration="3451000" />
-      <workItem from="1663170755094" duration="6008000" />
+      <workItem from="1663170755094" duration="6312000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
