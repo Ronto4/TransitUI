@@ -1,0 +1,80 @@
+@page "/Vip"
+@using System.ComponentModel.DataAnnotations
+<h3>ViP Verkehrsbetrieb Potsdam</h3>
+
+
+@* <div class="form-group"> *@
+@*     <label for="stopId" asp-for="StopId">ID der Haltestelle</label> *@
+@*     <input type="number" class="form-control" id="stopId" aria-describedby="stopIdHelp" placeholder="Zahl von 1 bis 1000" asp-for="StopId" /> *@
+@*     <small id="stopIdHelp" class="form-text text-muted">Numerische ID der gesuchten Haltestelle von 1 bis 1000 (nicht alle IDs sind besetzt).</small> *@
+@* </div> *@
+@* <br/> *@
+@* <button class="btn btn-primary" @onclick="GetDotMatrix">Anzeigetafel anzeigen</button> *@
+
+<div class="form-group">
+    <EditForm Model="@Request" OnValidSubmit="@GetDotMatrix">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        
+        <label for="stopId">ID der Haltestelle</label>
+
+        <InputNumber class="form-control" id="stopId" @bind-Value="Request.StopId" />
+        <small id="stopIdHelp" class="form-text text-muted">Numerische ID der gesuchten Haltestelle von 1 bis 1000 (nicht alle IDs sind besetzt).</small>
+        <br/>
+        <button class="btn btn-primary" type="submit">Anzeigetafel anzeigen</button>
+    </EditForm>
+</div>
+
+<a href="@Request.DotmatrixUrl">
+    <img src="@Request.DotmatrixUrl" alt="Abfahrtstafel" class="img-fluid" />
+</a>
+<br/><br/>
+<a href="@Request.InfoUrl">
+    Rohdaten (formatiert)
+</a>
+<br/><br/>
+<a href="@Request.JsonUrl">
+    Rohdaten (Json)
+</a>
+
+@code {
+
+    private class VipRequestModel
+    {
+        [Required(ErrorMessage = "Die Haltestellen-ID muss angegeben werden")]
+        [Range(1, 1000, ErrorMessage = "Die Haltestellen-ID muss zwischen 1 und 1000 liegen")]
+        public int? StopId { get; set; }
+
+        private static string BaseUrl => "https://transit.ronto4.dynv6.net/api/Transit/vip/";
+        public string CheckUrl => $"{BaseUrl}{StopId}";
+        public string DotmatrixUrl => $"{BaseUrl}{StopId}/dotmatrix";
+        public string InfoUrl => $"{BaseUrl}{StopId}/info";
+        public string JsonUrl => $"{BaseUrl}{StopId}/json";
+    }
+
+    private VipRequestModel Request { get; } = new();
+
+    private void GetDotMatrix()
+    {
+        Console.WriteLine(Request.StopId);
+        @* HttpClient client = new(); *@
+        @* var response = await client.GetAsync($"https://transit.ronto4.dynv6.net/api/Transit/vip/{Request.StopId}"); *@
+        @* if (response.IsSuccessStatusCode == false) *@
+        @* { *@
+        @*     <p>Die gewählte Haltestellen-ID existiert nicht!</p> *@
+        @*     return; *@
+        @* } *@
+        @* <a href="https://transit.ronto4.dynv6.net/api/Transit/vip/@Request.StopId/dotmatrix"> *@
+        @*     <img src="https://transit.ronto4.dynv6.net/api/Transit/vip/@Request.StopId/dotmatrix" alt="Abfahrtstafel" class="img-fluid" /> *@
+        @* </a> *@
+        @* <br/><br/> *@
+        @* <a href="https://transit.ronto4.dynv6.net/api/Transit/vip/@Request.StopId/info"> *@
+        @*     Rohdaten (formatiert) *@
+        @* </a> *@
+        @* <br/><br/> *@
+        @* <a href="https://transit.ronto4.dynv6.net/api/Transit/vip/@Request.StopId/json"> *@
+        @*     Rohdaten (Json) *@
+        @* </a> *@
+    }
+
+}
