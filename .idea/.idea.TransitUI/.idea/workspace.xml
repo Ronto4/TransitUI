@@ -10,17 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/TransitWebViewer/nginx/nginx.conf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Vip.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/start.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/start.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/startup.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Counter.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/FetchData.razor" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Index.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Index.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Shared/SurveyPrompt.razor" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,14 +42,11 @@
     <setting file="file://$PROJECT_DIR$/TransitWeb/Controllers/WebApi/TransitController.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWeb/Views/Transit/Index.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWebViewer/App.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Counter.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/FetchData.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Index.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWebViewer/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/MainLayout.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/SurveyPrompt.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />

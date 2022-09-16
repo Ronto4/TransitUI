@@ -15,31 +15,36 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" @onclick="ToggleVipNavigationMenu">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> ViP Potsdam
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="vip">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> ViP
-            </NavLink>
+            @if (!VipNavigationCollapsed)
+            {
+                <NavLink class="expand-menu" href="vip">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> <span>Allgemeines</span>
+                </NavLink>
+                <NavLink class="" href="vip/dotmatrix">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> <span>Anzeigen</span>
+                </NavLink>
+            }
         </div>
     </nav>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool VipNavigationCollapsed { get; set; } = true;
+    private bool _collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _collapseNavMenu = !_collapseNavMenu;
+    }
+
+    private void ToggleVipNavigationMenu()
+    {
+        VipNavigationCollapsed = !VipNavigationCollapsed;
     }
 
 }
