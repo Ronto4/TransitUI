@@ -10,7 +10,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/TransitApi/WeatherForecast.cs" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/TransitWebViewer/nginx/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nginx/nginx.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitApi/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/start.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/start.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/startup.sh" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,11 +36,23 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c19f9f9e80c9a742a13890d335f186b50f7b41e9b2f444af638925c8791695/ViewDataDictionaryOfT.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/Animator/GifCreator.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/RealTimeDataCrawler/Vip/Crawler.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/TransitApi/Controllers/VipController.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///home/clemens/Dokumente/Privat/GitHub/Ronto4/TransitUI/TransitWeb/Controllers/WebApi/TransitController.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Animator/GifCreator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/RealTimeDataCrawler/Vip/Crawler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/RealTimeToDotMatrix/DotMatrixPicture.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitApi/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWeb/Controllers/WebApi/TransitController.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWeb/Views/Transit/Index.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/App.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Counter.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/FetchData.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Index.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Pages/Vip.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/MainLayout.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TransitWebViewer/Shared/SurveyPrompt.razor" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -46,7 +68,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.TransitApi">
+  <component name="RunManager" selected=".NET Launch Settings Profile.TransitWebViewer">
     <configuration name="TransitApi" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/TransitApi/TransitApi.csproj" />
       <option name="LAUNCH_PROFILE_TFM" value="net6.0" />
@@ -181,7 +203,9 @@
       <workItem from="1663075868514" duration="785000" />
       <workItem from="1663077000335" duration="2220000" />
       <workItem from="1663163362813" duration="3451000" />
-      <workItem from="1663170755094" duration="6312000" />
+      <workItem from="1663170755094" duration="7344000" />
+      <workItem from="1663247086958" duration="3963000" />
+      <workItem from="1663324493551" duration="3832000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>

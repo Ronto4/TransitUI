@@ -1,0 +1,29 @@
+version: '3'
+services:
+  api:
+    image: ronto4/transit-api
+    build:
+      context: .
+      dockerfile: TransitApi/Dockerfile
+    restart: unless-stopped
+    container_name: transit-api
+  web-viewer:
+    depends_on:
+      - api
+    image: ronto4/transit-web-viewer
+    build:
+      context: .
+      dockerfile: TransitWebViewer/Dockerfile
+    container_name: transit-web-viewer
+  nginx:
+    depends_on:
+      - api
+      - web-viewer
+    image: nginx:alpine
+    container_name: transit-nginx
+    volumes:
+      - type: bind
+        source: ./nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+    ports:
+      - 127.0.0.1:8080:80

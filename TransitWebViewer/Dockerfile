@@ -14,7 +14,8 @@ RUN dotnet build "TransitWebViewer.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "TransitWebViewer.csproj" -c Release -o /app/publish
 
-FROM base AS final
+# FROM base AS final
+FROM nginx:alpine AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TransitWebViewer.dll"]
+COPY TransitWebViewer/nginx/nginx.conf /etc/nginx/nginx.conf

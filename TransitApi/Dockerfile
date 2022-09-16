@@ -15,6 +15,12 @@ FROM build AS publish
 RUN dotnet publish "TransitApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
+# Install convert
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install imagemagick -y
+# Set time zone to Berlin (see https://serverfault.com/a/683651)
+ARG TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "TransitApi.dll"]
