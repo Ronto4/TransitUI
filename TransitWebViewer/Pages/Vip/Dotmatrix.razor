@@ -24,21 +24,25 @@
         </EditForm>
     </div>
 
+    <br/>
+
     @if (Request.StopId is not null)
     {
-        <a href="@Request.DotmatrixUrl">
-            <img src="@Request.DotmatrixUrl" alt="Abfahrtstafel" class="img-fluid"/>
-        </a>
-        <br/>
-        <br/>
-        <a href="@Request.InfoUrl">
-            Rohdaten (formatiert)
-        </a>
-        <br/>
-        <br/>
-        <a href="@Request.JsonUrl">
-            Rohdaten (Json)
-        </a>
+        <div style="height: 75vh;">
+            <a href="@Request.DotmatrixUrl">
+                <img src="@Request.DotmatrixUrl" alt="Abfahrtstafel" class="img-fluid" style="max-height: 100%;"/>
+            </a>
+            <br/>
+            <br/>
+            <a href="@Request.InfoUrl">
+                Rohdaten (formatiert)
+            </a>
+            <br/>
+            <br/>
+            <a href="@Request.JsonUrl">
+                Rohdaten (Json)
+            </a>
+        </div>
     }
 }
 
