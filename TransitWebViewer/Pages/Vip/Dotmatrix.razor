@@ -1,14 +1,117 @@
 @page "/vip/dotmatrix"
 @using System.ComponentModel.DataAnnotations
+@using DotMatrixDisplay
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using SixLabors.ImageSharp.PixelFormats
+@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IWebAssemblyHostEnvironment HostEnvironment
+@inject IJSRuntime Js
 
 <PageTitle>Ronto4 - Transit - ViP</PageTitle>
 
 <h3>ViP Verkehrsbetrieb Potsdam</h3>
 
-@if (Request is not null)
+@*<p>
+    <img id="image" alt="DMI" src=""/>
+</p>
+
+<button @onclick="SetImageAsync">
+    Set Image
+</button>
+
+@code {
+
+    DotMatrixCanvas<Rgb24> DotMatrixCanvas { get; } = new(10, 10, new Rgb24(0x23, 0x29, 0x23), new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
+    private Stream GetImageStream()
+    {
+        var stream = new MemoryStream();
+        DotMatrixCanvas.SaveToStream(stream);
+        return stream;
+    }
+
+    private async Task SetImageAsync()
+    {
+        var imageStream = GetImageStream();
+        var dotnetImageStream = new DotNetStreamReference(imageStream);
+        await Js.InvokeVoidAsync("setImage", "image", dotnetImageStream);
+        Console.WriteLine("Done");
+    }
+}*@
+
+@code
+{
+    static DotMatrixCanvas<Rgb24> DotMatrixCanvas { get; } = new(10, 10, new Rgb24(0x23, 0x29, 0x23), new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
+    static string ImageSource { get; set; } = DotMatrixCanvas.ToBase64();
+    void RefreshDotMatrix()
+    {
+        ImageSource = DotMatrixCanvas.ToBase64();
+        StateHasChanged();
+    }
+
+    static List<List<DotMatrixCharacter>> Characters { get; } = new();
+
+    private Timer? Timer { get; set; }
+
+    private int Tick { get; set; } = -1;
+
+    void UpdateImage()
+    {
+        Tick++;
+        if (Tick % 10 == 0)
+            Characters.Add(new List<DotMatrixCharacter>());
+        var character = (Tick % 26) switch {
+            0 => 'a',
+            1 => 'b',
+            2 => 'c',
+            3 => 'd',
+            4 => 'e',
+            5 => 'f',
+            6 => 'g',
+            7 => 'h',
+            8 => 'i',
+            9 => 'j',
+            10 => 'k',
+            11 => 'l',
+            12 => 'm',
+            13 => 'n',
+            14 => 'o',
+            15 => 'p',
+            16 => 'q',
+            17 => 'r',
+            18 => 's',
+            19 => 't',
+            20 => 'u',
+            21 => 'v',
+            22 => 'w',
+            23 => 'x',
+            24 => 'y',
+            25 => 'z',
+            _ => throw new Exception($"{Tick % 26}")
+            };
+        Characters[Tick / 10].Add(DotMatrixCharacter.DotMatrixCharacters[character]);
+        DotMatrixCanvas.WriteText(Characters);
+        // Console.WriteLine("Should have changed...");
+        RefreshDotMatrix();
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Timer = new Timer(_ => Task.Run(UpdateImage), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+    }
+
+    public void Dispose()
+    {
+        Timer?.Dispose();
+    }
+}
+
+<img src="@ImageSource" alt="DMI"/>
+
+<button @onclick="() => Timer?.Dispose()">Stop</button>
+
+@* @if (Request is not null)
 {
     <div class="form-group">
         <EditForm Model="@Request">
@@ -77,4 +180,4 @@
         Request = new VipRequestModel(NavigationManager.BaseUri, HostEnvironment);
     }
 
-}
+}*@

@@ -10,8 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCanvas.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCharacter.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitUI.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TransitUI.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,7 +200,9 @@
       <workItem from="1663170755094" duration="7344000" />
       <workItem from="1663247086958" duration="3963000" />
       <workItem from="1663324493551" duration="3832000" />
-      <workItem from="1664185581568" duration="1663000" />
+      <workItem from="1664185581568" duration="11757000" />
+      <workItem from="1664229663323" duration="2397000" />
+      <workItem from="1664311843909" duration="5968000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>

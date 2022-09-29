@@ -8,10 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
       <ProjectReference Include="..\RealTimeDataCrawler\RealTimeDataCrawler.csproj" />
       <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
       <ProjectReference Include="..\RealTimeToDotMatrix\RealTimeToDotMatrix.csproj" />
