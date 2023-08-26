@@ -1,7 +1,10 @@
 @page "/vip/dotmatrix"
 @using System.ComponentModel.DataAnnotations
+@using System.Diagnostics
 @using DotMatrixDisplay
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using RealTimeDataCrawler.Vip
+@using RealTimeToDotMatrix.Vip
 @using SixLabors.ImageSharp.PixelFormats
 @implements IDisposable
 @inject NavigationManager NavigationManager
@@ -41,64 +44,74 @@
 
 @code
 {
-    static DotMatrixCanvas<Rgb24> DotMatrixCanvas { get; } = new(10, 10, new Rgb24(0x23, 0x29, 0x23), new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
-    static string ImageSource { get; set; } = DotMatrixCanvas.ToBase64();
+    // // const string ApiUrl = @"https://transit.ronto4.dynv6.net/api/vip/%STOP_ID%/json";
+    const string ApiUrl = @"https://localhost:7020/api/vip/%STOP_ID%/dotmatrix/%PAGE_ID%";
+    static string ImageSource { get; set; } = "";
+
+    private Timer? Timer { get; set; } = null;
+
     void RefreshDotMatrix()
     {
-        ImageSource = DotMatrixCanvas.ToBase64();
+        ImageSource = ApiUrl.Replace("%STOP_ID%", StopId.ToString()).Replace("%PAGE_ID%", PageId.ToString());
         StateHasChanged();
     }
 
-    static List<List<DotMatrixCharacter>> Characters { get; } = new();
+    private int StopId { get; set; } = 0;
+    private int PageId { get; set; } = 1;
+    private int PageCount { get; set; } = 0;
 
-    private Timer? Timer { get; set; }
+    async Task StopStep() => await StopStep(null);
 
-    private int Tick { get; set; } = -1;
-
-    void UpdateImage()
+    async Task StopStep(CancellationToken? cancellationToken)
     {
-        Tick++;
-        if (Tick % 10 == 0)
-            Characters.Add(new List<DotMatrixCharacter>());
-        var character = (Tick % 26) switch {
-            0 => 'a',
-            1 => 'b',
-            2 => 'c',
-            3 => 'd',
-            4 => 'e',
-            5 => 'f',
-            6 => 'g',
-            7 => 'h',
-            8 => 'i',
-            9 => 'j',
-            10 => 'k',
-            11 => 'l',
-            12 => 'm',
-            13 => 'n',
-            14 => 'o',
-            15 => 'p',
-            16 => 'q',
-            17 => 'r',
-            18 => 's',
-            19 => 't',
-            20 => 'u',
-            21 => 'v',
-            22 => 'w',
-            23 => 'x',
-            24 => 'y',
-            25 => 'z',
-            _ => throw new Exception($"{Tick % 26}")
-            };
-        Characters[Tick / 10].Add(DotMatrixCharacter.DotMatrixCharacters[character]);
-        DotMatrixCanvas.WriteText(Characters);
-        // Console.WriteLine("Should have changed...");
-        RefreshDotMatrix();
+        cancellationToken ??= new CancellationToken();
+        while (true)
+        {
+            StopId++;
+    // Source: https://stackoverflow.com/a/76582825
+            static async Task<string?> DownloadString(string url, CancellationToken cancellationToken)
+            {
+                HttpClient httpClient = new();
+                try
+                {
+                    var content = await httpClient.GetStringAsync(url, cancellationToken);
+                    return content;
+                }
+                catch (HttpRequestException)
+                {
+                    return null;
+                }
+            }
+
+            var pageCountUrl = ApiUrl.Replace("%STOP_ID%", StopId.ToString()).Replace("%PAGE_ID%", "info");
+            var pageCountString = await DownloadString(pageCountUrl, cancellationToken.Value);
+            if (pageCountString is null)
+            {
+                continue;
+            }
+            PageCount = int.Parse(pageCountString);
+            PageId = 1;
+            RefreshDotMatrix();
+            return;
+        }
+    }
+
+    void PageStep()
+    {
+        var previousPageId = PageId;
+        PageId++;
+        if (PageId > PageCount)
+        {
+            PageId = 1;
+        }
+        if (PageId != previousPageId) RefreshDotMatrix();
     }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Timer = new Timer(_ => Task.Run(UpdateImage), null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        Timer = new Timer(_ => PageStep(), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        Task.Run(StopStep);
     }
 
     public void Dispose()
@@ -107,9 +120,32 @@
     }
 }
 
-<img src="@ImageSource" alt="DMI"/>
+<div class="container-fluid text-center">
+    
+    <div class="row">
+        
+        <div class="col">
+            <p>
+                Left text
+            </p>
+        </div>
 
-<button @onclick="() => Timer?.Dispose()">Stop</button>
+        <div class="col">
+
+            <img src="@ImageSource" alt="Abfahrtstafel" class="img-fluid" style="max-height: 100%;"/>
+
+        </div>
+        
+        <div class="col">
+            @* <button @onclick="() => Timer?.Dispose()">Stop</button> *@
+            
+            
+            <button type="button" class="btn btn-primary" @onclick="() => StopStep(new CancellationToken())">Eins weiter</button>
+        </div>
+
+    </div>
+
+</div>
 
 @* @if (Request is not null)
 {

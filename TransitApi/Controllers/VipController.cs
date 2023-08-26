@@ -11,6 +11,10 @@ namespace TransitApi.Controllers;
 [ApiController]
 public class VipController : ControllerBase
 {
+    private static Rgb24 BackgroundColor { get; } = new(0x23, 0x29, 0x23); 
+    private static Rgb24 InactivePixelColor { get; } = new(0x23, 0x2d, 0x23);
+    private static Rgb24 ActivePixelColor { get; } = new(0xd1, 0x5a, 0x1a);
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> CheckIfStationExists(int id, CancellationToken cancellationToken)
     {
@@ -30,8 +34,8 @@ public class VipController : ControllerBase
     {
         var stream = new MemoryStream();
         var canvas =
-            new DotMatrixCanvas<Rgb24>(10, 10, new Rgb24(0x23, 0x29, 0x23), new Rgb24(0x23, 0x2d, 0x23),
-                new Rgb24(0xd1, 0x5a, 0x1a));
+            new DotMatrixCanvas<Rgb24>(new DotMatrixDimensions {Width = 10, Height = 10}, new Rgb24(0x23, 0x29, 0x23),
+                new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
         canvas.SaveToStream(stream);
         stream.Seek(0, SeekOrigin.Begin);
         return File(stream, "image/png");
@@ -47,6 +51,56 @@ public class VipController : ControllerBase
             return File(stream, "image/gif");
         }
         catch (WebException ex)
+        {
+            var json = JsonSerializer.Serialize(ex.ToString());
+            return NotFound(json);
+        }
+    }
+
+    [HttpGet("{id:int}/dotmatrix/info")]
+    public async Task<IActionResult> GetDotMatrixInfo(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var station = await Crawler.GetFromWeb(id, cancellationToken);
+            var (pages, _) = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(station, cancellationToken);
+            return Ok(pages.Count);
+        }
+        catch (HttpRequestException ex)
+        {
+            var json = JsonSerializer.Serialize(ex.ToString());
+            return NotFound(json);
+        }
+    }
+
+    [HttpGet("{id:int}/dotmatrix/{page:int}")]
+    public async Task<IActionResult> GetDotMatrixPageById(int id, int page, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var station = await Crawler.GetFromWeb(id, cancellationToken);
+            var (pages, dimensions) =
+                await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(station, cancellationToken);
+            if (page <= 0 || pages.Count < page)
+            {
+                return NotFound($$"""
+                {
+                    "message": "Page {{page}} is out of bounds for station {{station.StationName}} with {{pages.Count}} page(s)."
+                }
+                """);
+            }
+
+            var requiredPage = pages[page - 1]; // -1 because `page` is 1-indexed.
+            var dotMatrixCanvas =
+                new DotMatrixCanvas<Rgb24>(dimensions, BackgroundColor, InactivePixelColor, ActivePixelColor);
+            dotMatrixCanvas.WriteText(requiredPage);
+            var ms = new MemoryStream();
+            dotMatrixCanvas.SaveToStream(ms);
+            await ms.FlushAsync(cancellationToken);
+            ms.Position = 0;
+            return new FileStreamResult(ms, "image/png");
+        }
+        catch (HttpRequestException ex)
         {
             var json = JsonSerializer.Serialize(ex.ToString());
             return NotFound(json);

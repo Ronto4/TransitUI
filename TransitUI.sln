@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitWebViewer", "Transit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMatrixDisplay", "DotMatrixDisplay\DotMatrixDisplay.csproj", "{21D36994-381B-49F5-B900-9277F19A693C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{A6EB5734-A476-445F-A339-53A28B167EBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,5 +57,9 @@ Global
 		{21D36994-381B-49F5-B900-9277F19A693C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21D36994-381B-49F5-B900-9277F19A693C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21D36994-381B-49F5-B900-9277F19A693C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6EB5734-A476-445F-A339-53A28B167EBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6EB5734-A476-445F-A339-53A28B167EBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6EB5734-A476-445F-A339-53A28B167EBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6EB5734-A476-445F-A339-53A28B167EBE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

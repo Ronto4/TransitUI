@@ -1,3 +1,4 @@
+using DotMatrixDisplay;
 using RealTimeModels.Vip;
 
 namespace RealTimeToDotMatrix.Vip;
@@ -172,5 +173,13 @@ public static class RealTimeToDotMatrix
         var gif = await Animator.GifCreator.ConvertImageStreamsToGifStream(
             pictures.Select(picture => picture.GetPicture()), cancellationToken);
         return gif;
+    }
+
+    public static async Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)
+    {
+        var (messages, dimensions) = GenerateTarget(station);
+        return (messages.ToList(),
+            new DotMatrixDimensions
+                {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)});
     }
 }

@@ -31,24 +31,25 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
     /// <summary>
     /// Initialize a new canvas for a dot-matrix-display
     /// </summary>
-    /// <param name="width">The number of characters horizontally</param>
-    /// <param name="height">The number of characters vertically</param>
+    /// <param name="dimensions">The dimensions as in number of characters</param>
     /// <param name="backgroundColor">The color between the characters</param>
     /// <param name="inactivePixelColor">The color used for pixels that are not illuminated</param>
     /// <param name="activePixelColor">The color used for pixels that are illuminated</param>
-    public DotMatrixCanvas(int width, int height, TColor backgroundColor, TColor inactivePixelColor,
+    public DotMatrixCanvas(DotMatrixDimensions dimensions, TColor backgroundColor, TColor inactivePixelColor,
         TColor activePixelColor)
     {
-        if (width < 1 || height < 1)
-            throw new ArgumentOutOfRangeException(nameof(width), "At least on row and column is required.");
-        var (pixelWidth, pixelHeight) = PixelsForCharacterDimensions(width, height);
+        if (dimensions.Width < 1 || dimensions.Height < 1)
+            throw new ArgumentOutOfRangeException(
+                dimensions.Width < 1 ? nameof(dimensions.Width) : nameof(dimensions.Height),
+                "At least on row and column is required.");
+        var (pixelWidth, pixelHeight) = PixelsForCharacterDimensions(dimensions);
         Canvas = new Image<TColor>(pixelWidth, pixelHeight, backgroundColor);
-        Width = width;
-        Height = height;
+        Width = dimensions.Width;
+        Height = dimensions.Height;
         InactivePixelColor = inactivePixelColor;
         ActivePixelColor = activePixelColor;
-        Characters = new DotMatrixCharacter?[height, width];
-        WriteCharacters();
+        Characters = new DotMatrixCharacter?[dimensions.Height, dimensions.Width];
+        // WriteCharacters();
     }
 
     private static (int pixelWidth, int pixelHeight) PixelsForCharacterPosition(int width, int height)
@@ -64,7 +65,7 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
         return (pixelWidth, pixelHeight);
     }
 
-    private static (int pixelWidth, int pixelHeight) PixelsForCharacterDimensions(int width, int height)
+    private static (int pixelWidth, int pixelHeight) PixelsForCharacterDimensions(DotMatrixDimensions dimensions)
     {
         static int PixelForCharacters(int characters, int dotMatrixPixel, int gapPixel) =>
             (dotMatrixPixel /* dotMatrixPixel dot matrix pixels per character */ *
@@ -72,8 +73,8 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
              (dotMatrixPixel - 1) * GapBetweenDotMatrixPixels +
              gapPixel /* gapPixel pixels space between characters */) * characters - gapPixel /* Ignore last gap */;
 
-        var pixelWidth = PixelForCharacters(width, DotMatrixPixelsPerCharacterHorizontal, GapPixelsHorizontal);
-        var pixelHeight = PixelForCharacters(height, DotMatrixPixelsPerCharacterVertical, GapPixelsVertical);
+        var pixelWidth = PixelForCharacters(dimensions.Width, DotMatrixPixelsPerCharacterHorizontal, GapPixelsHorizontal);
+        var pixelHeight = PixelForCharacters(dimensions.Height, DotMatrixPixelsPerCharacterVertical, GapPixelsVertical);
         return (pixelWidth, pixelHeight);
     }
 
@@ -99,10 +100,11 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
         // return Convert.ToBase64String(stream.ToArray());
     }
 
-    private void WriteCharacters()
+    private void WriteCharacters(Stopwatch? sw = null)
     {
         for (var width = 0; width < Width; width++)
         {
+            if (sw is not null) Console.WriteLine($"1: {width}: {sw.ElapsedMilliseconds}");
             for (var height = 0; height < Height; height++)
             {
                 var character = Characters[height, width];
@@ -140,7 +142,7 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
         }
     }
 
-    public void WriteText(List<List<DotMatrixCharacter>> text)
+    public void WriteText(List<List<DotMatrixCharacter>> text, Stopwatch? sw = null)
     {
         if (text.Count > Height || !text.TrueForAll(line => line.Count <= Width))
         {
@@ -155,6 +157,24 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
                 Characters[lineIndex, columnIndex] = text[lineIndex][columnIndex];
             }
         }
-        WriteCharacters();
+        WriteCharacters(sw);
+    }
+
+    public void WriteText(string text, string? lineBreak = null, Stopwatch? sw = null)
+    {
+        lineBreak ??= Environment.NewLine;
+        var dotMatrixCharacterText = text.Split(lineBreak).Select(line =>
+            line.Select(character =>
+            {
+                if (!DotMatrixCharacter.DotMatrixCharacters.TryGetValue(character, out var dmiChar))
+                {
+                    Console.Error.WriteLine($"Couldn't find `{character}` ({(int)character}).");
+                    return DotMatrixCharacter.EmptyPixel;
+                }
+
+                return dmiChar;
+                // return DotMatrixCharacter.DotMatrixCharacters[character];
+            }).ToList()).ToList();
+        WriteText(dotMatrixCharacterText, sw);
     }
 }
