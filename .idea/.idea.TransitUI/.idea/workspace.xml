@@ -14,25 +14,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixDimensions.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Animator/Animator.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Animator/Animator.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCanvas.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCanvas.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCharacter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixCharacter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixDisplay.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixDisplay.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeDataCrawler/RealTimeDataCrawler.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeDataCrawler/RealTimeDataCrawler.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeDataCrawler/Vip/Crawler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeDataCrawler/Vip/Crawler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeModels/RealTimeModels.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeModels/RealTimeModels.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeToDotMatrix/Vip/RealTimeToDotMatrix.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Controllers/VipController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitUI.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TransitUI.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWeb/TransitWeb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWeb/TransitWeb.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,29 +50,35 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="23QZ64dsW8BQVl8HmBHZNIOZ1Y2" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/blazor&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "feature/blazor",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;/home/clemens/.config/JetBrains/Rider2023.1/resharper-host/DecompilerCache&quot;,
-      &quot;/home/clemens/.config/JetBrains/Rider2023.1/resharper-host/SourcesCache&quot;,
-      &quot;/home/clemens/.local/share/Symbols/src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/home/clemens/.config/JetBrains/Rider2023.2/resharper-host/DecompilerCache",
+      "/home/clemens/.config/JetBrains/Rider2023.2/resharper-host/SourcesCache",
+      "/home/clemens/.local/share/Symbols/src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.TransitWebViewer">
     <configuration name="Api + Web" type="CompoundRunConfigurationType">
       <toRun name="TransitApi" type="LaunchSettings" />
@@ -271,6 +260,8 @@
       <workItem from="1680714152324" duration="13000" />
       <workItem from="1683569511461" duration="426000" />
       <workItem from="1692893509983" duration="16987000" />
+      <workItem from="1693323431955" duration="9441000" />
+      <workItem from="1693470136455" duration="733000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
