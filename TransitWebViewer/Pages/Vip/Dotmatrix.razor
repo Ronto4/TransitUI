@@ -44,8 +44,10 @@
 
 @code
 {
-    const string RequestUrl = @"https://localhost:7020/api/vip/%STOP_ID%/json";
-    const string ApiUrl = @"https://localhost:7020/api/vip/%STOP_ID%/dotmatrix/%PAGE_ID%";
+    const string BaseRequestUrl = @"%HOST%api/vip/%STOP_ID%/json";
+    string RequestUrl => BaseRequestUrl.Replace("%HOST%", NavigationManager.BaseUri);
+    const string BaseApiUrl = @"%HOST%api/vip/%STOP_ID%/dotmatrix/%PAGE_ID%";
+    string ApiUrl => BaseApiUrl.Replace("%HOST%", NavigationManager.BaseUri);
     static string ImageSource { get; set; } = "";
 
     private Timer? Timer { get; set; } = null;
@@ -153,8 +155,31 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        Timer = new Timer(_ => Task.Run(PageStep), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+        StartPageStepping();
         Task.Run(StopStep);
+    }
+
+    private void StartPageStepping()
+    {
+        Timer = new Timer(_ => Task.Run(PageStep), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+    }
+
+    private void UpdateStopStepping(ChangeEventArgs e)
+    {
+        if (e.Value is not bool stopStepping)
+        {
+            Console.Error.WriteLine($"Invalid call to {nameof(UpdateStopStepping)} with {e.Value}.");
+            return;
+        }
+
+        if (stopStepping)
+        {
+            Timer?.Dispose();
+        }
+        else
+        {
+            StartPageStepping();
+        }
     }
 
     public void Dispose()
@@ -176,13 +201,19 @@
                 <span class="input-group-text">Haltestellenname</span>
                 <input type="text" class="form-control" value="@NextStopName" disabled />
             </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" @oninput="UpdateStopStepping" id="flexCheckDefault">
+              <label class="form-check-label" for="flexCheckDefault">
+                Update anhalten
+              </label>
+            </div>
             <div class="input-group mb-3">
                 <button type="submit" class="btn btn-primary" @onclick="() => UpdateStop(new CancellationToken())" disabled="@(!SubmissionPossible)">Einstellungen anwenden</button>
             </div>
 
         </div>
 
-        <div class="col">
+        <div class="col-sm-4">
 
             <img src="@ImageSource" alt="Abfahrtstafel" class="img-fluid" />
 

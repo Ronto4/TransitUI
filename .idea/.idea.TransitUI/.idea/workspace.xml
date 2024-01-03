@@ -50,9 +50,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
   <component name="ProjectId" id="23QZ64dsW8BQVl8HmBHZNIOZ1Y2" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -60,15 +60,12 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "feature/blazor",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -260,8 +257,7 @@
       <workItem from="1680714152324" duration="13000" />
       <workItem from="1683569511461" duration="426000" />
       <workItem from="1692893509983" duration="16987000" />
-      <workItem from="1693323431955" duration="9441000" />
-      <workItem from="1693470136455" duration="733000" />
+      <workItem from="1694036287183" duration="909000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
