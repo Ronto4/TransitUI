@@ -1,3 +1,4 @@
+using DotMatrixDisplay;
 using RealTimeModels.Vip;
 
 namespace RealTimeToDotMatrix.Vip;
@@ -163,15 +164,22 @@ public static class RealTimeToDotMatrix
 
         return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), ((uint)targetCols, MaximalRows));
     }
-    public static Stream Convert(Station station)
+
+    public static async Task<Stream> Convert(Station station, CancellationToken cancellationToken)
     {
         var (messages, dimensions) = GenerateTarget(station);
-        var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
-        // DotMatrixPicture picture = new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background, RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions);
-        Stream gif = Animator.GifCreator.ConvertImageStreamsToGifStream(pictures.Select(picture => picture.GetPicture()));
+        var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background,
+            RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
+        var gif = await Animator.GifCreator.ConvertImageStreamsToGifStream(
+            pictures.Select(picture => picture.GetPicture()), cancellationToken);
         return gif;
-        
-        // return pictures.ElementAt(0).GetPicture();
-        //return string.Join($"{Environment.NewLine}NEW_LINE{Environment.NewLine}", messages);
+    }
+
+    public static async Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)
+    {
+        var (messages, dimensions) = GenerateTarget(station);
+        return (messages.ToList(),
+            new DotMatrixDimensions
+                {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)});
     }
 }

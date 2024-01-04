@@ -8,9 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
-      <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
-      <ProjectReference Include="..\Animator\Animator.csproj" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     </ItemGroup>
 
 </Project>
