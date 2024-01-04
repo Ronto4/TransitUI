@@ -14,22 +14,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Animator/Animator.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Animator/Animator.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixDisplay.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DotMatrixDisplay/DotMatrixDisplay.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeDataCrawler/RealTimeDataCrawler.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeDataCrawler/RealTimeDataCrawler.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeModels/RealTimeModels.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeModels/RealTimeModels.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/RealTimeToDotMatrix/RealTimeToDotMatrix.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test/Test.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Test/Test.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitApi/TransitApi.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWeb/TransitWeb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWeb/TransitWeb.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Dotmatrix.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Vip.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/Vip.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Shared/NavMenu.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -288,7 +274,7 @@
       <workItem from="1704237503315" duration="7541000" />
       <workItem from="1704282902521" duration="43000" />
       <workItem from="1704282964659" duration="3546000" />
-      <workItem from="1704299681712" duration="11691000" />
+      <workItem from="1704299681712" duration="17242000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>

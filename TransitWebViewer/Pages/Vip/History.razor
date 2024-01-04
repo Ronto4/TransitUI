@@ -362,6 +362,86 @@ Buslinien:
         Hebbelstr.
       </td>
       <td>Platz der Einheit/West</td>
+      <td>ViP</td>
+    </tr>
+    <tr>
+      <th scope=""row"">604</th>
+      <td>S Hauptbahnhof</td>
+      <td>
+        Platz der Einheit/West –
+        Campus Jungfernsee –
+        Theodor-Fontane-Str. –
+        Waldsiedlung Groß Glienicke –
+        Seeburg –
+        Dallgow-Döberitz, Havelpark
+      </td>
+      <td>Falkensee, Bahnhof/Süd</td>
+      <td>Havelbus</td>
+    </tr>
+    <tr>
+      <th scope=""row"">605</th>
+      <td>S Hauptbahnhof</td>
+      <td>
+        Platz der Einheit/West –
+        Luisenplatz-Süd/Park Sanssouci –
+        Bhf Charlottenhof –
+        Kastanienallee/Zeppelinstr. (nur Ri. S Hauptbahnhof) –
+        Schloss Charlottenhof –
+        Bhf Park Sanssouci –
+        Eichenring –
+        Bhf Golm
+      </td>
+      <td>Science Park West</td>
+      <td>ViP</td>
+    </tr>
+    <tr>
+      <th scope=""row"">607</th>
+      <td>S Hauptbahnhof</td>
+      <td>
+        Caputh, Bhf Schwielowsee –
+        Ferch, Mittelbusch –
+        Petzow, Resort Schielowsee –
+        Werder, Post
+      </td>
+      <td>Werder, Bahnhof</td>
+      <td>regiobus PM</td>
+    </tr>
+    <tr>
+      <th scope=""row"">608</th>
+      <td>S Hauptbahnhof</td>
+      <td>
+        Wilhelmshorst –
+        Michendorf –
+        Stücken
+      </td>
+      <td>Dobbrikow, Am Anger</td>
+      <td>regiobus PM</td>
+    </tr>
+    <tr>
+      <th scope=""row"">609</th>
+      <td>Campus Jungfernsee</td>
+      <td>
+        Am Upstall –
+        Satzkorn –
+        Kirche Kartzow –
+        Bhf Marquardt –
+        Schule Marquardt –
+        Kirche Uetz
+      </td>
+      <td>Paaren</td>
+      <td>ViP</td>
+    </tr>
+    <tr>
+      <th scope=""row"">610</th>
+      <td>Bhf Charlottenhof</td>
+      <td>
+        Kastanienallee/Zeppelinstr. (nur Ri. Bhf Charlottenhof) –
+        Schloss Charlottenhof –
+        Bhf Park Sanssouci –
+        Kuhfort –
+        Geltow, Kaserne
+      </td>
+      <td>Wildpark-West, Marktplatz</td>
       <td>regiobus PM</td>
     </tr>
   </tbody>
@@ -388,19 +468,37 @@ Buslinien:
         new FrequencyEntry("580", "S\u00a0Hauptbahnhof", "Bad Belzig, Am Betriebshof", [Frequency.None, 60, 60, 60, 60, Frequency.SingleTrips, Frequency.None, 60, 60, 60, 60, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
         new FrequencyEntry("580", "S\u00a0Hauptbahnhof", "Golzow, Anger", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
         new FrequencyEntry("601", "S\u00a0Hauptbahnhof", "Teltow, Sigridshorst", [60, 20, 60, 20, 20, 60, 60, 20, 60, 20, 20, 60, Frequency.None, 60, 60, 60, 60, 60]),
-        new FrequencyEntry("601", "S\u00a0Hauptbahnhof", "Teltow, Bahnhof", [new[]{20, 40}, Frequency.None, new[]{20, 40}, Frequency.None, Frequency.None, Frequency.None, new[]{20, 40}, Frequency.None, new[]{20, 40}, Frequency.None, Frequency.None, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("601", "S\u00a0Hauptbahnhof", "Teltow, Bahnhof", [new[] { 20, 40 }, Frequency.None, new[] { 20, 40 }, Frequency.None, Frequency.None, Frequency.None, new[] { 20, 40 }, Frequency.None, new[] { 20, 40 }, Frequency.None, Frequency.None, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
         new FrequencyEntry("602", "S\u00a0Babelsberg/Lutherplatz", "Teltow, Warthestr.", [Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]) { Unidirectional = true },
-        new FrequencyEntry("603", "Höhenstr.", "Platz der Einheit/West", [Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 20, 60, Frequency.SingleTrips, 20, 60])
+        new FrequencyEntry("603", "Höhenstr.", "Platz der Einheit/West", [Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 20, 60, Frequency.SingleTrips, 20, 60]),
+        new FrequencyEntry("604", "S\u00a0Hauptbahnhof", "Falkensee, Bahnhof/Süd", [Frequency.None, 60, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, 60, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("604", "Campus Jungfernsee", "Falkensee, Bahnhof/Süd", [Frequency.SingleTrips, Frequency.None, 60, Frequency.None, 60, 60, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, 60, 60, Frequency.None, 60, 60, Frequency.None, 60, 60]),
+        new FrequencyEntry("605", "S\u00a0Hauptbahnhof", "Science Park West", [20, 20, 20, 20, 20, Frequency.None, 20, 20, 20, 20, 20, Frequency.None, new[] { 20, 40 }, 20, Frequency.None, new[] { 20, 40 }, 20, Frequency.None]),
+        new FrequencyEntry("605", "Luisenplatz-Süd/Park Sanssouci", "Science Park West", [Frequency.None, 20, 20, 20, Frequency.None, Frequency.None, Frequency.None, 20, 20, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("605", "Bhf Charlottenhof", "Science Park West", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20]),
+        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Werder, Bahnhof", [Frequency.None, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
+        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Petzow, Resort Schwielowsee", [Frequency.None, Frequency.SingleTrips, 120, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, 120, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, ]),
+        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Ferch, Mittelbusch", [Frequency.SingleTrips, Frequency.SingleTrips, 120, 20..60, new[]{20,40}, 60, Frequency.SingleTrips, Frequency.SingleTrips, 120, 20..60, new[]{20,40}, 60, 120, Frequency.None, 60, 120, Frequency.None, 60]),
+        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Caputh, Wendeplatz", [Frequency.None, Frequency.SingleTrips, 60, Frequency.SingleTrips, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Dobbrikow, Am Anger", [Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Stücken, Dorf", [Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 60, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 60, Frequency.None, 120, Frequency.SingleTrips, Frequency.None, 120, Frequency.SingleTrips]),
+        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Michendorf, West", [Frequency.SingleTrips, Frequency.SingleTrips, Frequency.SingleTrips, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, 120, 60, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
+        new FrequencyEntry("610", "Bhf Charlottenhof", "Wildpark-West, Marktplatz", [Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
+        new FrequencyEntry("610", "Schloss Charlottenhof", "Wildpark-West, Marktplatz", [Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 60, 60, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 60, 60, Frequency.None, 120, 120, Frequency.None, Frequency.None, Frequency.None])
       ], null,
       @"Anmerkungen:
 <ul class=""list-group"">
-  <li class=""list-group-item"">Es handelt sich hierbei um einen im Trambereich ausgedünnten Fahrplan aufgrund von Personalmangel. So verkehrt die 92 normalerweise alle 20 Minuten zwischen Kirschallee und Marie-Juchacz-Str., bis Bisamkiez verstäkt auf einen 10-Minuten-Takt. Die Tram 98 verkehrt sonst in der HVZ alle 20 Minuten, und die 99 tagsüber bis S Hauptbahnhof.</li>
+  <li class=""list-group-item"">Es handelt sich hierbei um einen vor allem im Trambereich ausgedünnten Fahrplan aufgrund von Personalmangel. So verkehrt die 92 normalerweise alle 20 Minuten zwischen Kirschallee und Marie-Juchacz-Str., bis Bisamkiez verstäkt auf einen 10-Minuten-Takt. Die Tram 98 verkehrt sonst in der HVZ alle 20 Minuten, und die 99 tagsüber bis S Hauptbahnhof.</li>
+  <li class=""list-group-item"">Allgemein gilt für alle Regionalbuslinien (betrieben von regiobus PM, Havelbus, oder VTF), dass die Taktangaben oft nicht so präzise wie bei Stadtbussen (betrieben von ViP) sind, da sie oft komplizierte Taktungen mit vielen Einzelfahrten aufweisen.</li>
   <li class=""list-group-item"">Die Buslinie X5 fährt ausschließlich zu den Vorlesungszeiten der Universität Potsdam.</li>
   <li class=""list-group-item"">Die Buslinie X15 fährt ausschließlich im Sommer/Frühherbst.</li>
   <li class=""list-group-item"">Die Buslinie X43 fährt vormittags Richtung Potsdam bereits ab Finkenstr. und nachmittags von Potsdam kommend weiter bis Finkenstr. Es gibt nie mehr als eine Fahrt pro Stunde.</li>
   <li class=""list-group-item"">Die Buslinie 580 wird an Schultagen zeitweise abschnittsweise zwischen Potsdam, Lehnin und Golzow auf einen 30-Minuten-Takt verdichtet.</li>
   <li class=""list-group-item"">Die Buslinie 602 verkehrt ausschließlich in Richtung Teltow mit zwei Fahrten um 5:47 Uhr und 6:22 Uhr ab Babelsberg.</li>
   <li class=""list-group-item"">Die Buslinie 603 verkehrt abends von Platz der Einheit/West weiter bis Platz der Einheit/Bildungsforum und fährt von dort aus weiter als N16 bis Glienicker Brücke (bzw. umgekehrt).</li>
+  <li class=""list-group-item"">Einzelne Fahrten der Buslinie 609 in der morgendlichen HVZ verkehren ab Campus Jungfernsee weiter über Am Pfingstberg und Nauener Tor nach Platz der Einheit/West bzw. S Hauptbahnhof.</li>
+  <li class=""list-group-item"">Alle Fahrten der Buslinie 610 von Wildpark-West, Marktplatz bis Schloss Charlottenhof verkehren weiter bis Bhf Charlottenhof, nicht aber umgekehrt.</li>
+  <li class=""list-group-item"">Mit der Liniennummer 610 werden ebenfalls einzelne Fahrten Montag bis Freitag zwischen Wildpark-West, Marktplatz und Caputh-Geltow Bhf angeboten.</li>
 </ul>
 "), null)
   ];
