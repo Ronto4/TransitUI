@@ -1,5 +1,7 @@
 @page "/vip/history"
 @using System.Text
+@using Timetables
+@using Timetables.Models
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -505,7 +507,35 @@ Buslinien:
 
 }
 
-&nbsp;
+@foreach (var (route, frequencies) in Timetables.Vip.Lines[0].GetFrequencies([
+            (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+            (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+            (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+            (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+            (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+            (new TimeOnly(20, 0), new TimeOnly(1, 0))
+          ], DaysOfOperation.School))
+{
+  <ul class="list-group">
+    <li class="list-group-item">@route; @string.Join(", ", frequencies)</li>
+  </ul>
+}
+  <hr/>
+
+@foreach (var (route, frequencies) in Timetables.Vip.Lines[0].GetFrequencies([
+            (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+            (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+            (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+            (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+            (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+            (new TimeOnly(20, 0), new TimeOnly(1, 0))
+          ], DaysOfOperation.Holiday))
+{
+  <ul class="list-group">
+    <li class="list-group-item">@route; @string.Join(", ", frequencies)</li>
+  </ul>
+}
+  <hr/>
 
 <table class="table">
   <thead>
@@ -545,128 +575,3 @@ Buslinien:
     }
   </tbody>
 </table>
-
-@* <div class="container-fluid"> *@
-@*     <div class="container"> *@
-@*       <div class="row"> *@
-@*         <div class="col"> *@
-@*           Zum <b>1. Januar 2024</b> wurde diese Liniengeschichte gestartet. *@
-@*           Daher wird hier zunächst der Stand zu diesem Datum vorgestellt. *@
-@*           Anschließend werden alle Änderungen vermerkt. *@
-@*           Baustellenbedingte Änderungen werden nur vereinzelt dargestellt. *@
-@*           <br/> *@
-@*           In dieser Spalte wird die Änderung textuell beschrieben. *@
-@*         </div> *@
-@*         <div class="col"> *@
-@*           In dieser Spalte werden die Taktungen der einzelnen Linien angegeben. *@
-@*           Dabei entspricht jede Zeile einer einzelnen Menge an Fahrten. *@
-@*           Wird also zum Beispiel für eine Linie zwischen Kirschallee und S Hauptbahnhof *@
-@*           sowie zwischen Kirschallee und Bisamkiez jeweils ein 20-Minuten-Takt angegeben, *@
-@*           so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof *@
-@*           und eine zwischen S Hauptbahnhof und Bisamkiez. *@
-@*         </div> *@
-@*       </div> *@
-@*        *@
-@*       <div class="row"> *@
-@*         <div class="col"> *@
-@*           Stand: <b>1. Januar 2024</b> *@
-@*           <br/> *@
-           @* Linienverläufe: *@
-           @* <table class="table"> *@
-           @*   <thead> *@
-           @*     <tr> *@
-           @*       <th scope="col">Linie</th> *@
-           @*       <th scope="col">Start</th> *@
-           @*       <th scope="col">ausgewählte Zwischenhalte</th> *@
-           @*       <th scope="col">Ende</th> *@
-           @*     </tr> *@
-           @*   </thead> *@
-           @*   <tbody> *@
-           @*     <tr> *@
-           @*       <th scope="row">91</th> *@
-           @*       <td>Bhf Pirschheide</td> *@
-           @*       <td> *@
-           @*         Kastanienallee/Zeppelinstr. &ndash; *@
-           @*         Schloss Charlottenhof (nur Ri. Bhf Pirschheide) &ndash; *@
-           @*         Bhf Charlottenhof &ndash; *@
-           @*         Luisenplatz-Süd/Park Sanssouci &ndash; *@
-           @*         Platz der Einheit/West &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Friedrich-Wolf-Str. *@
-           @*       </td> *@
-           @*       <td>Bhf Rehbrücke</td> *@
-           @*     </tr> *@
-           @*     <tr> *@
-           @*       <th scope="row">92</th> *@
-           @*       <td>Bornstedt, Kirschallee</td> *@
-           @*       <td> *@
-           @*         Campus Fachhochschule &ndash; *@
-           @*         Nauener Tor &ndash; *@
-           @*         Platz der Einheit/West &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Magnus-Zeller-Platz &ndash; *@
-           @*         Johannes-Kepler-Platz &ndash; *@
-           @*         Hans-Albers-Str. *@
-           @*       </td> *@
-           @*       <td>Kirchsteigfeld, Marie-Juchacz-Str.</td> *@
-           @*     </tr> *@
-           @*     <tr> *@
-           @*       <th scope="row">93</th> *@
-           @*       <td>Glienicker Brücke</td> *@
-           @*       <td> *@
-           @*         Holzmarktstr. &ndash; *@
-           @*         Platz der Einheit/Bildungsforum &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Friedrich-Wolf-Str. *@
-           @*       </td> *@
-           @*       <td>Bhf Rehbrücke</td> *@
-           @*     </tr> *@
-           @*   </tbody> *@
-           @* </table> *@
-         @* </div> *@
-@*         <div class="col"> *@
-           @* <table class="table"> *@
-           @*   <thead> *@
-           @*     <tr> *@
-           @*       <th scope="col">Linie</th> *@
-           @*       <th scope="col">Abschnitt</th> *@
-           @*       <th scope="col">Mo&ndash;Fr 4&ndash;6 Uhr</th> *@
-           @*       <th scope="col">6&ndash;9 Uhr</th> *@
-           @*       <th scope="col">9&ndash;13 Uhr</th> *@
-           @*       <th scope="col">13&ndash;18 Uhr</th> *@
-           @*       <th scope="col">18&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*       <th scope="col">Sa: 4&ndash;7 Uhr</th> *@
-           @*       <th scope="col">7&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*       <th scope="col">So: 6&ndash;10 Uhr</th> *@
-           @*       <th scope="col">10&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*     </tr> *@
-           @*   </thead> *@
-           @*   <tbody> *@
-           @*     <tr> *@
-           @*       <th scope="row">91</th> *@
-           @*       <td>Bhf Pirschheide &ndash; Bhf Rehbrücke</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*     </tr> *@
-           @*   </tbody> *@
-           @* </table> *@
-@*         </div> *@
-@*       </div> *@
-@*     </div> *@
-@* </div> *@

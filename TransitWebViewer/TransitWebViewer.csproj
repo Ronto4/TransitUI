@@ -17,6 +17,7 @@
       <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
       <ProjectReference Include="..\RealTimeDataCrawler\RealTimeDataCrawler.csproj" />
       <ProjectReference Include="..\RealTimeToDotMatrix\RealTimeToDotMatrix.csproj" />
+      <ProjectReference Include="..\Timetables\Timetables.csproj" />
     </ItemGroup>
 
 </Project>

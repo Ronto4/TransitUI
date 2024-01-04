@@ -14,8 +14,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Timetables/Models/DaysOfOperation.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Models/Line.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Models/Stop.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Models/TransportationType.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitUI.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TransitUI.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +38,53 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitToolBoxStore">
+    <option name="branchesCleanupHistory">
+      <BranchesCleanupHistory>
+        <option name="history">
+          <list>
+            <BranchCleanupEntry>
+              <option name="deletions">
+                <list>
+                  <BranchDeletion>
+                    <option name="hash" value="51f28b9bc184b422e12fa432da31bc5adcec730d" />
+                    <option name="name" value="feature/blazor" />
+                  </BranchDeletion>
+                </list>
+              </option>
+              <option name="timestamp" value="1704375174245" />
+            </BranchCleanupEntry>
+          </list>
+        </option>
+      </BranchesCleanupHistory>
+    </option>
     <option name="projectConfigVersion" value="5" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="feature/4-line-history" />
+                    <option name="lastUsedInstant" value="1704369856" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1704369787" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="feature/blazor" />
+                    <option name="lastUsedInstant" value="1704369786" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
   </component>
   <component name="GithubProjectSettings">
     <option name="branchProtectionPatterns">
@@ -68,27 +121,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/blazor&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.TransitWebViewer.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "feature/4-line-history",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache&quot;,
-      &quot;/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache&quot;,
-      &quot;/home/clemens/.local/share/Symbols/src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache",
+      "/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache",
+      "/home/clemens/.local/share/Symbols/src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.TransitWebViewer">
     <configuration name="Api + Web" type="CompoundRunConfigurationType">
       <toRun name="TransitApi" type="LaunchSettings" />
@@ -275,6 +329,8 @@
       <workItem from="1704282902521" duration="43000" />
       <workItem from="1704282964659" duration="3546000" />
       <workItem from="1704299681712" duration="17242000" />
+      <workItem from="1704369336978" duration="14815000" />
+      <workItem from="1704391947619" duration="3255000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
@@ -346,5 +402,24 @@
     <MESSAGE value="Fix missing directory" />
     <MESSAGE value="Remove set -e from startup.sh" />
     <option name="LAST_COMMIT_MESSAGE" value="Remove set -e from startup.sh" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Timetables/Models/Line.cs</url>
+          <line>139</line>
+          <properties documentPath="$PROJECT_DIR$/Timetables/Models/Line.cs" initialLine="137" containingFunctionPresentation="Lambda expression inside Method 'GetFrequencies'">
+            <startOffsets>
+              <option value="5532" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5565" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
