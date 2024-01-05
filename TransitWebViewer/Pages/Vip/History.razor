@@ -2,6 +2,7 @@
 @using System.Text
 @using Timetables
 @using Timetables.Models
+@using Timetables.Vip
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -22,6 +23,33 @@
 </style>
 
 @code {
+
+  private const string NDash = "–";
+  private const string NDashSpaces = $" {NDash} ";
+  private const string RightArrow = ">";
+  private const string RightArrowSpaces = $" {RightArrow} ";
+
+  private static bool OnlyShowMainRoutes { get; set; } = false;
+  
+  private void UpdateOnlyShowMainRoutes(ChangeEventArgs e)
+  {
+    if (e.Value is not bool onlyShowMainRoutes)
+    {
+      Console.Error.WriteLine($"Invalid call to {nameof(UpdateOnlyShowMainRoutes)} with {e.Value}.");
+      return;
+    }
+
+    OnlyShowMainRoutes = onlyShowMainRoutes;
+
+    // if (onlyShowMainRoutes)
+    // {
+    //   Timer?.Dispose();
+    // }
+    // else
+    // {
+    //   StartPageStepping();
+    // }
+  }
 
   private readonly struct Frequency
   {
@@ -507,35 +535,336 @@ Buslinien:
 
 }
 
-@foreach (var (route, frequencies) in Timetables.Vip.Lines[0].GetFrequencies([
-            (new TimeOnly(4, 0), new TimeOnly(6, 0)),
-            (new TimeOnly(6, 0), new TimeOnly(9, 0)),
-            (new TimeOnly(9, 0), new TimeOnly(13, 0)),
-            (new TimeOnly(13, 0), new TimeOnly(18, 0)),
-            (new TimeOnly(18, 0), new TimeOnly(20, 0)),
-            (new TimeOnly(20, 0), new TimeOnly(1, 0))
-          ], DaysOfOperation.School))
-{
-  <ul class="list-group">
-    <li class="list-group-item">@route; @string.Join(", ", frequencies)</li>
-  </ul>
-}
-  <hr/>
+@* @foreach (var (route, frequencies) in Timetables.Vip.VipHistory.History[0].Lines[0].GetFrequencies([ *@
+@*             (new TimeOnly(4, 0), new TimeOnly(6, 0)), *@
+@*             (new TimeOnly(6, 0), new TimeOnly(9, 0)), *@
+@*             (new TimeOnly(9, 0), new TimeOnly(13, 0)), *@
+@*             (new TimeOnly(13, 0), new TimeOnly(18, 0)), *@
+@*             (new TimeOnly(18, 0), new TimeOnly(20, 0)), *@
+@*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+@*           ], DaysOfOperation.School)) *@
+@* { *@
+@*   <ul class="list-group"> *@
+@*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+@*   </ul> *@
+@* } *@
+@*   <hr/> *@
+@* *@
+@* @foreach (var (route, frequencies) in Timetables.Vip.VipHistory.History[0].Lines[0].GetFrequencies([ *@
+@*             (new TimeOnly(4, 0), new TimeOnly(6, 0)), *@
+@*             (new TimeOnly(6, 0), new TimeOnly(9, 0)), *@
+@*             (new TimeOnly(9, 0), new TimeOnly(13, 0)), *@
+@*             (new TimeOnly(13, 0), new TimeOnly(18, 0)), *@
+@*             (new TimeOnly(18, 0), new TimeOnly(20, 0)), *@
+@*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+@*           ], DaysOfOperation.Holiday)) *@
+@* { *@
+@*   <ul class="list-group"> *@
+@*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+@*   </ul> *@
+@* } *@
+@*   <hr/> *@
+@* *@
+@* @foreach (var (route, frequencies) in Timetables.Vip.VipHistory.History[0].Lines[0].GetFrequencies([ *@
+@*             (new TimeOnly(4, 0), new TimeOnly(7, 0)), *@
+@*             (new TimeOnly(7, 0), new TimeOnly(20, 0)), *@
+@*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+@*           ], DaysOfOperation.Saturday)) *@
+@* { *@
+@*   <ul class="list-group"> *@
+@*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+@*   </ul> *@
+@* } *@
+@*   <hr/> *@
+@* *@
+@* @foreach (var (route, frequencies) in Timetables.Vip.VipHistory.History[0].Lines[0].GetFrequencies([ *@
+@*             (new TimeOnly(6, 0), new TimeOnly(10, 0)), *@
+@*             (new TimeOnly(10, 0), new TimeOnly(20, 0)), *@
+@*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+@*           ], DaysOfOperation.Sunday)) *@
+@* { *@
+@*   <ul class="list-group"> *@
+@*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+@*   </ul> *@
+@* } *@
+@*   <hr/> *@
 
-@foreach (var (route, frequencies) in Timetables.Vip.Lines[0].GetFrequencies([
-            (new TimeOnly(4, 0), new TimeOnly(6, 0)),
-            (new TimeOnly(6, 0), new TimeOnly(9, 0)),
-            (new TimeOnly(9, 0), new TimeOnly(13, 0)),
-            (new TimeOnly(13, 0), new TimeOnly(18, 0)),
-            (new TimeOnly(18, 0), new TimeOnly(20, 0)),
-            (new TimeOnly(20, 0), new TimeOnly(1, 0))
-          ], DaysOfOperation.Holiday))
-{
-  <ul class="list-group">
-    <li class="list-group-item">@route; @string.Join(", ", frequencies)</li>
-  </ul>
-}
-  <hr/>
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col" class="col-1">
+      Datum
+    </th>
+    <th scope="col" class="col-3">
+      Zum 2. Januar 2024 wurde diese Liniengeschichte gestartet.
+      Daher wird hier zunächst der Stand zu diesem Datum vorgestellt.
+      Anschließend werden alle Änderungen vermerkt.
+      Baustellenbedingte Änderungen werden nur vereinzelt dargestellt.
+      <br/>
+      In dieser Spalte wird die Änderung textuell beschrieben und die Linienverläufe werden dargestellt.
+    </th>
+    <th scope="col" class="col-8">
+      In dieser Spalte werden die Taktungen der einzelnen Linien angegeben.
+      Dabei entspricht jede Zeile einer einzelnen Menge an Fahrten.
+      Wird also zum Beispiel für eine Linie zwischen Kirschallee und S Hauptbahnhof
+      sowie zwischen Kirschallee und Bisamkiez jeweils ein 20-Minuten-Takt angegeben,
+      so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof
+      und eine zwischen S Hauptbahnhof und Bisamkiez.
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyShowMainRoutes" id="flexCheckDefault">
+        <label class="form-check-label" for="flexCheckDefault">
+          Zeige nur Hauptrouten
+        </label>
+      </div>
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  @foreach (var entry in VipHistory.History)
+  {
+    <tr>
+      <th scope="row">@entry.EffectiveDate.ToString("D")</th>
+      <td>
+        <table class="table table-striped table-hover">
+          <thead>
+          <tr>
+            <th scope="col">Linie</th>
+            <th scope="col">Start</th>
+            <th scope="col">Zwischenhalte</th>
+            <th scope="col">Ende</th>
+            @* <th scope="col">Betreiber</th> *@
+          </tr>
+          </thead>
+          <tbody>
+          @foreach (var line in entry.Lines)
+          {
+            @code {
+
+              private static List<Line.Route> DeduplicateRoutesStrict(IEnumerable<Line.Route> routes)
+              {
+                var result = new List<Line.Route>();
+                foreach (var route in routes)
+                {
+                  var reverse = result.Where(existingRoute => existingRoute.StrictlyIsReverse(route)).ToList();
+                  if (reverse.Count > 0)
+                  {
+                    // We expect only one to be the reverse
+                    reverse.Single().InterpretAsBidirectional = true;
+                    continue;
+                  }
+                  // Otherwise, add to result.
+                  result.Add(route);
+                }
+
+                return result;
+              }
+            }
+            @foreach (var overviewRoute in DeduplicateRoutesStrict(line.OverviewRoutes))
+            {
+              <tr>
+                <th scope="row">@line.Name</th>
+                <td>@overviewRoute.StopPositions.First().Stop.DisplayName</td>
+                <td>
+                  @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
+                  {
+                    @overviewRoute.StopPositions[i].Stop.DisplayName
+                    @if (i < overviewRoute.StopPositions.Length - 2)
+                    {
+                      @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                    }
+                  }
+                </td>
+                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName</td>
+                @* <td>ViP</td> *@
+              </tr>
+            }
+            @* <tr> *@
+            @*   <th scope="row">@line.Name</th> *@
+            @*   <td>@line.NotableStops.First().DisplayName</td> *@
+            @*   <td> *@
+            @*     @for (var i = 1; i < line.NotableStops.Length - 1; ++i) *@
+            @*     { *@
+            @*       @line.NotableStops[i].DisplayName *@
+            @*       @if (i < line.NotableStops.Length - 2) *@
+            @*       { *@
+            @*         @NDashSpaces *@
+            @*       } *@
+            @*     } *@
+            @*   </td> *@
+            @*   <td>@line.NotableStops.Last().DisplayName</td> *@
+            @*   $1$ <td>ViP</td> #1# *@
+            @* </tr> *@
+          }
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="table table-striped table-hover frequency-table">
+          <thead>
+          <tr>
+            <th rowspan="1" colspan="2" scope="col">Strecke</th>
+            <th rowspan="1" colspan="6" scope="col">Schultage</th>
+            <th rowspan="1" colspan="6" scope="col">Ferien</th>
+            <th rowspan="1" colspan="3" scope="col">Samstag</th>
+            <th rowspan="1" colspan="3" scope="col">Sonntag</th>
+          </tr>
+          <tr>
+            <th scope="col">Linie</th>
+            <th scope="col">Abschnitt</th>
+            <th scope="col">4–6 Uhr</th>
+            <th scope="col">6–9 Uhr</th>
+            <th scope="col">9–13 Uhr</th>
+            <th scope="col">13–18 Uhr</th>
+            <th scope="col">18–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">4–6 Uhr</th>
+            <th scope="col">6–9 Uhr</th>
+            <th scope="col">9–13 Uhr</th>
+            <th scope="col">13–18 Uhr</th>
+            <th scope="col">18–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">4–7 Uhr</th>
+            <th scope="col">7–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">6–10 Uhr</th>
+            <th scope="col">10–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+          </tr>
+          </thead>
+          <tbody>
+          @foreach (var line in entry.Lines)
+          {
+            @code {
+
+              private static Dictionary<Line.Route, List<string>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies)
+              {
+                var frequenciesList = frequencies.ToList();
+                for (var i = 0; i < frequenciesList.Count; ++i)
+                {
+                  // Reset to unidirectional.
+                  frequenciesList[i].Key.InterpretAsBidirectional = false;
+                  for (var j = i + 1; j < frequenciesList.Count; ++j)
+                  {
+                    if (!frequenciesList[i].Key.LooslyIsReverse(frequenciesList[j].Key)) continue;
+                    if (!frequenciesList[i].Value.SequenceEqual(frequenciesList[j].Value)) continue;
+                    // Check how this fails when multiple routes between the same stations exist.
+                    // j is a duplicate of i, remove & mark as bidirectional.
+                    frequenciesList.RemoveAt(j);
+                    frequenciesList[i].Key.InterpretAsBidirectional = true;
+                    // We assume only one duplicate, see also comment above.
+                    break;
+                  }
+                }
+
+                return new Dictionary<Line.Route, List<string>>(frequenciesList);
+              }
+              private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line)
+              {
+                var school = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                  (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                  (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                  (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                  (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.School);
+                var holiday = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                  (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                  (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                  (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                  (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Holiday);
+                var saturday = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(7, 0)),
+                  (new TimeOnly(7, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Saturday);
+                var sunday = line.GetFrequencies([
+                  (new TimeOnly(6, 0), new TimeOnly(10, 0)),
+                  (new TimeOnly(10, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Sunday);
+                foreach (var (route, frequencies) in holiday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+                foreach (var (route, frequencies) in saturday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+                foreach (var (route, frequencies) in sunday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+
+                return RemoveDuplicates(school);
+              }
+
+            }
+            @foreach (var (route, frequencies) in GetFrequencies(line)) {
+              @if (!OnlyShowMainRoutes || line.MainRoutes.Contains(route))
+              {
+                <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
+                  <td>@line.Name</td>
+                  <td>@route</td>
+                  @foreach (var frequency in frequencies)
+                  {
+                    <td>@frequency</td>
+                  }
+                </tr>
+              }
+            }
+
+            @* @foreach (var (route, frequencies) in line.GetFrequencies([ *@
+            @*             (new TimeOnly(4, 0), new TimeOnly(6, 0)), *@
+            @*             (new TimeOnly(6, 0), new TimeOnly(9, 0)), *@
+            @*             (new TimeOnly(9, 0), new TimeOnly(13, 0)), *@
+            @*             (new TimeOnly(13, 0), new TimeOnly(18, 0)), *@
+            @*             (new TimeOnly(18, 0), new TimeOnly(20, 0)), *@
+            @*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+            @*           ], DaysOfOperation.Holiday)) *@
+            @* { *@
+            @*   <ul class="list-group"> *@
+            @*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+            @*   </ul> *@
+            @* } *@
+            @* <hr/> *@
+            @* *@
+            @* @foreach (var (route, frequencies) in line.GetFrequencies([ *@
+            @*             (new TimeOnly(4, 0), new TimeOnly(7, 0)), *@
+            @*             (new TimeOnly(7, 0), new TimeOnly(20, 0)), *@
+            @*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+            @*           ], DaysOfOperation.Saturday)) *@
+            @* { *@
+            @*   <ul class="list-group"> *@
+            @*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+            @*   </ul> *@
+            @* } *@
+            @* <hr/> *@
+            @* *@
+            @* @foreach (var (route, frequencies) in line.GetFrequencies([ *@
+            @*             (new TimeOnly(6, 0), new TimeOnly(10, 0)), *@
+            @*             (new TimeOnly(10, 0), new TimeOnly(20, 0)), *@
+            @*             (new TimeOnly(20, 0), new TimeOnly(1, 0)) *@
+            @*           ], DaysOfOperation.Sunday)) *@
+            @* { *@
+            @*   <ul class="list-group"> *@
+            @*     <li class="list-group-item">@route; @string.Join(", ", frequencies)</li> *@
+            @*   </ul> *@
+            @* } *@
+            @* <hr/> *@
+          }
+          </tbody>
+        </table>
+        @* @dayFrequencies?.ToMarkupString() *@
+        @* @nightFrequencies?.ToMarkupString() *@
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>
 
 <table class="table">
   <thead>

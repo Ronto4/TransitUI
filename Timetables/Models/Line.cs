@@ -1,10 +1,12 @@
+using System.Numerics;
+
 namespace Timetables.Models;
 
 public record Line
 {
     public record Route
     {
-        public override string ToString() => $"{StopPositions.First().Name} > {StopPositions.Last().Name}";
+        public override string ToString() => $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
 
         public record TimeProfile
         {
@@ -19,6 +21,14 @@ public record Line
         /// It is advised that the departure time does not vary due to time adjustments at this stop.
         /// </summary>
         public required int CommonStopIndex { get; init; }
+
+        public bool LooslyIsReverse(Route other) => StopPositions.Last().Stop == other.StopPositions.First().Stop &&
+                                                    StopPositions.First().Stop == other.StopPositions.Last().Stop;
+
+        public bool StrictlyIsReverse(Route other) => StopPositions.Select(position => position.Stop).Reverse()
+            .SequenceEqual(other.StopPositions.Select(position => position.Stop));
+
+        public bool InterpretAsBidirectional { get; set; } = false;
     }
 
     public record Trip
@@ -60,7 +70,7 @@ public record Line
 
             yield return this;
             var newStartTime = StartTime;
-            while ((newStartTime = newStartTime.Add(interval)) <= until)
+            while ((newStartTime = newStartTime.Add(interval)) <= until || newStartTime >= StartTime && until < StartTime)
             {
                 yield return this with { StartTime = newStartTime };
             }
@@ -95,27 +105,37 @@ public record Line
     }
 
     public required TransportationType TransportationType { get; init; }
+    // public required Stop[] NotableStops { get; init; }
+    public IEnumerable<Route> MainRoutes => MainRouteIndices.Select(index => Routes[index]);
+
+    public required Index[] MainRouteIndices { get; init; }
+    public IEnumerable<Route> OverviewRoutes => OverviewRouteIndices.Select(index => Routes[index]);
+
+    public required Index[] OverviewRouteIndices { get; init; }
 
     public Dictionary<Route, List<string>> GetFrequencies(List<(TimeOnly startTime, TimeOnly endTime)> timeLimits,
         DaysOfOperation daysOfOperation)
     {
         const string none = "—";
         const string singleTrips = "EF";
-        return new Dictionary<Route, List<string>>(Trips
+        var result = new Dictionary<Route, List<string>>(Trips
             .Where(trip => (trip.DaysOfOperation & daysOfOperation) == daysOfOperation)
             .GroupBy(trip => trip.Route)
             .Select(tripGroups =>
             {
                 return new KeyValuePair<Route, List<string>>(tripGroups.Key, timeLimits.Select(timeLimit =>
                 {
-                    var trips = tripGroups.OrderBy(trip => trip.TimeAtCommonStop()).ToList();
                     var (startTime, endTime) = timeLimit;
+                    var trips = startTime < endTime
+                        ? tripGroups.OrderBy(trip => trip.TimeAtCommonStop()).ToList()
+                        : tripGroups.ToList(); // When the time wraps around, we cannot sort.
                     Func<Trip, bool> condition = startTime < endTime
                         ? trip => trip.TimeAtCommonStop() >= startTime && trip.TimeAtCommonStop() < endTime
                         : trip => trip.TimeAtCommonStop() >= startTime || trip.TimeAtCommonStop() < endTime;
                     var tripsInTime = trips
                         .Where(condition)
                         .ToList();
+                    Console.WriteLine($"{tripGroups.Key} in {timeLimit}: {string.Join(", ", tripsInTime.Select(trip => trip.TimeAtCommonStop()))}");
                     if (tripsInTime.Count == 0)
                     {
                         return none;
@@ -131,17 +151,43 @@ public record Line
                     {
                         return singleTrips;
                     }
+                    
+                    // Check histogram (only if there is more than one different interval).
+                        var frequencies = intervals
+                            .GroupBy(self => self)
+                            .Select(group => (Interval: group.Key, Frequency: group.Count()))
+                            .OrderBy(group => group.Frequency)
+                            .ToList();
+                    if (frequencies.Count > 1)
+                    {
+                        var rarestFrequency = frequencies.First();
+                        var secondRarestFrequency = frequencies.Skip(1).First();
+                        if (rarestFrequency.Frequency == 1 &&
+                            secondRarestFrequency.Frequency > rarestFrequency.Frequency)
+                        {
+                            var mostCommonFrequency = frequencies.Last();
+                            const int requiredFrequency = 3;
+                            if (mostCommonFrequency.Frequency >= requiredFrequency)
+                            {
+                                // There is a unique rarest interval that occurs once, and the most common interval occurs quite often.
+                                // This indicates that the rarest interval is not an interval change but rather a change in departure minutes, so remove it.
+                                intervals = intervals.Where(interval => interval != rarestFrequency.Interval).ToList();
+                            }
+                        }
+                    }
 
                     // Check if there are enough trips to cover the time.
                     {
                         var averageInterval = TimeSpan.FromTicks((long)intervals.Average(interval => interval.Ticks));
+                        // var medianInterval = TimeSpan.FromTicks((long)intervals.Median(interval => interval.Ticks));
                         var totalTime = endTime - startTime;
                         var tripsRequiredForFullCover = totalTime / averageInterval;
-                        const double requiredRatio = 0.6;
+                        const double requiredRatio = 0.54;
                         if (tripsInTime.Count / tripsRequiredForFullCover < requiredRatio)
                         {
                             // There are not enough trips.
                             // Maybe there is a sensible interval, but it is too infrequent to be worth reporting.
+                            Console.Error.WriteLine($"{timeLimit} failed ratio check with {tripsInTime.Count / tripsRequiredForFullCover}, required was {requiredRatio}.");
                             return singleTrips;
                         }
                     }
@@ -176,9 +222,6 @@ public record Line
                         return $"{smaller.TotalMinutes}/{larger.TotalMinutes}";
                     }
                     DEFAULT:
-                    var minimumInterval = intervals.Min();
-                    var maximumInterval = intervals.Max();
-                    return $"{minimumInterval}–{maximumInterval}";
                     // // Check histogram
                     // var frequencies = intervals
                     //     .GroupBy(self => self)
@@ -186,8 +229,37 @@ public record Line
                     //     .OrderBy(group => group.Frequency)
                     //     .ToList();
                     // var rarestFrequency = frequencies.First();
-                    // var mostCommonFrequency = frequencies.Last();
+                    // var secondRarestFrequency = frequencies.Skip(1).First();
+                    // if (rarestFrequency.Frequency == 1 && secondRarestFrequency.Frequency > rarestFrequency.Frequency)
+                    // {
+                    //     var mostCommonFrequency = frequencies.Last();
+                    //     const int requiredFrequency = 3;
+                    //     if (mostCommonFrequency.Frequency >= requiredFrequency)
+                    //     {
+                    //         // There is a unique rarest interval that occurs once, and the most common interval occurs quite often.
+                    //         // This indicates that the rarest interval is not an interval change but rather a change in departure minutes, so remove it.
+                    //         intervals = intervals.Where(interval => interval != rarestFrequency.Interval).ToList();
+                    //     }
+                    // }
+                    var minimumInterval = intervals.Min();
+                    var maximumInterval = intervals.Max();
+                    return minimumInterval == maximumInterval
+                        ? $"{minimumInterval.TotalMinutes}"
+                        : $"{minimumInterval.TotalMinutes}–{maximumInterval.TotalMinutes}";
                 }).ToList());
             }));
+        foreach (var route in Routes)
+        {
+            if (result.ContainsKey(route)) continue;
+            result.Add(route, Enumerable.Range(0, timeLimits.Count).Select(_ => none).ToList());
+        }
+        return result;
     }
 }
+
+// file static class MedianExtension
+// {
+//     // Source: https://stackoverflow.com/a/70164857
+//     public static double Median<T>(this IReadOnlyCollection<T> list, Func<T, long> selector) => list.Select(selector).OrderBy(x => x)
+//         .Skip((list.Count - 1) / 2).Take(2 - list.Count % 2).Average();
+// }

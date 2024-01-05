@@ -14,15 +14,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Models/DaysOfOperation.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Models/Line.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Models/Stop.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Models/TransportationType.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitUI.sln" beforeDir="false" afterPath="$PROJECT_DIR$/TransitUI.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/TransitWebViewer.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Timetables/Models/Line.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Models/Line.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Vip20240102.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Vip20240102.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -330,7 +324,7 @@
       <workItem from="1704282964659" duration="3546000" />
       <workItem from="1704299681712" duration="17242000" />
       <workItem from="1704369336978" duration="14815000" />
-      <workItem from="1704391947619" duration="3255000" />
+      <workItem from="1704391947619" duration="31637000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
@@ -402,24 +396,5 @@
     <MESSAGE value="Fix missing directory" />
     <MESSAGE value="Remove set -e from startup.sh" />
     <option name="LAST_COMMIT_MESSAGE" value="Remove set -e from startup.sh" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Timetables/Models/Line.cs</url>
-          <line>139</line>
-          <properties documentPath="$PROJECT_DIR$/Timetables/Models/Line.cs" initialLine="137" containingFunctionPresentation="Lambda expression inside Method 'GetFrequencies'">
-            <startOffsets>
-              <option value="5532" />
-            </startOffsets>
-            <endOffsets>
-              <option value="5565" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
