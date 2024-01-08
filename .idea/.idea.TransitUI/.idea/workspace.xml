@@ -14,9 +14,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram93/Tram93.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram93/Tram93From20240102.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94From20240102.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Timetables/Models/Line.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Models/Line.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -326,7 +327,7 @@
       <workItem from="1704282964659" duration="3546000" />
       <workItem from="1704299681712" duration="17242000" />
       <workItem from="1704369336978" duration="14815000" />
-      <workItem from="1704391947619" duration="41505000" />
+      <workItem from="1704391947619" duration="45451000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>

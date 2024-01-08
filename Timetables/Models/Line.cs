@@ -178,6 +178,16 @@ public record Line
 
                     // Check if there are enough trips to cover the time.
                     {
+                        // // Ignore largest interval.
+                        // var intervalSum = intervals.Sum(interval => interval.Ticks);
+                        // // intervalSum -= intervals.MinBy(interval => interval.Ticks).Ticks;
+                        // intervalSum -= intervals.MaxBy(interval => interval.Ticks).Ticks;
+                        // var averageInterval = intervals.Count - 1 > 0
+                        //     ? TimeSpan.FromTicks((long)(intervalSum / (double)(intervals.Count - 1)))
+                        //     // If there is just one interval, use that instead.
+                        //     : intervals.Single();
+                        //     // If there is only one or two intervals, use their average instead.
+                        //     // : TimeSpan.FromTicks((long)intervals.Average(interval => interval.Ticks));
                         var averageInterval = TimeSpan.FromTicks((long)intervals.Average(interval => interval.Ticks));
                         // var medianInterval = TimeSpan.FromTicks((long)intervals.Median(interval => interval.Ticks));
                         var totalTime = endTime - startTime;
