@@ -3,6 +3,6 @@ namespace Timetables.Models;
 public interface IHistoryEntry
 {
     public DateOnly EffectiveDate { get; }
-    public Line[] Lines { get; }
-    public static abstract IHistoryEntry Entry { get; }
+    public IReadOnlyDictionary<string, Line> LinesById { get; }
+    public string Description { get; }
 }

@@ -6,6 +6,6 @@ public class VipHistory : IHistory
 {
     public static IHistoryEntry[] History { get; } =
     [
-        Vip20240102.Entry,
+        new HistoryEntry(new DateOnly(2024, 1, 2), "Übersicht über die aktuellen Linien:")
     ];
 }

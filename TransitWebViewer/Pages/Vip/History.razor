@@ -625,6 +625,7 @@ Buslinien:
     <tr>
       <th scope="row">@entry.EffectiveDate.ToString("D")</th>
       <td>
+        @entry.Description
         <table class="table table-striped table-hover">
           <thead>
           <tr>
@@ -636,7 +637,7 @@ Buslinien:
           </tr>
           </thead>
           <tbody>
-          @foreach (var line in entry.Lines)
+          @foreach (var (_, line) in entry.LinesById)
           {
             @code {
 
@@ -645,6 +646,8 @@ Buslinien:
                 var result = new List<Line.Route>();
                 foreach (var route in routes)
                 {
+                  // Reset to unidirectional.
+                  route.InterpretAsBidirectional = false;
                   var reverse = result.Where(existingRoute => existingRoute.StrictlyIsReverse(route)).ToList();
                   if (reverse.Count > 0)
                   {
@@ -652,12 +655,14 @@ Buslinien:
                     reverse.Single().InterpretAsBidirectional = true;
                     continue;
                   }
+
                   // Otherwise, add to result.
                   result.Add(route);
                 }
 
                 return result;
               }
+
             }
             @foreach (var overviewRoute in DeduplicateRoutesStrict(line.OverviewRoutes))
             {
@@ -732,7 +737,7 @@ Buslinien:
           </tr>
           </thead>
           <tbody>
-          @foreach (var line in entry.Lines)
+          @foreach (var (_, line) in entry.LinesById)
           {
             @code {
 
