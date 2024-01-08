@@ -14,20 +14,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/HistoryEntry.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/ICompleteLine.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/ILineInstance.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91From20240102.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram92/Tram92.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram92/Tram92From20240102.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Minutes.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Stops.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Models/IHistoryEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Models/IHistoryEntry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Vip20240102.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Vip/VipHistory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/VipHistory.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/ManualHistory.razor" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -336,7 +323,7 @@
       <workItem from="1704282964659" duration="3546000" />
       <workItem from="1704299681712" duration="17242000" />
       <workItem from="1704369336978" duration="14815000" />
-      <workItem from="1704391947619" duration="34964000" />
+      <workItem from="1704391947619" duration="35295000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
