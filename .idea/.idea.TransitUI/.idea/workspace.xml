@@ -14,11 +14,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram96/Tram96.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram96/Tram96From20240102.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Timetables/Models/IHistoryEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Models/IHistoryEntry.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Minutes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Minutes.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" beforeDir="false" afterPath="$PROJECT_DIR$/TransitWebViewer/Pages/Vip/History.razor" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -329,7 +328,7 @@
       <workItem from="1704369336978" duration="14815000" />
       <workItem from="1704391947619" duration="45788000" />
       <workItem from="1708533141164" duration="1086000" />
-      <workItem from="1708534230680" duration="3079000" />
+      <workItem from="1708534230680" duration="4046000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
