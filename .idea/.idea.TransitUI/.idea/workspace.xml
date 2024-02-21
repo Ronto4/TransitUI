@@ -14,11 +14,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94From20240102.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram96/Tram96.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram96/Tram96From20240102.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Models/Line.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Models/Line.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Lines.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Minutes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Minutes.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,28 +118,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.TransitWebViewer.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "feature/4-line-history",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.TransitWebViewer.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/4-line-history&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "rider.external.source.directories": [
-      "/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache",
-      "/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache",
-      "/home/clemens/.local/share/Symbols/src"
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/DecompilerCache&quot;,
+      &quot;/home/clemens/.config/JetBrains/Rider2023.3/resharper-host/SourcesCache&quot;,
+      &quot;/home/clemens/.local/share/Symbols/src&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.TransitWebViewer">
     <configuration name="Api + Web" type="CompoundRunConfigurationType">
       <toRun name="TransitApi" type="LaunchSettings" />
@@ -327,7 +327,9 @@
       <workItem from="1704282964659" duration="3546000" />
       <workItem from="1704299681712" duration="17242000" />
       <workItem from="1704369336978" duration="14815000" />
-      <workItem from="1704391947619" duration="45451000" />
+      <workItem from="1704391947619" duration="45788000" />
+      <workItem from="1708533141164" duration="1086000" />
+      <workItem from="1708534230680" duration="3079000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
