@@ -31,5 +31,10 @@ public class VipHistory : IHistory
                                                    """),
         new HistoryEntry(new DateOnly(2024, 2, 5), "Aufgrund von Bauarbeiten während der Winterferien wird die Haltestelle Schillerplatz/Schafgraben nicht bedient."),
         new HistoryEntry(new DateOnly(2024, 2, 11), "Die Bauarbeiten sind beendet; die Haltestelle Schillerplatz/Schafgraben wird wieder bedient."),
+        new HistoryEntry(new DateOnly(2024, 2, 26), """
+                                                    Nach mehr als eineinhalb Jahren kehrt die 98 zurück ins Stadtbild (außerhalb der Schlössernacht).
+                                                    Drei Fahrten im 50-Minuten-Takt morgens zwischen Platz der Einheit und Bhf Rehbrücke unterstützen den Berufsverkehr.
+                                                    Die erste nach Platz der Einheit und die letzte ab Platz der Einheit verkehren dabei ab/bis Bisamkiez.
+                                                    """)
     ];
 }

@@ -14,13 +14,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="335d07ca-1d9c-4527-bc07-301f4e3c76ff" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91From20240205.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91From20240211.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94From20240205.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram98/Tram98From20240205.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram98/Tram98From20240226.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.TransitUI/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram91/Tram91.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram94/Tram94.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram98/Tram98.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/Lines/Tram98/Tram98.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Timetables/Vip/VipHistory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Timetables/Vip/VipHistory.cs" afterDir="false" />
     </list>
@@ -333,7 +328,7 @@
       <workItem from="1704369336978" duration="14815000" />
       <workItem from="1704391947619" duration="45788000" />
       <workItem from="1708533141164" duration="1086000" />
-      <workItem from="1708534230680" duration="9627000" />
+      <workItem from="1708534230680" duration="10850000" />
     </task>
     <task id="LOCAL-00001" summary="Improve scripts">
       <created>1641668400247</created>
