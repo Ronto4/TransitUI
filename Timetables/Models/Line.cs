@@ -73,6 +73,10 @@ public record Line
             while ((newStartTime = newStartTime.Add(interval)) <= until || newStartTime >= StartTime && until < StartTime)
             {
                 yield return this with { StartTime = newStartTime };
+                // The next add would land after `until`.
+                // However, when `newStartTime.Add(interval)` wraps around midnight, this loop would run forever.
+                // Thus, abort early.
+                if (newStartTime == until) break;
             }
         }
 

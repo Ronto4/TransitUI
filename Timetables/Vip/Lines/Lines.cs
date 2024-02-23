@@ -10,5 +10,6 @@ internal static class Lines
         ["tram94"] = new Tram94.Tram94(),
         ["tram96"] = new Tram96.Tram96(),
         ["tram98"] = new Tram98.Tram98(),
+        ["tram99"] = new Tram99.Tram99(),
     };
 }
