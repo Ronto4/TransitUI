@@ -78,7 +78,7 @@
     <tr>
       <th scope="row">@entry.EffectiveDate.ToString("D")</th>
       <td>
-        @entry.Description
+        @((MarkupString)entry.Description)
         <table class="table table-striped table-hover">
           <thead>
           <tr>
