@@ -28,6 +28,8 @@ public class VipHistory : IHistory
                                                     </li>
                                                    </ul>
                                                    Übersicht über die aktuellen Linien:
-                                                   """)
+                                                   """),
+        new HistoryEntry(new DateOnly(2024, 2, 5), "Aufgrund von Bauarbeiten während der Winterferien wird die Haltestelle Schillerplatz/Schafgraben nicht bedient."),
+        new HistoryEntry(new DateOnly(2024, 2, 11), "Die Bauarbeiten sind beendet; die Haltestelle Schillerplatz/Schafgraben wird wieder bedient."),
     ];
 }
