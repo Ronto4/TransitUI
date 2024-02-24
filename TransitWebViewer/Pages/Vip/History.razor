@@ -1,5 +1,6 @@
 @page "/vip/history"
-@using System.Text
+@using Timetables.Models
+@using Timetables.Vip
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -21,652 +22,312 @@
 
 @code {
 
-  private readonly struct Frequency
-  {
-    private readonly string _representation;
+  private const string NDash = "–";
+  private const string NDashSpaces = $" {NDash} ";
+  private const string RightArrow = ">";
+  private const string RightArrowSpaces = $" {RightArrow} ";
 
-    private Frequency(string representation)
+  private static bool OnlyShowMainRoutes { get; set; } = false;
+
+  private static bool OnlyShowUpdates { get; set; } = true;
+  
+  private void UpdateOnlyShowMainRoutes(ChangeEventArgs e)
+  {
+    if (e.Value is not bool onlyShowMainRoutes)
     {
-      _representation = representation;
+      Console.Error.WriteLine($"Invalid call to {nameof(UpdateOnlyShowMainRoutes)} with {e.Value}.");
+      return;
     }
 
-    public static implicit operator Frequency(int minutes) => new(minutes.ToString());
-    public static implicit operator Frequency(Range range) => new($"{range.Start}–{range.End}");
-    public static implicit operator Frequency(int[] frequencies) => new(string.Join("/", frequencies));
-    public static Frequency None => new("—");
-    public static Frequency SingleTrips => new("EF");
-
-    public override string ToString() => _representation;
+    OnlyShowMainRoutes = onlyShowMainRoutes;
   }
 
-  private readonly record struct FrequencyEntry(string Line, string StartStop, string EndStop, Frequency[] Frequencies)
+  private void UpdateOnlyUpdates(ChangeEventArgs e)
   {
-    public bool Unidirectional { get; init; } = false;
-  }
-
-  private readonly record struct Frequencies(FrequencyEntry[] FrequencyEntries, string? TextBefore, string? TextAfter)
-  {
-    public MarkupString ToMarkupString()
+    if (e.Value is not bool onlyShowUpdates)
     {
-      StringBuilder sb = new();
-      if (TextBefore is { } textBefore)
-      {
-        sb.Append(textBefore);
-      }
-
-      sb.Append("""<table class="table table-striped table-hover frequency-table">""");
-      sb.Append(@"<thead>
-<tr>
-  <th rowspan=""1"" colspan=""2"" scope=""col"">Strecke</th>
-  <th rowspan=""1"" colspan=""6"" scope=""col"">Schultage</th>
-  <th rowspan=""1"" colspan=""6"" scope=""col"">Ferien</th>
-  <th rowspan=""1"" colspan=""3"" scope=""col"">Samstag</th>
-  <th rowspan=""1"" colspan=""3"" scope=""col"">Sonntag</th>
-</tr>
-<tr>
-  <th scope=""col"">Linie</th>
-  <th scope=""col"">Abschnitt</th>
-  <th scope=""col"">4–6 Uhr</th>
-  <th scope=""col"">6–9 Uhr</th>
-  <th scope=""col"">9–13 Uhr</th>
-  <th scope=""col"">13–18 Uhr</th>
-  <th scope=""col"">18–20 Uhr</th>
-  <th scope=""col"">20–1 Uhr</th>
-  <th scope=""col"">4–6 Uhr</th>
-  <th scope=""col"">6–9 Uhr</th>
-  <th scope=""col"">9–13 Uhr</th>
-  <th scope=""col"">13–18 Uhr</th>
-  <th scope=""col"">18–20 Uhr</th>
-  <th scope=""col"">20–1 Uhr</th>
-  <th scope=""col"">4–7 Uhr</th>
-  <th scope=""col"">7–20 Uhr</th>
-  <th scope=""col"">20–1 Uhr</th>
-  <th scope=""col"">6–10 Uhr</th>
-  <th scope=""col"">10–20 Uhr</th>
-  <th scope=""col"">20–1 Uhr</th>
-  </tr>
-</thead>");
-      sb.Append("<tbody>");
-      foreach (var frequencyEntry in FrequencyEntries)
-      {
-        sb.Append("<tr>");
-        sb.Append("<td>");
-        sb.Append(frequencyEntry.Line);
-        sb.Append("</td>");
-        sb.Append("<td>");
-        sb.Append(frequencyEntry.StartStop);
-        sb.Append(frequencyEntry.Unidirectional ? " > " : " – ");
-        sb.Append(frequencyEntry.EndStop);
-        sb.Append("</td>");
-        if (frequencyEntry.Frequencies.Length != 18)
-        {
-          throw new Exception($"Got incorrect length {frequencyEntry.Frequencies.Length}.");
-        }
-        foreach (var frequency in frequencyEntry.Frequencies)
-        {
-          sb.Append("<td>");
-          sb.Append(frequency);
-          sb.Append("</td>");
-        }
-
-        sb.Append("</tr>");
-      }
-      sb.Append("</tbody>");
-      sb.Append("</table>");
-      if (TextAfter is { } textAfter)
-      {
-        sb.Append(textAfter);
-      }
-      return new MarkupString(sb.ToString());
+      Console.Error.WriteLine($"Invalid call to {nameof(UpdateOnlyUpdates)} with {e.Value}.");
+      return;
     }
+
+    OnlyShowUpdates = onlyShowUpdates;
   }
 
-  private readonly record struct TimetableChange(DateOnly Date, MarkupString Description, Frequencies? DayFrequencies, Frequencies? NightFrequencies);
+  
+  private static IHistoryEntry? _previous = null;
 
-  private IEnumerable<TimetableChange> Changes { get; } =
-  [
-    new TimetableChange(new DateOnly(2024, 1, 2), new MarkupString(@"Tramlinien:
-<table class=""table table-striped table-hover"">
-  <thead>
-    <tr>
-      <th scope=""col"">Linie</th>
-      <th scope=""col"">Start</th>
-      <th scope=""col"">ausgewählte Zwischenhalte</th>
-      <th scope=""col"">Ende</th>
-      <th scope=""col"">Betreiber</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope=""row"">91</th>
-      <td>Bhf Pirschheide</td>
-      <td>
-        Kastanienallee/Zeppelinstr. –
-        Schloss Charlottenhof (nur Ri. Bhf Pirschheide) –
-        Bhf Charlottenhof –
-        Luisenplatz-Süd/Park Sanssouci –
-        Platz der Einheit/West –
-        S Hauptbahnhof –
-        Waldstr./Horstweg –
-        Friedrich-Wolf-Str.
-      </td>
-      <td>Bhf Rehbrücke</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">92</th>
-      <td>Bornstedt, Kirschallee</td>
-      <td>
-        Campus Fachhochschule –
-        Nauener Tor –
-        Platz der Einheit/West –
-        S Hauptbahnhof –
-        Waldstr./Horstweg –
-        Magnus-Zeller-Platz –
-        Johannes-Kepler-Platz –
-        Hans-Albers-Str.
-      </td>
-      <td>Kirchsteigfeld, Marie-Juchacz-Str.</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">93</th>
-      <td>Glienicker Brücke</td>
-      <td>
-        Holzmarktstr. –
-        Platz der Einheit/Bildungsforum –
-        S Hauptbahnhof –
-        Waldstr./Horstweg –
-        Friedrich-Wolf-Str.
-      </td>
-      <td>Bhf Rehbrücke</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">94</th>
-      <td>Bhf Pirschheide</td>
-      <td>
-        Kastanienallee/Zeppelinstr. –
-        Schloss Charlottenhof (nur Ri. Bhf Pirschheide) –
-        Bhf Charlottenhof –
-        Luisenplatz-Süd/Park Sanssouci –
-        Platz der Einheit/West –
-        Platz der Einheit/Bildungsforum –
-        Holzmarktstr. –
-        Rathaus Babelsberg –
-        S Babelsberg/Wattstr.
-      </td>
-      <td>Babelsberg, Fontanestr.</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">96</th>
-      <td>Campus Jungfernsee</td>
-      <td>
-        Campus Fachhochschule –
-        Nauener Tor –
-        Platz der Einheit/West –
-        S Hauptbahnhof –
-        Waldstr./Horstweg –
-        Magnus-Zeller-Platz –
-        Johannes-Kepler-Platz –
-        Hans-Albers-Str.
-      </td>
-      <td>Kirchsteigfeld, Marie-Juchacz-Str.</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">98</th>
-      <td>Schloss Charlottenhof</td>
-      <td>
-        Kastanienallee/Zeppelinstr. (nur Ri. Bhf Rehbrücke) –
-        Bhf Charlottenhof –
-        Luisenplatz-Süd/Park Sanssouci –
-        Platz der Einheit/West –
-        S Hauptbahnhof –
-        Waldstr./Horstweg –
-        Friedrich-Wolf-Str.
-      </td>
-      <td>Bhf Rehbrücke</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">99</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Platz der Einheit/Bildungsforum –
-        Holzmarktstr. –
-        Rathaus Babelsberg –
-        S Babelsberg/Wattstr.
-      </td>
-      <td>Babelsberg, Fontanestr.</td>
-      <td>ViP</td>
-    </tr>
-  </tbody>
-</table>
-Buslinien:
-<table class=""table table-striped table-hover"">
-  <thead>
-    <tr>
-      <th scope=""col"">Linie</th>
-      <th scope=""col"">Start</th>
-      <th scope=""col"">ausgewählte Zwischenhalte</th>
-      <th scope=""col"">Ende</th>
-      <th scope=""col"">Betreiber</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope=""row"">X1</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Stern-Center/Nuthestr. –
-        Stahnsdorf, Waldschänke –
-        Teltow, Warthestr. –
-        S Teltow Stadt
-      </td>
-      <td>Teltow, Bahnhof</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">X5</th>
-      <td>Bhf Golm</td>
-      <td>
-        Baumschulenweg –
-        Campus Universität/Abraham-Geiger-Kolleg –
-        Bhf Park Sanssouci –
-        Kastanienallee/Zeppelinstr. (nur Ri. S Hauptbahnhof) –
-        Bhf Charlottenhof –
-        Luisenplatz-Süd/Park Sanssouci –
-        Platz der Einheit/West
-      </td>
-      <td>S Hauptbahnhof</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">X15</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Platz der Einheit/West –
-        Luisenplatz-Ost/Park Sanssouci –
-        Schloss Sanssouci
-      </td>
-      <td>Neues Palais</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">X43</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Michendorf, Bahnhof –
-        Beelitz, Lustgarten –
-        Beelitz, Liebknechtpark
-      </td>
-      <td>Beelitz, Finkenstr.</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">580</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Bhf Charlottenhof –
-        Zum Bahnhof Pirschheide –
-        Werder –
-        Lehnin –
-        Golzow, Anger –
-        Bad Belzig, Bahnhof
-      </td>
-      <td>Bad Belzig, Am Betriebshof</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">601</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Rathaus Babelsberg –
-        S Babelsberg/Schulstr. –
-        Bhf Medienstadt Babelsberg –
-        Betriebshof ViP –
-        Johannes-Kepler-Platz –
-        Stahnsdorf, Waldschänke –
-        Teltow, Warthestr. –
-        Teltow, Badstr. –
-        S Teltow Stadt –
-        Teltow, Bahnhof
-      </td>
-      <td>Teltow, Sigridshorst</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">602</th>
-      <td>S Babelsberg/Lutherplatz</td>
-      <td>
-        Magnus-Zeller-Platz >
-        Eduard-Claudius-Str./Heinrich-Mann-Allee >
-        Bhf Rehbrücke >
-        Stern-Center/Nuthestr. >
-        Stahnsdorf, Waldschänke >
-        Stahnsdorf, Briefzentrum >
-        Teltow, Bremer Str.
-      </td>
-      <td>Teltow, Warthestr.</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">603</th>
-      <td>Höhenstr.</td>
-      <td>
-        Schloss Cecilienhof (nur Ri. Höhenstr.) –
-        Birkenstr./Alleestr. –
-        Rathaus –
-        Hebbelstr.
-      </td>
-      <td>Platz der Einheit/West</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">604</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Platz der Einheit/West –
-        Campus Jungfernsee –
-        Theodor-Fontane-Str. –
-        Waldsiedlung Groß Glienicke –
-        Seeburg –
-        Dallgow-Döberitz, Havelpark
-      </td>
-      <td>Falkensee, Bahnhof/Süd</td>
-      <td>Havelbus</td>
-    </tr>
-    <tr>
-      <th scope=""row"">605</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Platz der Einheit/West –
-        Luisenplatz-Süd/Park Sanssouci –
-        Bhf Charlottenhof –
-        Kastanienallee/Zeppelinstr. (nur Ri. S Hauptbahnhof) –
-        Schloss Charlottenhof –
-        Bhf Park Sanssouci –
-        Eichenring –
-        Bhf Golm
-      </td>
-      <td>Science Park West</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">607</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Caputh, Bhf Schwielowsee –
-        Ferch, Mittelbusch –
-        Petzow, Resort Schielowsee –
-        Werder, Post
-      </td>
-      <td>Werder, Bahnhof</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">608</th>
-      <td>S Hauptbahnhof</td>
-      <td>
-        Wilhelmshorst –
-        Michendorf –
-        Stücken
-      </td>
-      <td>Dobbrikow, Am Anger</td>
-      <td>regiobus PM</td>
-    </tr>
-    <tr>
-      <th scope=""row"">609</th>
-      <td>Campus Jungfernsee</td>
-      <td>
-        Am Upstall –
-        Satzkorn –
-        Kirche Kartzow –
-        Bhf Marquardt –
-        Schule Marquardt –
-        Kirche Uetz
-      </td>
-      <td>Paaren</td>
-      <td>ViP</td>
-    </tr>
-    <tr>
-      <th scope=""row"">610</th>
-      <td>Bhf Charlottenhof</td>
-      <td>
-        Kastanienallee/Zeppelinstr. (nur Ri. Bhf Charlottenhof) –
-        Schloss Charlottenhof –
-        Bhf Park Sanssouci –
-        Kuhfort –
-        Geltow, Kaserne
-      </td>
-      <td>Wildpark-West, Marktplatz</td>
-      <td>regiobus PM</td>
-    </tr>
-  </tbody>
-</table>"), new Frequencies([
-        new FrequencyEntry("91", "Bhf Pirschheide", "Bhf Rehbrücke", [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]),
-        new FrequencyEntry("92", "Kirschallee", "Marie-Juchacz-Str.", [Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None]),
-        new FrequencyEntry("92", "Kirschallee", "Gaußstr.", [Frequency.None, 10..20, Frequency.None, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("92", "Kirschallee", "Bisamkiez", [Frequency.None, 20, 20, 20, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.SingleTrips, 20, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("92", "Kirschallee", "S\u00a0Hauptbahnhof", [20, Frequency.None, 20, Frequency.None, 20, 20, 20, 10, 20, 20, 10, 20, 20, Frequency.None, 20, 20, Frequency.None, 20]),
-        new FrequencyEntry("93", "Glienicker Brücke", "Bhf Rehbrücke", [20, 20, 20, 20, 20, Frequency.None, 20, 20, 20, 20, 20, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None]),
-        new FrequencyEntry("93", "Glienicker Brücke", "S Hauptbahnhof", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None]),
-        new FrequencyEntry("94", "Bhf Pirschheide", "Fontanestr.", [Frequency.None, 20, Frequency.None, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("94", "Schloss Charlottenhof", "Fontanestr.", [20, Frequency.None, 20, Frequency.None, 20, Frequency.None, 20, 20, 20, 20, 20, Frequency.None, 20, 20, Frequency.None, 20, 20, Frequency.None]),
-        new FrequencyEntry("96", "Campus Jungfernsee", "Marie-Juchacz-Str.", [20, 10, 10, 10, 10, 20, 20, 10, 10, 10, 10, 20, 20, 20, 20, 20, 20, 20]),
-        new FrequencyEntry("98", "Schloss Charlottenhof", "Bhf Rehbrücke", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("99", "S\u00a0Hauptbahnhof", "Fontanestr.", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20]),
-        new FrequencyEntry("99", "Platz der Einheit", "Fontanestr.", [Frequency.None, 20, 20, 20, 20, Frequency.None, Frequency.None, 20, 20, 20, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("X1", "S\u00a0Hauptbahnhof", "Teltow, Bahnhof", [Frequency.SingleTrips, 20, 20, 20, 20, 60, Frequency.SingleTrips, 20, 20, 20, 20, 60, 60, 60, 60, 60, 60, 60]),
-        new FrequencyEntry("X5", "Bhf Golm", "S\u00a0Hauptbahnhof", [Frequency.None, Frequency.None, 120, 120, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 120, 120, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("X5", "Campus Universität/Abraham-Geiger-Kolleg", "S\u00a0Hauptbahnhof", [Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("X15", "S\u00a0Hauptbahnhof", "Neues Palais", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None]),
-        new FrequencyEntry("X43", "S\u00a0Hauptbahnhof", "Beelitz, Finkenstr.", [Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("X43", "S\u00a0Hauptbahnhof", "Beelitz, Liebknechtpark.", [Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("580", "S\u00a0Hauptbahnhof", "Bad Belzig, Am Betriebshof", [Frequency.None, 60, 60, 60, 60, Frequency.SingleTrips, Frequency.None, 60, 60, 60, 60, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("580", "S\u00a0Hauptbahnhof", "Golzow, Anger", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
-        new FrequencyEntry("601", "S\u00a0Hauptbahnhof", "Teltow, Sigridshorst", [60, 20, 60, 20, 20, 60, 60, 20, 60, 20, 20, 60, Frequency.None, 60, 60, 60, 60, 60]),
-        new FrequencyEntry("601", "S\u00a0Hauptbahnhof", "Teltow, Bahnhof", [new[] { 20, 40 }, Frequency.None, new[] { 20, 40 }, Frequency.None, Frequency.None, Frequency.None, new[] { 20, 40 }, Frequency.None, new[] { 20, 40 }, Frequency.None, Frequency.None, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("602", "S\u00a0Babelsberg/Lutherplatz", "Teltow, Warthestr.", [Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]) { Unidirectional = true },
-        new FrequencyEntry("603", "Höhenstr.", "Platz der Einheit/West", [Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 30..40, 40, 30..40, 40, 60, Frequency.SingleTrips, 20, 60, Frequency.SingleTrips, 20, 60]),
-        new FrequencyEntry("604", "S\u00a0Hauptbahnhof", "Falkensee, Bahnhof/Süd", [Frequency.None, 60, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, 60, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("604", "Campus Jungfernsee", "Falkensee, Bahnhof/Süd", [Frequency.SingleTrips, Frequency.None, 60, Frequency.None, 60, 60, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, 60, 60, Frequency.None, 60, 60, Frequency.None, 60, 60]),
-        new FrequencyEntry("605", "S\u00a0Hauptbahnhof", "Science Park West", [20, 20, 20, 20, 20, Frequency.None, 20, 20, 20, 20, 20, Frequency.None, new[] { 20, 40 }, 20, Frequency.None, new[] { 20, 40 }, 20, Frequency.None]),
-        new FrequencyEntry("605", "Luisenplatz-Süd/Park Sanssouci", "Science Park West", [Frequency.None, 20, 20, 20, Frequency.None, Frequency.None, Frequency.None, 20, 20, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("605", "Bhf Charlottenhof", "Science Park West", [Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20, Frequency.None, Frequency.None, 20]),
-        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Werder, Bahnhof", [Frequency.None, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
-        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Petzow, Resort Schwielowsee", [Frequency.None, Frequency.SingleTrips, 120, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.SingleTrips, 120, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, ]),
-        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Ferch, Mittelbusch", [Frequency.SingleTrips, Frequency.SingleTrips, 120, 20..60, new[]{20,40}, 60, Frequency.SingleTrips, Frequency.SingleTrips, 120, 20..60, new[]{20,40}, 60, 120, Frequency.None, 60, 120, Frequency.None, 60]),
-        new FrequencyEntry("607", "S\u00a0Hauptbahnhof", "Caputh, Wendeplatz", [Frequency.None, Frequency.SingleTrips, 60, Frequency.SingleTrips, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Dobbrikow, Am Anger", [Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, Frequency.None, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Stücken, Dorf", [Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 60, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 60, Frequency.None, 120, Frequency.SingleTrips, Frequency.None, 120, Frequency.SingleTrips]),
-        new FrequencyEntry("608", "S\u00a0Hauptbahnhof", "Michendorf, West", [Frequency.SingleTrips, Frequency.SingleTrips, Frequency.SingleTrips, 60, Frequency.None, Frequency.None, Frequency.SingleTrips, Frequency.SingleTrips, 120, 60, Frequency.None, Frequency.None, Frequency.None, 120, Frequency.None, Frequency.None, 120, Frequency.None]),
-        new FrequencyEntry("610", "Bhf Charlottenhof", "Wildpark-West, Marktplatz", [Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, 60, 60, 60, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None, Frequency.None]),
-        new FrequencyEntry("610", "Schloss Charlottenhof", "Wildpark-West, Marktplatz", [Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 60, 60, Frequency.SingleTrips, Frequency.None, Frequency.None, Frequency.None, 60, 60, Frequency.None, 120, 120, Frequency.None, Frequency.None, Frequency.None])
-      ], null,
-      @"Anmerkungen:
-<ul class=""list-group"">
-  <li class=""list-group-item"">Es handelt sich hierbei um einen vor allem im Trambereich ausgedünnten Fahrplan aufgrund von Personalmangel. So verkehrt die 92 normalerweise alle 20 Minuten zwischen Kirschallee und Marie-Juchacz-Str., bis Bisamkiez verstäkt auf einen 10-Minuten-Takt. Die Tram 98 verkehrt sonst in der HVZ alle 20 Minuten, und die 99 tagsüber bis S Hauptbahnhof.</li>
-  <li class=""list-group-item"">Allgemein gilt für alle Regionalbuslinien (betrieben von regiobus PM, Havelbus, oder VTF), dass die Taktangaben oft nicht so präzise wie bei Stadtbussen (betrieben von ViP) sind, da sie oft komplizierte Taktungen mit vielen Einzelfahrten aufweisen.</li>
-  <li class=""list-group-item"">Die Buslinie X5 fährt ausschließlich zu den Vorlesungszeiten der Universität Potsdam.</li>
-  <li class=""list-group-item"">Die Buslinie X15 fährt ausschließlich im Sommer/Frühherbst.</li>
-  <li class=""list-group-item"">Die Buslinie X43 fährt vormittags Richtung Potsdam bereits ab Finkenstr. und nachmittags von Potsdam kommend weiter bis Finkenstr. Es gibt nie mehr als eine Fahrt pro Stunde.</li>
-  <li class=""list-group-item"">Die Buslinie 580 wird an Schultagen zeitweise abschnittsweise zwischen Potsdam, Lehnin und Golzow auf einen 30-Minuten-Takt verdichtet.</li>
-  <li class=""list-group-item"">Die Buslinie 602 verkehrt ausschließlich in Richtung Teltow mit zwei Fahrten um 5:47 Uhr und 6:22 Uhr ab Babelsberg.</li>
-  <li class=""list-group-item"">Die Buslinie 603 verkehrt abends von Platz der Einheit/West weiter bis Platz der Einheit/Bildungsforum und fährt von dort aus weiter als N16 bis Glienicker Brücke (bzw. umgekehrt).</li>
-  <li class=""list-group-item"">Einzelne Fahrten der Buslinie 609 in der morgendlichen HVZ verkehren ab Campus Jungfernsee weiter über Am Pfingstberg und Nauener Tor nach Platz der Einheit/West bzw. S Hauptbahnhof.</li>
-  <li class=""list-group-item"">Alle Fahrten der Buslinie 610 von Wildpark-West, Marktplatz bis Schloss Charlottenhof verkehren weiter bis Bhf Charlottenhof, nicht aber umgekehrt.</li>
-  <li class=""list-group-item"">Mit der Liniennummer 610 werden ebenfalls einzelne Fahrten Montag bis Freitag zwischen Wildpark-West, Marktplatz und Caputh-Geltow Bhf angeboten.</li>
-</ul>
-"), null)
-  ];
+  private static string AssignPreviousHistory(IHistoryEntry? entry)
+  {
+    _previous = entry;
+    return string.Empty;
+  }
 
 }
 
-&nbsp;
-
 <table class="table">
   <thead>
-    <tr>
-      <th scope="col" class="col-1">
-        Datum
-      </th>
-      <th scope="col" class="col-3">
-        Zum 2. Januar 2024 wurde diese Liniengeschichte gestartet.
-        Daher wird hier zunächst der Stand zu diesem Datum vorgestellt.
-        Anschließend werden alle Änderungen vermerkt.
-        Baustellenbedingte Änderungen werden nur vereinzelt dargestellt.
-        <br/>
-        In dieser Spalte wird die Änderung textuell beschrieben.
-      </th>
-      <th scope="col" class="col-8">
-        In dieser Spalte werden die Taktungen der einzelnen Linien angegeben.
-        Dabei entspricht jede Zeile einer einzelnen Menge an Fahrten.
-        Wird also zum Beispiel für eine Linie zwischen Kirschallee und S Hauptbahnhof
-        sowie zwischen Kirschallee und Bisamkiez jeweils ein 20-Minuten-Takt angegeben,
-        so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof
-        und eine zwischen S Hauptbahnhof und Bisamkiez.
-      </th>
-    </tr>
+  <tr>
+    <th scope="col" class="col-1">
+      Datum
+    </th>
+    <th scope="col" class="col-3">
+      Zum 2. Januar 2024 wurde diese Liniengeschichte gestartet.
+      Daher wird hier zunächst der Stand zu diesem Datum vorgestellt.
+      Anschließend werden alle Änderungen vermerkt.
+      Baustellenbedingte Änderungen werden nur vereinzelt dargestellt.
+      <br/>
+      In dieser Spalte wird die Änderung textuell beschrieben und die Linienverläufe werden dargestellt.
+    </th>
+    <th scope="col" class="col-8">
+      In dieser Spalte werden die Taktungen der einzelnen Linien angegeben.
+      Dabei entspricht jede Zeile einer einzelnen Menge an Fahrten.
+      Wird also zum Beispiel für eine Linie zwischen Kirschallee und S Hauptbahnhof
+      sowie zwischen Kirschallee und Bisamkiez jeweils ein 20-Minuten-Takt angegeben,
+      so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof
+      und eine zwischen S Hauptbahnhof und Bisamkiez.
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyShowMainRoutes" id="flexCheckOnlyMainRoutes">
+        <label class="form-check-label" for="flexCheckOnlyMainRoutes">
+          Zeige nur Hauptrouten
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyUpdates" id="flexCheckOnlyUpdates" checked="checked">
+        <label class="form-check-label" for="flexCheckOnlyUpdates">
+          Zeige nur Unterschiede
+        </label>
+      </div>
+    </th>
+  </tr>
   </thead>
   <tbody>
-    @foreach (var (date, description, dayFrequencies, nightFrequencies) in Changes)
-    {
-      <tr>
-        <th scope="row">@date.ToString("D")</th>
-        <td>@description</td>
-        <td>
-          @dayFrequencies?.ToMarkupString()
-          @nightFrequencies?.ToMarkupString()
-        </td>
-      </tr>
-    }
+  @(AssignPreviousHistory(null))
+  @foreach (var entry in VipHistory.History)
+  {
+    <tr>
+      <th scope="row">@entry.EffectiveDate.ToString("D")</th>
+      <td>
+        @((MarkupString)entry.Description)
+        <table class="table table-striped table-hover">
+          <thead>
+          <tr>
+            <th scope="col">Linie</th>
+            <th scope="col">Start</th>
+            <th scope="col">Zwischenhalte</th>
+            <th scope="col">Ende</th>
+            @* <th scope="col">Betreiber</th> *@
+          </tr>
+          </thead>
+          <tbody>
+          @foreach (var (lineId, line) in entry.OrderedLinesById)
+          {
+            @code {
+
+              private static IEnumerable<Line.Route> DeduplicateWithPrevious(IEnumerable<Line.Route> routes, string lineId)
+              {
+                if (_previous is null) return routes;
+                var previousRoutes = DeduplicateRoutesStrict(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value.OverviewRoutes, lineId, false);
+                return routes.Where(route => !previousRoutes.Any(route.StrictlyIsSame));
+              }
+
+              private static List<Line.Route> DeduplicateRoutesStrict(IEnumerable<Line.Route> routes, string lineId, bool deduplicateWithPrevious = true)
+              {
+                var result = new List<Line.Route>();
+                foreach (var route in routes)
+                {
+                  // Reset to unidirectional.
+                  route.InterpretAsBidirectional = false;
+                  var reverse = result.Where(existingRoute => existingRoute.StrictlyIsReverse(route)).ToList();
+                  if (reverse.Count > 0)
+                  {
+                    // We expect only one to be the reverse
+                    reverse.Single().InterpretAsBidirectional = true;
+                    continue;
+                  }
+
+                  // Otherwise, add to result.
+                  result.Add(route);
+                }
+
+                if (deduplicateWithPrevious)
+                {
+                  result = DeduplicateWithPrevious(result, lineId).ToList();
+                }
+
+                return result;
+              }
+
+            }
+            @foreach (var overviewRoute in DeduplicateRoutesStrict(line.OverviewRoutes, lineId, OnlyShowUpdates))
+            {
+              <tr>
+                <th scope="row">@line.Name</th>
+                <td>@overviewRoute.StopPositions.First().Stop.DisplayName</td>
+                <td>
+                  @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
+                  {
+                    @overviewRoute.StopPositions[i].Stop.DisplayName
+                    @if (i < overviewRoute.StopPositions.Length - 2)
+                    {
+                      @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                    }
+                  }
+                </td>
+                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName</td>
+                @* <td>ViP</td> *@
+              </tr>
+            }
+          }
+          </tbody>
+        </table>
+      </td>
+      <td>
+        <table class="table table-striped table-hover frequency-table">
+          <thead>
+          <tr>
+            <th rowspan="1" colspan="2" scope="col">Strecke</th>
+            <th rowspan="1" colspan="6" scope="col">Schultage</th>
+            <th rowspan="1" colspan="6" scope="col">Ferien</th>
+            <th rowspan="1" colspan="3" scope="col">Samstag</th>
+            <th rowspan="1" colspan="3" scope="col">Sonntag</th>
+          </tr>
+          <tr>
+            <th scope="col">Linie</th>
+            <th scope="col">Abschnitt</th>
+            <th scope="col">4–6 Uhr</th>
+            <th scope="col">6–9 Uhr</th>
+            <th scope="col">9–13 Uhr</th>
+            <th scope="col">13–18 Uhr</th>
+            <th scope="col">18–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">4–6 Uhr</th>
+            <th scope="col">6–9 Uhr</th>
+            <th scope="col">9–13 Uhr</th>
+            <th scope="col">13–18 Uhr</th>
+            <th scope="col">18–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">4–7 Uhr</th>
+            <th scope="col">7–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+            <th scope="col">6–10 Uhr</th>
+            <th scope="col">10–20 Uhr</th>
+            <th scope="col">20–1 Uhr</th>
+          </tr>
+          </thead>
+          <tbody>
+          @foreach (var (lineId, line) in entry.OrderedLinesById)
+          {
+            @code {
+
+              private static IEnumerable<KeyValuePair<Line.Route, List<string>>> RemoveDuplicatesWithPrevious(IEnumerable<KeyValuePair<Line.Route, List<string>>> frequencies, string lineId)
+              {
+                if (_previous is null) return frequencies;
+                var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
+                return frequencies.Where(frequency =>
+                {
+                  var value = previousFrequencies.Where(previous => frequency.Key.LooslyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
+                  var ret = value.Count == 0;
+                  Console.Error.WriteLine(frequency.Key);
+                  Console.Error.WriteLine(string.Join(" | ", value.Select(val => $"{val.Key}: {string.Join(", ", val.Value)}")));
+                  return ret;
+                });
+              }
+
+              private static Dictionary<Line.Route, List<string>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies, string lineId, bool deduplicateWithPrevious = true)
+              {
+                var frequenciesList = frequencies.ToList();
+                for (var i = 0; i < frequenciesList.Count; ++i)
+                {
+                  // Reset to unidirectional.
+                  frequenciesList[i].Key.InterpretAsBidirectional = false;
+                  for (var j = i + 1; j < frequenciesList.Count; ++j)
+                  {
+                    if (!frequenciesList[i].Key.LooslyIsReverse(frequenciesList[j].Key)) continue;
+                    if (!frequenciesList[i].Value.SequenceEqual(frequenciesList[j].Value)) continue;
+                    // Check how this fails when multiple routes between the same stations exist.
+                    // j is a duplicate of i, remove & mark as bidirectional.
+                    frequenciesList.RemoveAt(j);
+                    frequenciesList[i].Key.InterpretAsBidirectional = true;
+                    // We assume only one duplicate, see also comment above.
+                    break;
+                  }
+                }
+
+                if (deduplicateWithPrevious)
+                {
+                  frequenciesList = RemoveDuplicatesWithPrevious(frequenciesList, lineId).ToList();
+                }
+
+                return frequenciesList.ToDictionary();
+              }
+
+              private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
+              {
+                var school = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                  (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                  (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                  (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                  (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.School);
+                var holiday = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                  (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                  (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                  (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                  (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Holiday);
+                var saturday = line.GetFrequencies([
+                  (new TimeOnly(4, 0), new TimeOnly(7, 0)),
+                  (new TimeOnly(7, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Saturday);
+                var sunday = line.GetFrequencies([
+                  (new TimeOnly(6, 0), new TimeOnly(10, 0)),
+                  (new TimeOnly(10, 0), new TimeOnly(20, 0)),
+                  (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                ], DaysOfOperation.Sunday);
+                foreach (var (route, frequencies) in holiday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+
+                foreach (var (route, frequencies) in saturday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+
+                foreach (var (route, frequencies) in sunday)
+                {
+                  school[route].AddRange(frequencies);
+                }
+
+                return RemoveDuplicates(school, lineId, deduplicateWithPrevious);
+              }
+
+            }
+            @foreach (var (route, frequencies) in GetFrequencies(line, lineId, OnlyShowUpdates))
+            {
+              @if (!OnlyShowMainRoutes || line.MainRoutes.Contains(route))
+              {
+                <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
+                  <td>@line.Name</td>
+                  <td>@route</td>
+                  @foreach (var frequency in frequencies)
+                  {
+                    <td>@frequency</td>
+                  }
+                </tr>
+              }
+            }
+          }
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    @(AssignPreviousHistory(entry))
+  }
   </tbody>
 </table>
-
-@* <div class="container-fluid"> *@
-@*     <div class="container"> *@
-@*       <div class="row"> *@
-@*         <div class="col"> *@
-@*           Zum <b>1. Januar 2024</b> wurde diese Liniengeschichte gestartet. *@
-@*           Daher wird hier zunächst der Stand zu diesem Datum vorgestellt. *@
-@*           Anschließend werden alle Änderungen vermerkt. *@
-@*           Baustellenbedingte Änderungen werden nur vereinzelt dargestellt. *@
-@*           <br/> *@
-@*           In dieser Spalte wird die Änderung textuell beschrieben. *@
-@*         </div> *@
-@*         <div class="col"> *@
-@*           In dieser Spalte werden die Taktungen der einzelnen Linien angegeben. *@
-@*           Dabei entspricht jede Zeile einer einzelnen Menge an Fahrten. *@
-@*           Wird also zum Beispiel für eine Linie zwischen Kirschallee und S Hauptbahnhof *@
-@*           sowie zwischen Kirschallee und Bisamkiez jeweils ein 20-Minuten-Takt angegeben, *@
-@*           so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof *@
-@*           und eine zwischen S Hauptbahnhof und Bisamkiez. *@
-@*         </div> *@
-@*       </div> *@
-@*        *@
-@*       <div class="row"> *@
-@*         <div class="col"> *@
-@*           Stand: <b>1. Januar 2024</b> *@
-@*           <br/> *@
-           @* Linienverläufe: *@
-           @* <table class="table"> *@
-           @*   <thead> *@
-           @*     <tr> *@
-           @*       <th scope="col">Linie</th> *@
-           @*       <th scope="col">Start</th> *@
-           @*       <th scope="col">ausgewählte Zwischenhalte</th> *@
-           @*       <th scope="col">Ende</th> *@
-           @*     </tr> *@
-           @*   </thead> *@
-           @*   <tbody> *@
-           @*     <tr> *@
-           @*       <th scope="row">91</th> *@
-           @*       <td>Bhf Pirschheide</td> *@
-           @*       <td> *@
-           @*         Kastanienallee/Zeppelinstr. &ndash; *@
-           @*         Schloss Charlottenhof (nur Ri. Bhf Pirschheide) &ndash; *@
-           @*         Bhf Charlottenhof &ndash; *@
-           @*         Luisenplatz-Süd/Park Sanssouci &ndash; *@
-           @*         Platz der Einheit/West &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Friedrich-Wolf-Str. *@
-           @*       </td> *@
-           @*       <td>Bhf Rehbrücke</td> *@
-           @*     </tr> *@
-           @*     <tr> *@
-           @*       <th scope="row">92</th> *@
-           @*       <td>Bornstedt, Kirschallee</td> *@
-           @*       <td> *@
-           @*         Campus Fachhochschule &ndash; *@
-           @*         Nauener Tor &ndash; *@
-           @*         Platz der Einheit/West &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Magnus-Zeller-Platz &ndash; *@
-           @*         Johannes-Kepler-Platz &ndash; *@
-           @*         Hans-Albers-Str. *@
-           @*       </td> *@
-           @*       <td>Kirchsteigfeld, Marie-Juchacz-Str.</td> *@
-           @*     </tr> *@
-           @*     <tr> *@
-           @*       <th scope="row">93</th> *@
-           @*       <td>Glienicker Brücke</td> *@
-           @*       <td> *@
-           @*         Holzmarktstr. &ndash; *@
-           @*         Platz der Einheit/Bildungsforum &ndash; *@
-           @*         S Hauptbahnhof &ndash; *@
-           @*         Waldstr./Horstweg &ndash; *@
-           @*         Friedrich-Wolf-Str. *@
-           @*       </td> *@
-           @*       <td>Bhf Rehbrücke</td> *@
-           @*     </tr> *@
-           @*   </tbody> *@
-           @* </table> *@
-         @* </div> *@
-@*         <div class="col"> *@
-           @* <table class="table"> *@
-           @*   <thead> *@
-           @*     <tr> *@
-           @*       <th scope="col">Linie</th> *@
-           @*       <th scope="col">Abschnitt</th> *@
-           @*       <th scope="col">Mo&ndash;Fr 4&ndash;6 Uhr</th> *@
-           @*       <th scope="col">6&ndash;9 Uhr</th> *@
-           @*       <th scope="col">9&ndash;13 Uhr</th> *@
-           @*       <th scope="col">13&ndash;18 Uhr</th> *@
-           @*       <th scope="col">18&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*       <th scope="col">Sa: 4&ndash;7 Uhr</th> *@
-           @*       <th scope="col">7&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*       <th scope="col">So: 6&ndash;10 Uhr</th> *@
-           @*       <th scope="col">10&ndash;20 Uhr</th> *@
-           @*       <th scope="col">20&ndash;1 Uhr</th> *@
-           @*     </tr> *@
-           @*   </thead> *@
-           @*   <tbody> *@
-           @*     <tr> *@
-           @*       <th scope="row">91</th> *@
-           @*       <td>Bhf Pirschheide &ndash; Bhf Rehbrücke</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*       <td>20'</td> *@
-           @*     </tr> *@
-           @*   </tbody> *@
-           @* </table> *@
-@*         </div> *@
-@*       </div> *@
-@*     </div> *@
-@* </div> *@
