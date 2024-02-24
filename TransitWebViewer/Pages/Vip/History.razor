@@ -28,6 +28,8 @@
   private const string RightArrowSpaces = $" {RightArrow} ";
 
   private static bool OnlyShowMainRoutes { get; set; } = false;
+
+  private static bool OnlyShowUpdates { get; set; } = true;
   
   private void UpdateOnlyShowMainRoutes(ChangeEventArgs e)
   {
@@ -38,6 +40,26 @@
     }
 
     OnlyShowMainRoutes = onlyShowMainRoutes;
+  }
+
+  private void UpdateOnlyUpdates(ChangeEventArgs e)
+  {
+    if (e.Value is not bool onlyShowUpdates)
+    {
+      Console.Error.WriteLine($"Invalid call to {nameof(UpdateOnlyUpdates)} with {e.Value}.");
+      return;
+    }
+
+    OnlyShowUpdates = onlyShowUpdates;
+  }
+
+  
+  private static IHistoryEntry? _previous = null;
+
+  private static string AssignPreviousHistory(IHistoryEntry? entry)
+  {
+    _previous = entry;
+    return string.Empty;
   }
 
 }
@@ -64,15 +86,22 @@
       so ergeben sich daraus zwei Fahrten pro 20 Minuten zwischen Kirschallee und S Hauptbahnhof
       und eine zwischen S Hauptbahnhof und Bisamkiez.
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyShowMainRoutes" id="flexCheckDefault">
-        <label class="form-check-label" for="flexCheckDefault">
+        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyShowMainRoutes" id="flexCheckOnlyMainRoutes">
+        <label class="form-check-label" for="flexCheckOnlyMainRoutes">
           Zeige nur Hauptrouten
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" @oninput="UpdateOnlyUpdates" id="flexCheckOnlyUpdates" checked="checked">
+        <label class="form-check-label" for="flexCheckOnlyUpdates">
+          Zeige nur Unterschiede
         </label>
       </div>
     </th>
   </tr>
   </thead>
   <tbody>
+  @(AssignPreviousHistory(null))
   @foreach (var entry in VipHistory.History)
   {
     <tr>
@@ -90,11 +119,18 @@
           </tr>
           </thead>
           <tbody>
-          @foreach (var (_, line) in entry.OrderedLinesById)
+          @foreach (var (lineId, line) in entry.OrderedLinesById)
           {
             @code {
 
-              private static List<Line.Route> DeduplicateRoutesStrict(IEnumerable<Line.Route> routes)
+              private static IEnumerable<Line.Route> DeduplicateWithPrevious(IEnumerable<Line.Route> routes, string lineId)
+              {
+                if (_previous is null) return routes;
+                var previousRoutes = DeduplicateRoutesStrict(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value.OverviewRoutes, lineId, false);
+                return routes.Where(route => !previousRoutes.Any(route.StrictlyIsSame));
+              }
+
+              private static List<Line.Route> DeduplicateRoutesStrict(IEnumerable<Line.Route> routes, string lineId, bool deduplicateWithPrevious = true)
               {
                 var result = new List<Line.Route>();
                 foreach (var route in routes)
@@ -113,11 +149,16 @@
                   result.Add(route);
                 }
 
+                if (deduplicateWithPrevious)
+                {
+                  result = DeduplicateWithPrevious(result, lineId).ToList();
+                }
+
                 return result;
               }
 
             }
-            @foreach (var overviewRoute in DeduplicateRoutesStrict(line.OverviewRoutes))
+            @foreach (var overviewRoute in DeduplicateRoutesStrict(line.OverviewRoutes, lineId, OnlyShowUpdates))
             {
               <tr>
                 <th scope="row">@line.Name</th>
@@ -174,11 +215,25 @@
           </tr>
           </thead>
           <tbody>
-          @foreach (var (_, line) in entry.OrderedLinesById)
+          @foreach (var (lineId, line) in entry.OrderedLinesById)
           {
             @code {
 
-              private static Dictionary<Line.Route, List<string>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies)
+              private static IEnumerable<KeyValuePair<Line.Route, List<string>>> RemoveDuplicatesWithPrevious(IEnumerable<KeyValuePair<Line.Route, List<string>>> frequencies, string lineId)
+              {
+                if (_previous is null) return frequencies;
+                var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
+                return frequencies.Where(frequency =>
+                {
+                  var value = previousFrequencies.Where(previous => frequency.Key.LooslyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
+                  var ret = value.Count == 0;
+                  Console.Error.WriteLine(frequency.Key);
+                  Console.Error.WriteLine(string.Join(" | ", value.Select(val => $"{val.Key}: {string.Join(", ", val.Value)}")));
+                  return ret;
+                });
+              }
+
+              private static Dictionary<Line.Route, List<string>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies, string lineId, bool deduplicateWithPrevious = true)
               {
                 var frequenciesList = frequencies.ToList();
                 for (var i = 0; i < frequenciesList.Count; ++i)
@@ -198,9 +253,15 @@
                   }
                 }
 
-                return new Dictionary<Line.Route, List<string>>(frequenciesList);
+                if (deduplicateWithPrevious)
+                {
+                  frequenciesList = RemoveDuplicatesWithPrevious(frequenciesList, lineId).ToList();
+                }
+
+                return frequenciesList.ToDictionary();
               }
-              private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line)
+
+              private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
               {
                 var school = line.GetFrequencies([
                   (new TimeOnly(4, 0), new TimeOnly(6, 0)),
@@ -232,20 +293,23 @@
                 {
                   school[route].AddRange(frequencies);
                 }
+
                 foreach (var (route, frequencies) in saturday)
                 {
                   school[route].AddRange(frequencies);
                 }
+
                 foreach (var (route, frequencies) in sunday)
                 {
                   school[route].AddRange(frequencies);
                 }
 
-                return RemoveDuplicates(school);
+                return RemoveDuplicates(school, lineId, deduplicateWithPrevious);
               }
 
             }
-            @foreach (var (route, frequencies) in GetFrequencies(line)) {
+            @foreach (var (route, frequencies) in GetFrequencies(line, lineId, OnlyShowUpdates))
+            {
               @if (!OnlyShowMainRoutes || line.MainRoutes.Contains(route))
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
@@ -263,6 +327,7 @@
         </table>
       </td>
     </tr>
+    @(AssignPreviousHistory(entry))
   }
   </tbody>
 </table>
