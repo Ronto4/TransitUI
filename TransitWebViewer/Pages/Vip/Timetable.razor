@@ -1,0 +1,174 @@
+@page "/vip/timetable"
+@using Timetables.Models
+@using Timetables.Vip
+
+<h3>ViP - Fahrpläne</h3>
+
+@code
+{
+    private static string TranslateDays(DaysOfOperation days) => TranslateDays(days.ToString());
+
+    private static string TranslateDays(string days) => days.Contains(", ")
+        ? string.Join(", ", days.Split(", ").Select(TranslateDays))
+        : days switch
+        {
+            nameof(DaysOfOperation.Monday) => "Mo",
+            nameof(DaysOfOperation.Tuesday) => "Di",
+            nameof(DaysOfOperation.Wednesday) => "Mi",
+            nameof(DaysOfOperation.Thursday) => "Do",
+            nameof(DaysOfOperation.Friday) => "Fr",
+            nameof(DaysOfOperation.Saturday) => "Sa",
+            nameof(DaysOfOperation.Sunday) => "So",
+            nameof(DaysOfOperation.School) => "Schule",
+            nameof(DaysOfOperation.Holiday) => "Ferien",
+            nameof(DaysOfOperation.Weekday) => "Mo–Fr",
+            nameof(DaysOfOperation.Weekend) => "Sa–So",
+            nameof(DaysOfOperation.Daily) => "täglich",
+            _ => days,
+        };
+
+    private static bool ShowDays(DaysOfOperation days) => ((DaysOfOperation[])
+    [
+        DaysOfOperation.Monday,
+        DaysOfOperation.Tuesday,
+        DaysOfOperation.Wednesday,
+        DaysOfOperation.Thursday,
+        DaysOfOperation.Friday,
+        DaysOfOperation.Saturday,
+        DaysOfOperation.Sunday,
+        DaysOfOperation.School,
+        DaysOfOperation.Holiday,
+        DaysOfOperation.Weekday,
+        DaysOfOperation.Weekend,
+        DaysOfOperation.Daily,
+    ]).Contains(days);
+    private static IHistoryEntry? _historyEntry = null;
+    private static IHistoryEntry? HistoryEntry
+    {
+        get => _historyEntry;
+        set
+        {
+            _historyEntry = value;
+            Line = null;
+        }
+    }
+
+    private static Line? _line = null;
+    private static Line? Line
+    {
+        get => _line;
+        set
+        {
+            _line = value;
+            Route = null;
+        }
+    }
+
+    private static Line.Route? _route = null;
+    private static Line.Route? Route
+    {
+        get => _route;
+        set
+        {
+            _route = value;
+        }
+    }
+
+    private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
+
+    private static IList<Line.Trip>? Trips => Line?.Trips.Where(trip => trip.Route == Route && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToList();
+    // private static Line Line { get; } = VipHistory.History[3].OrderedLinesById.Single(entry => entry.Key == "tram98").Value;
+    // private static Line.Route Route { get; } = Line.Routes[2];
+    // private static DaysOfOperation Day { get; } = DaysOfOperation.SchoolMonday;
+    // private static IList<Line.Trip> Trips { get; } = []; // Line.Trips.Where(trip => trip.Route == Route && (trip.DaysOfOperation & Day) == Day).ToList();
+}
+
+<div class="button-group">
+@* <div class="dropdown"> *@
+    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
+    </button>
+    <ul class="dropdown-menu">
+        @foreach (var historyEntry in VipHistory.History)
+        {
+            <li><a class="dropdown-item" @onclick="_ => HistoryEntry = historyEntry">ab @historyEntry.EffectiveDate</a></li>
+        }
+    </ul>
+@* </div> *@
+
+@if (HistoryEntry is not null)
+{
+    @* <div class="dropdown"> *@
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            @(Line is null ? "Linie" : Line.Name)
+        </button>
+        <ul class="dropdown-menu">
+            @foreach (var line in HistoryEntry.OrderedLinesById.Select(entry => entry.Value))
+            {
+                <li><a class="dropdown-item" @onclick="_ => Line = line">@line.Name</a></li>
+            }
+        </ul>
+    // </div>
+}
+
+@if (Line is not null)
+{
+    @* <div class="dropdown"> *@
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            @(Route is null ? "Route" : Route)
+        </button>
+        <ul class="dropdown-menu">
+            @foreach (var route in Line.Routes)
+            {
+                <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li>
+            }
+        </ul>
+    // </div>
+}
+
+@* <div class="dropdown"> *@
+    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        @TranslateDays(Days)
+    </button>
+    <ul class="dropdown-menu">
+        @foreach (var days in Enum.GetValues(typeof(DaysOfOperation)).Cast<DaysOfOperation>().Where(ShowDays))
+        {
+            <li><a class="dropdown-item" @onclick="_ => Days = days">@TranslateDays(days)</a></li>
+        }
+    </ul>
+@* </div> *@
+</div>
+
+@if (Trips is not null && Line is not null && Route is not null)
+{
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">
+                Haltestelle
+            </th>
+            @foreach (var trip in Trips)
+            {
+                <th scope="col">
+                    @TranslateDays(trip.DaysOfOperation)
+                    @*     Fahrt @i *@
+                </th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @for (var i = 0; i < Route.StopPositions.Length; ++i)
+        {
+            <tr>
+                <th scope="row">@Route.StopPositions[i].Stop.DisplayName</th>
+                @foreach (var t in Trips)
+                {
+                    <td>
+                        @t.TimeAtStop(i)
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+}
