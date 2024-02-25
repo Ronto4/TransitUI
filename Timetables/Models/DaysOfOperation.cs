@@ -4,6 +4,7 @@ namespace Timetables.Models;
 [Flags]
 public enum DaysOfOperation
 {
+    None = 0,
     SchoolMonday = 1 << 0,
     SchoolTuesday = 1 << 1,
     SchoolWednesday = 1 << 2,
@@ -16,6 +17,11 @@ public enum DaysOfOperation
     HolidayFriday = 1 << 9,
     Saturday = 1 << 10,
     Sunday = 1 << 11,
+    Monday = HolidayMonday | SchoolMonday,
+    Tuesday = HolidayTuesday | SchoolTuesday,
+    Wednesday = HolidayWednesday | SchoolWednesday,
+    Thursday = HolidayThursday | SchoolThursday,
+    Friday = HolidayFriday | SchoolFriday,
     School = SchoolMonday | SchoolTuesday | SchoolWednesday | SchoolThursday | SchoolFriday,
     Holiday = HolidayMonday | HolidayTuesday | HolidayWednesday | HolidayThursday | HolidayFriday,
     Weekday = School | Holiday,
