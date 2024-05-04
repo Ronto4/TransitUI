@@ -305,4 +305,5 @@ internal static class Stops
     public static Stop Tierheim { get; } = new() { Name = "Tierheim" };
     public static Stop BerlinSteinstücken { get; } = new() { Name = "Steinstücken", City = Berlin };
     public static Stop BerlinStahnsdorferBrücke { get; } = new() { Name = "Stahnsdorfer Brücke", City = Berlin };
+    public static Stop Wiesenpark { get; } = new() { Name = "Wiesenpark" };
 }

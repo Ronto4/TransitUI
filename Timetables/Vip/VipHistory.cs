@@ -35,6 +35,14 @@ public class VipHistory : IHistory
                                                     Nach mehr als eineinhalb Jahren kehrt die 98 zurück ins Stadtbild (außerhalb der Schlössernacht).
                                                     Drei Fahrten im 50-Minuten-Takt morgens zwischen Platz der Einheit und Bhf Rehbrücke unterstützen den Berufsverkehr.
                                                     Die erste nach Platz der Einheit und die letzte ab Platz der Einheit verkehren dabei ab/bis Bisamkiez.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 4, 22), """
+                                                    Nach einer geplanten Eröffnung im Frühjahr 2021 wird am 22. April 2024 die neue Haltestelle
+                                                    Wiesenpark (ursprünglicher Planungsname: Horst-Bienek-Str.) zwischen Campus Fachhochschule und
+                                                    Hannes-Meyer-Str. in Betrieb genommen. Ohne Feierlichkeiten wurde die Haltestelle mit
+                                                    Betriebsbeginn planmäßig bedient. Die Haltestelle wurde nach Informationen der ViP
+                                                    bereits zum Fahrplanwechsel im Dezember 2023 in den Fahrplan aufgenommen, sodass es
+                                                    an den anderen Haltestellen zu keinen Verschiebungen der Abfahrtszeiten kam.
                                                     """)
     ];
 }
