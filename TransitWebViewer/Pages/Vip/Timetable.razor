@@ -1,4 +1,5 @@
 @page "/vip/timetable"
+@using Timetables
 @using Timetables.Models
 @using Timetables.Vip
 
@@ -60,31 +61,68 @@
         set
         {
             _line = value;
-            Route = null;
+            Routes = [];
         }
     }
 
-    private static Line.Route? _route = null;
-    private static Line.Route? Route
-    {
-        get => _route;
-        set
-        {
-            _route = value;
-        }
-    }
+    private static List<Line.Route> Routes { get; set; } = []; 
+
+    // private static Line.Route? _route = null;
+    // private static Line.Route? Route
+    // {
+    //     get => _route;
+    //     set
+    //     {
+    //         _route = value;
+    //     }
+    // }
 
     private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
 
-    private static IList<Line.Trip>? Trips => Line?.Trips.Where(trip => trip.Route == Route && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToList();
-    // private static Line Line { get; } = VipHistory.History[3].OrderedLinesById.Single(entry => entry.Key == "tram98").Value;
-    // private static Line.Route Route { get; } = Line.Routes[2];
-    // private static DaysOfOperation Day { get; } = DaysOfOperation.SchoolMonday;
-    // private static IList<Line.Trip> Trips { get; } = []; // Line.Trips.Where(trip => trip.Route == Route && (trip.DaysOfOperation & Day) == Day).ToList();
+    private static IList<Line.Trip>? Trips => Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToList();
+
+    private static IEnumerable<Line.Trip> CleanTrips(IEnumerable<Line.Trip> trips)
+    {
+        // Sort. Consider every start of a trip until 01:15 LOC as belonging to the previous day.
+        var sortedTrips = trips
+            .Select(trip => (trip, trip.StartTime - new TimeOnly(1, 15)))
+            .OrderBy(trip => trip.Item2)
+            .Select(trip => trip.trip)
+            .ToList();
+        // Eliminate identical trips.
+        for (var i = 0; i < sortedTrips.Count; ++i)
+        {
+            var trip = sortedTrips[i];
+            var daysOfIdenticalTrips = sortedTrips
+                .Select((other, index) => (other, index))
+                .Skip(i + 1)
+                .Where(other => trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile)
+                .Select(other => (other.other.DaysOfOperation, other.index))
+                .ToList();
+            var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation, (current, day) => current | day.DaysOfOperation);
+            yield return trip with { DaysOfOperation = days };
+            // Remove duplicate entries
+            for (var j = 0; j < daysOfIdenticalTrips.Count; ++j)
+            {
+                sortedTrips.RemoveAt(daysOfIdenticalTrips[j].index - j);
+            }
+        }
+    }
+    
+    private static TimetableView TimetableView { get; set; }
+
+    private static string SetTimetableView(ICollection<Line.Trip> trips)
+    {
+        TimetableView = new TimetableView
+        {
+            SourceTrips = trips,
+        };
+        return string.Empty;
+    }
 }
 
 <div class="button-group">
-@* <div class="dropdown"> *@
+    @* <div class="dropdown"> *@
     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
     </button>
@@ -94,11 +132,11 @@
             <li><a class="dropdown-item" @onclick="_ => HistoryEntry = historyEntry">ab @historyEntry.EffectiveDate</a></li>
         }
     </ul>
-@* </div> *@
+    @* </div> *@
 
-@if (HistoryEntry is not null)
-{
-    @* <div class="dropdown"> *@
+    @if (HistoryEntry is not null)
+    {
+        @* <div class="dropdown"> *@
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             @(Line is null ? "Linie" : Line.Name)
         </button>
@@ -108,25 +146,25 @@
                 <li><a class="dropdown-item" @onclick="_ => Line = line">@line.Name</a></li>
             }
         </ul>
-    // </div>
-}
+        // </div>
+    }
 
-@if (Line is not null)
-{
+    @* @if (Line is not null) *@
+    @* { *@
+    @*     $1$ $2$ <div class="dropdown"> #2# #1# *@
+    @*     $1$     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> #1# *@
+    @*     $1$         @(Route is null ? "Route" : Route) #1# *@
+    @*     $1$     </button> #1# *@
+    @*     $1$     <ul class="dropdown-menu"> #1# *@
+    @*     $1$         @foreach (var route in Line.Routes) #1# *@
+    @*     $1$         { #1# *@
+    @*     $1$             <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li> #1# *@
+    @*     $1$         } #1# *@
+    @*     $1$     </ul> #1# *@
+    @*     $1$ // </div> #1# *@
+    @* } *@
+
     @* <div class="dropdown"> *@
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            @(Route is null ? "Route" : Route)
-        </button>
-        <ul class="dropdown-menu">
-            @foreach (var route in Line.Routes)
-            {
-                <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li>
-            }
-        </ul>
-    // </div>
-}
-
-@* <div class="dropdown"> *@
     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         @TranslateDays(Days)
     </button>
@@ -136,39 +174,88 @@
             <li><a class="dropdown-item" @onclick="_ => Days = days">@TranslateDays(days)</a></li>
         }
     </ul>
-@* </div> *@
+    @* </div> *@
 </div>
 
-@if (Trips is not null && Line is not null && Route is not null)
+@if (Line is not null)
 {
+    @foreach (var route in Line.Routes)
+    {
+        <div class="form-check-inline">
+            <input class="form-check-input" type="checkbox" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route); else Routes.Remove(route); }">
+            <label class="form-check-label" for="@route.GetHashCode()">
+                @route
+            </label>
+        </div>
+    }
+    @* $1$ <div class="dropdown"> #1# *@
+    @*     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> *@
+    @*         @(Route is null ? "Route" : Route) *@
+    @*     </button> *@
+    @*     <ul class="dropdown-menu"> *@
+    @*         @foreach (var route in Line.Routes) *@
+    @*         { *@
+    @*             <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li> *@
+    @*         } *@
+    @*     </ul> *@
+    @* // </div> *@
+}
+
+<hr/>
+
+@if (Trips is not null && Line is not null)
+{
+    @SetTimetableView(Trips)
     <table class="table table-striped table-hover">
         <thead>
         <tr>
             <th scope="col">
                 Haltestelle
             </th>
-            @foreach (var trip in Trips)
+            @foreach (var trip in TimetableView.Trips)
             {
                 <th scope="col">
                     @TranslateDays(trip.DaysOfOperation)
-                    @*     Fahrt @i *@
                 </th>
             }
+            @* @foreach (var trip in CleanTrips(Trips)) *@
+            @* { *@
+            @*     <th scope="col"> *@
+            @*         @TranslateDays(trip.DaysOfOperation) *@
+            @*         $1$     Fahrt @i #1# *@
+            @*     </th> *@
+            @* } *@
         </tr>
         </thead>
         <tbody>
-        @for (var i = 0; i < Route.StopPositions.Length; ++i)
+        @for (var i = 0; i < TimetableView.Stops.Count; ++i)
         {
             <tr>
-                <th scope="row">@Route.StopPositions[i].Stop.DisplayName</th>
-                @foreach (var t in Trips)
+                <th scope="row">@TimetableView.Stops.ElementAt(i).DisplayName</th>
+                @foreach (var trip in TimetableView.Trips)
                 {
-                    <td>
-                        @t.TimeAtStop(i)
-                    </td>
+                    <td>@trip.Times.ElementAt(i)</td>
                 }
             </tr>
         }
+        @* @foreach (var route in Routes) *@
+        @* { *@
+        @*     @for (var i = 0; i < route.StopPositions.Length; ++i) *@
+        @*     { *@
+        @*         <tr> *@
+        @*             <th scope="row">@route.StopPositions[i].Stop.DisplayName</th> *@
+        @*             @foreach (var t in CleanTrips(Trips)) *@
+        @*             { *@
+        @*                 <td> *@
+        @*                     @if (t.Route == route) *@
+        @*                     { *@
+        @*                         @t.TimeAtStop(i) *@
+        @*                     } *@
+        @*                 </td> *@
+        @*             } *@
+        @*         </tr> *@
+        @*     } *@
+        @* } *@
         </tbody>
     </table>
 }

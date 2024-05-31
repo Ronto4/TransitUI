@@ -815,13 +815,6 @@ public class Tram92From20240102 : ILineInstance
                 DaysOfOperation = DaysOfOperation.School,
                 StartTime = new TimeOnly(13, 16)
             },
-            new Line.TripCreate
-            {
-                RouteIndex = 6,
-                TimeProfileIndex = 0,
-                DaysOfOperation = DaysOfOperation.School,
-                StartTime = new TimeOnly(7, 56)
-            },
             ..new Line.TripCreate
             {
                 RouteIndex = 6,
@@ -988,8 +981,8 @@ public class Tram92From20240102 : ILineInstance
                 RouteIndex = 9,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.School,
-                StartTime = new TimeOnly(4, 57)
-            }.AlsoEvery(M20, new TimeOnly(6, 17)),
+                StartTime = new TimeOnly(5, 17)
+            }.AlsoEvery(M20, new TimeOnly(5, 57)),
             ..new Line.TripCreate
             {
                 RouteIndex = 9,
