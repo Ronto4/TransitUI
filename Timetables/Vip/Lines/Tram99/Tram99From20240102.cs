@@ -146,7 +146,7 @@ internal class Tram99From20240102 : ILineInstance
                 TimeProfiles = [
                     new Line.Route.TimeProfile
                     {
-                        StopDistances = [M1, M1, M2, M1, M2, M1, M1, M1, M2, M1, M1, M1, M1],
+                        StopDistances = [M1, M1, M2, M1, M1, M1, M1, M1, M2, M1, M1, M0, M1],
                     }
                 ],
                 CommonStopIndex = 0,
@@ -297,6 +297,20 @@ internal class Tram99From20240102 : ILineInstance
                 DaysOfOperation = DaysOfOperation.Sunday,
                 StartTime = new TimeOnly(6, 25)
             }.AlsoEvery(M20, new TimeOnly(7, 5)),
+            new Line.TripCreate
+            {
+                RouteIndex = 5,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekday,
+                StartTime = new TimeOnly(19, 15)
+            },
+            new Line.TripCreate
+            {
+                RouteIndex = 4,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekend,
+                StartTime = new TimeOnly(20, 24)
+            },
         ],
     };
 
