@@ -171,15 +171,15 @@ public static class RealTimeToDotMatrix
         var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background,
             RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
         var gif = await Animator.GifCreator.ConvertImageStreamsToGifStream(
-            pictures.Select(picture => picture.GetPicture()), cancellationToken);
+            await Task.WhenAll(pictures.Select(picture => picture.GetPicture())), cancellationToken);
         return gif;
     }
 
-    public static async Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)
+    public static Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)
     {
         var (messages, dimensions) = GenerateTarget(station);
-        return (messages.ToList(),
+        return Task.FromResult((messages.ToList(),
             new DotMatrixDimensions
-                {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)});
+                {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)}));
     }
 }

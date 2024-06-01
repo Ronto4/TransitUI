@@ -70,8 +70,8 @@
     private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
 
     private static IList<Line.Trip>? Trips => Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToList();
-    
-    private static TimetableView TimetableView { get; set; }
+
+    private static TimetableView TimetableView { get; set; } = null!; /* Will be set later on. */
 
     private static string SetTimetableView(ICollection<Line.Trip> trips)
     {
