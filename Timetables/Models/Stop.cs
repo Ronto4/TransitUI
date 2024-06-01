@@ -1,9 +1,11 @@
+using System.Numerics;
+
 namespace Timetables.Models;
 
 public record Stop
 {
     private const string Potsdam = "Potsdam";
-    public record Position
+    public record Position : IEqualityOperators<Position, Position, bool>
     {
         public required string Description { get; init; }
         public static implicit operator Position(string description) => new() { Description = description };
