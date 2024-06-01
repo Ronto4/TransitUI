@@ -43,6 +43,10 @@ public class VipHistory : IHistory
                                                     Betriebsbeginn planmäßig bedient. Die Haltestelle wurde nach Informationen der ViP
                                                     bereits zum Fahrplanwechsel im Dezember 2023 in den Fahrplan aufgenommen, sodass es
                                                     an den anderen Haltestellen zu keinen Verschiebungen der Abfahrtszeiten kam.
-                                                    """)
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 6, 6), """
+                                                   Aufgrund der Bauarbeiten in der nördlichen Friedrich-Ebert-Straße können die Straßenbahnen
+                                                   die Haltestelle Reiterweg/Alleestraße in Richtung Süden (Platz der Einheit) bis auf Weiteres nicht mehr bedienen.
+                                                   """),
     ];
 }
