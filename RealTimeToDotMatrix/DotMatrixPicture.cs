@@ -44,13 +44,13 @@ public class DotMatrixPicture
             //requestUri = HttpUtility.UrlEncode(requestUri);
             return requestUri;
         }
-        public Stream GetPicture(string? requestUri = null)
+        public async Task<Stream> GetPicture(string? requestUri = null)
         {
             requestUri ??= BuildUri();
-            string referer = @"http://avtanski.net/projects/lcd/";
-            HttpWebRequest request = WebRequest.CreateHttp(requestUri);
-            request.Referer = referer;
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            return response.GetResponseStream();
+            const string referer = @"http://avtanski.net/projects/lcd/";
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Referer", referer);
+            var response = await client.GetAsync(requestUri);
+            return await response.Content.ReadAsStreamAsync();
         }
 }
