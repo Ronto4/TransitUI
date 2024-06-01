@@ -65,49 +65,11 @@
         }
     }
 
-    private static List<Line.Route> Routes { get; set; } = []; 
-
-    // private static Line.Route? _route = null;
-    // private static Line.Route? Route
-    // {
-    //     get => _route;
-    //     set
-    //     {
-    //         _route = value;
-    //     }
-    // }
+    private static List<Line.Route> Routes { get; set; } = [];
 
     private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
 
     private static IList<Line.Trip>? Trips => Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToList();
-
-    private static IEnumerable<Line.Trip> CleanTrips(IEnumerable<Line.Trip> trips)
-    {
-        // Sort. Consider every start of a trip until 01:15 LOC as belonging to the previous day.
-        var sortedTrips = trips
-            .Select(trip => (trip, trip.StartTime - new TimeOnly(1, 15)))
-            .OrderBy(trip => trip.Item2)
-            .Select(trip => trip.trip)
-            .ToList();
-        // Eliminate identical trips.
-        for (var i = 0; i < sortedTrips.Count; ++i)
-        {
-            var trip = sortedTrips[i];
-            var daysOfIdenticalTrips = sortedTrips
-                .Select((other, index) => (other, index))
-                .Skip(i + 1)
-                .Where(other => trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile)
-                .Select(other => (other.other.DaysOfOperation, other.index))
-                .ToList();
-            var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation, (current, day) => current | day.DaysOfOperation);
-            yield return trip with { DaysOfOperation = days };
-            // Remove duplicate entries
-            for (var j = 0; j < daysOfIdenticalTrips.Count; ++j)
-            {
-                sortedTrips.RemoveAt(daysOfIdenticalTrips[j].index - j);
-            }
-        }
-    }
     
     private static TimetableView TimetableView { get; set; }
 
@@ -122,7 +84,6 @@
 }
 
 <div class="button-group">
-    @* <div class="dropdown"> *@
     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
     </button>
@@ -132,11 +93,9 @@
             <li><a class="dropdown-item" @onclick="_ => HistoryEntry = historyEntry">ab @historyEntry.EffectiveDate</a></li>
         }
     </ul>
-    @* </div> *@
 
     @if (HistoryEntry is not null)
     {
-        @* <div class="dropdown"> *@
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             @(Line is null ? "Linie" : Line.Name)
         </button>
@@ -146,25 +105,7 @@
                 <li><a class="dropdown-item" @onclick="_ => Line = line">@line.Name</a></li>
             }
         </ul>
-        // </div>
     }
-
-    @* @if (Line is not null) *@
-    @* { *@
-    @*     $1$ $2$ <div class="dropdown"> #2# #1# *@
-    @*     $1$     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> #1# *@
-    @*     $1$         @(Route is null ? "Route" : Route) #1# *@
-    @*     $1$     </button> #1# *@
-    @*     $1$     <ul class="dropdown-menu"> #1# *@
-    @*     $1$         @foreach (var route in Line.Routes) #1# *@
-    @*     $1$         { #1# *@
-    @*     $1$             <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li> #1# *@
-    @*     $1$         } #1# *@
-    @*     $1$     </ul> #1# *@
-    @*     $1$ // </div> #1# *@
-    @* } *@
-
-    @* <div class="dropdown"> *@
     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         @TranslateDays(Days)
     </button>
@@ -174,7 +115,6 @@
             <li><a class="dropdown-item" @onclick="_ => Days = days">@TranslateDays(days)</a></li>
         }
     </ul>
-    @* </div> *@
 </div>
 
 @if (Line is not null)
@@ -188,17 +128,6 @@
             </label>
         </div>
     }
-    @* $1$ <div class="dropdown"> #1# *@
-    @*     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> *@
-    @*         @(Route is null ? "Route" : Route) *@
-    @*     </button> *@
-    @*     <ul class="dropdown-menu"> *@
-    @*         @foreach (var route in Line.Routes) *@
-    @*         { *@
-    @*             <li><a class="dropdown-item" @onclick="_ => Route = route">@route</a></li> *@
-    @*         } *@
-    @*     </ul> *@
-    @* // </div> *@
 }
 
 <hr/>
@@ -218,13 +147,6 @@
                     @TranslateDays(trip.DaysOfOperation)
                 </th>
             }
-            @* @foreach (var trip in CleanTrips(Trips)) *@
-            @* { *@
-            @*     <th scope="col"> *@
-            @*         @TranslateDays(trip.DaysOfOperation) *@
-            @*         $1$     Fahrt @i #1# *@
-            @*     </th> *@
-            @* } *@
         </tr>
         </thead>
         <tbody>
@@ -234,28 +156,10 @@
                 <th scope="row">@TimetableView.Stops.ElementAt(i).DisplayName</th>
                 @foreach (var trip in TimetableView.Trips)
                 {
-                    <td>@trip.Times.ElementAt(i)</td>
+                    <td class="text-center">@trip.Times.ElementAt(i)</td>
                 }
             </tr>
         }
-        @* @foreach (var route in Routes) *@
-        @* { *@
-        @*     @for (var i = 0; i < route.StopPositions.Length; ++i) *@
-        @*     { *@
-        @*         <tr> *@
-        @*             <th scope="row">@route.StopPositions[i].Stop.DisplayName</th> *@
-        @*             @foreach (var t in CleanTrips(Trips)) *@
-        @*             { *@
-        @*                 <td> *@
-        @*                     @if (t.Route == route) *@
-        @*                     { *@
-        @*                         @t.TimeAtStop(i) *@
-        @*                     } *@
-        @*                 </td> *@
-        @*             } *@
-        @*         </tr> *@
-        @*     } *@
-        @* } *@
         </tbody>
     </table>
 }

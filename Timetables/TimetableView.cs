@@ -7,13 +7,13 @@ public delegate bool Comparer<in T>(T x, T y);
 
 file static class EnumerableExtensions
 {
-    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this ICollection<T> collection) => collection switch
+    public static IReadOnlyCollection<T> AsReadOnlyCollection<T>(this IEnumerable<T> collection) => collection switch
     {
         T[] array => new ArraySegment<T>(array),
         _ => throw new NotImplementedException(),
     };
 
-    public static int IndexOf<TSource>(this IReadOnlyCollection<TSource> collection, TSource element, int startIndex, Comparer<TSource> comparer)
+    public static int IndexOf<TSource>(this IEnumerable<TSource> collection, TSource element, int startIndex, Comparer<TSource> comparer)
     where TSource : IEqualityOperators<TSource, TSource, bool>
     {
         (TSource, int) defaultValueTuple = default;
@@ -29,8 +29,49 @@ public class TimetableView
 {
     public record TripView
     {
+        public record TimeEntry
+        {
+            public enum Variant
+            {
+                Time,
+                Skip,
+                BeforeOrAfter,
+            }
+
+            public Variant Type { get; private init; }
+            public TimeOnly? Time { get; private init; }
+
+            public static TimeEntry FromTime(TimeOnly time) => new()
+            {
+                Type = Variant.Time,
+                Time = time,
+            };
+
+            public static TimeEntry BeforeOrAfter() => new()
+            {
+                Type = Variant.BeforeOrAfter,
+                Time = null,
+            };
+
+            public static TimeEntry Skip() => new()
+            {
+                Type = Variant.Skip,
+                Time = null,
+            };
+
+            public override string ToString() => Type switch
+            {
+                Variant.Time => Time!.Value.ToString(),
+                Variant.Skip => "|",
+                Variant.BeforeOrAfter => "·",
+                _ => throw new ArgumentOutOfRangeException(nameof(Type), Type, "Enumerable was outside range."),
+            };
+
+            public TimeOnly? TimeOrNull() => Time;
+        }
+
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required ICollection<TimeOnly?> Times { get; init; }
+        public required ICollection<TimeEntry> Times { get; init; }
     }
 
     public required ICollection<Line.Trip> SourceTrips { private get; init; }
@@ -93,8 +134,10 @@ public class TimetableView
                 }
                 else
                 {
+                    // The position has to be put at the start since collapsed positions are down below in the route.
                     addedAt = j;
                     positions.Insert(addedAt, position);
+                    // Adjust mappings by this one offset by the added position.
                     foreach (var (_, map) in mapping)
                     {
                         for (var k = 0; k < map.Count; ++k)
@@ -104,6 +147,7 @@ public class TimetableView
                         }
                     }
 
+                    // Adjust collapsed indices the same way as the mapping.
                     for (var k = 0; k < firstCollapsedIndex.Length; ++k)
                     {
                         if (firstCollapsedIndex[k] == -1 || firstCollapsedIndex[k] < addedAt) continue;
@@ -119,7 +163,14 @@ public class TimetableView
                     while ((index = routes.ElementAt(k)
                                .IndexOf(position, currentStartPosition, PositionEqualityProvider)) >= 0)
                     {
-                        if (mapping[k][index] >= 0) continue;
+                        if (mapping[k][index] >= 0)
+                        {
+                            // The found position was already collapsed.
+                            // Continue search after the current find.
+                            currentStartPosition = index + 1;
+                            continue;
+                        }
+
                         mapping[k][index] = addedAt;
                         if (k != i) // You never collapse on your own station.
                         {
@@ -144,30 +195,46 @@ public class TimetableView
         var routes = trips.Select(trip => trip.Route).Distinct().ToList();
         var positionsLookup = routes.Select((_, index) => (index, new List<int>())).ToDictionary();
         var routeLookup = routes.Select((route, index) => (route, index)).ToDictionary();
-        var allPositions = CollapsePositions(positionsLookup, routes.Select(route => route.StopPositions.AsReadOnlyCollection()).ToList());
+        var allPositions = CollapsePositions(positionsLookup,
+            routes.Select(route => route.StopPositions.AsReadOnlyCollection()).ToList());
+        var routeFirstPositions =
+            positionsLookup.Select(kv => (kv.Key, kv.Value.Where(v => v >= 0).Min())).ToDictionary();
+        var routeLastPositions = positionsLookup.Select(kv => (kv.Key, kv.Value.Max())).ToDictionary();
         var allTrips = trips.Select(trip => new TripView
         {
             DaysOfOperation = trip.DaysOfOperation,
             Times = allPositions
-                .Select((_, positionIndex) => positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex))
-                .Select(routePositionIndex => routePositionIndex switch
+                .Select((_, positionIndex) => (
+                    routePositionIndex: positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex),
+                    index: positionIndex))
+                .Select(r => r.routePositionIndex switch
                 {
-                    -1 => null,
-                    _ => new TimeOnly?(trip.TimeAtStop(routePositionIndex)),
+                    -1 => r.index >= routeFirstPositions[routeLookup[trip.Route]] &&
+                          r.index <= routeLastPositions[routeLookup[trip.Route]]
+                        ? TripView.TimeEntry.Skip()
+                        : TripView.TimeEntry.BeforeOrAfter(),
+                    _ => TripView.TimeEntry.FromTime(trip.TimeAtStop(r.routePositionIndex)),
                 })
                 .ToList(),
         });
         _trips = allTrips.ToList();
         for (var positionIndex = allPositions.Count - 1; positionIndex >= 0; --positionIndex)
         {
-            _trips = _trips.OrderBy(tripView => tripView.Times.ElementAt(positionIndex), new NullableTimeOnlyComparer(new TimeOnly(3, 0))).ToList();
+            _trips = _trips
+                .OrderBy(
+                    tripView => tripView.Times.ElementAt(positionIndex).TimeOrNull(),
+                    new NullableTimeOnlyComparer(new TimeOnly(3, 0))
+                )
+                .ToList();
         }
+
         _stops = allPositions.Select(position => position.Stop).ToList();
     }
 
     private class NullableTimeOnlyComparer(TimeOnly startOfNewDay) : IComparer<TimeOnly?>
     {
         private static readonly long TotalTicks = new TimeOnly(23, 59, 59).Ticks;
+
         public int Compare(TimeOnly? x, TimeOnly? y)
         {
             if (x is null || y is null) return 0;
@@ -179,7 +246,7 @@ public class TimetableView
             return compare;
         }
     }
-    
+
     private static IEnumerable<Line.Trip> CleanTrips(IEnumerable<Line.Trip> trips)
     {
         // Sort. Consider every start of a trip until 01:15 LOC as belonging to the previous day.
@@ -198,7 +265,8 @@ public class TimetableView
                 .Where(other => trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile)
                 .Select(other => (other.other.DaysOfOperation, other.index))
                 .ToList();
-            var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation, (current, day) => current | day.DaysOfOperation);
+            var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation,
+                (current, day) => current | day.DaysOfOperation);
             yield return trip with { DaysOfOperation = days };
             // Remove duplicate entries
             for (var j = 0; j < daysOfIdenticalTrips.Count; ++j)
