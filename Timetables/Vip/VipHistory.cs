@@ -48,5 +48,12 @@ public class VipHistory : IHistory
                                                    Aufgrund der Bauarbeiten in der nördlichen Friedrich-Ebert-Straße können die Straßenbahnen
                                                    die Haltestelle Reiterweg/Alleestraße in Richtung Süden (Platz der Einheit) bis auf Weiteres nicht mehr bedienen.
                                                    """),
+        new HistoryEntry(new DateOnly(2024, 6, 8), """
+                                                   Aufgrund der Bauerbeiten in der nördlichen Friedrich-Ebert-Straße müssen am Wochenende des 8. und 9. Juni 2024
+                                                   die Straßenbahnlinien zwischen Platz der Einheit und Kirschallee bzw. Campus Jungfernsee unterbrochen werden.
+                                                   Es werden zwei Bauweichen für den ab 10. Juni 2024 eingleisig geführten Tramverkehr im Bereich der Haltestelle Reiterweg/Alleestraße eingebaut.
+                                                   Ersatzweise fahren Busse, auf der 96 auch die zum Platz der Einheit verlängerten Linien 609 und 638.
+                                                   Außerdem kommt es zu kleinen Fahrplanverschiebungen auf der Linie 99.
+                                                   """),
     ];
 }
