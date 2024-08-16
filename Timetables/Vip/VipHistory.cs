@@ -33,7 +33,7 @@ public class VipHistory : IHistory
         new HistoryEntry(new DateOnly(2024, 2, 11), "Die Bauarbeiten sind beendet; die Haltestelle Schillerplatz/Schafgraben wird wieder bedient."),
         new HistoryEntry(new DateOnly(2024, 2, 26), """
                                                     Nach mehr als eineinhalb Jahren kehrt die 98 zurück ins Stadtbild (außerhalb der Schlössernacht).
-                                                    Drei Fahrten im 50-Minuten-Takt morgens zwischen Platz der Einheit und Bhf Rehbrücke unterstützen den Berufsverkehr.
+                                                    Drei Fahrten im 50-Minuten-Takt morgens an Schultagen zwischen Platz der Einheit und Bhf Rehbrücke unterstützen den Berufsverkehr.
                                                     Die erste nach Platz der Einheit und die letzte ab Platz der Einheit verkehren dabei ab/bis Bisamkiez.
                                                     """),
         new HistoryEntry(new DateOnly(2024, 4, 22), """
@@ -55,5 +55,11 @@ public class VipHistory : IHistory
                                                    Ersatzweise fahren Busse, auf der 96 auch die zum Platz der Einheit verlängerten Linien 609 und 638.
                                                    Außerdem kommt es zu kleinen Fahrplanverschiebungen auf der Linie 99.
                                                    """),
+        new HistoryEntry(new DateOnly(2024, 6, 10), """
+                                                    Aufgrund der Bauarbeiten in der nördlichen Friedrich-Ebert-Straße wird der Tramverkehr im Bereich der Haltestelle
+                                                    Reiterweg/Alleestraße eingleisig auf dem stadtauswärtigem Gleis geführt. Dadurch kann die Haltestelle
+                                                    Reiterweg/Alleestraße in beiden Richtungen nicht mehr bedient werden. Außerdem kommt es zu Fahrtzeitverlängerungen
+                                                    auf den Linien 92 und 96 in beiden Richtungen sowie kleinen Anpassungen auf den Linien 91 und 94.
+                                                    """),
     ];
 }

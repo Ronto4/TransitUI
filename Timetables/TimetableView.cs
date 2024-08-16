@@ -33,8 +33,18 @@ public class TimetableView
         {
             public enum Variant
             {
+                /// <summary>
+                /// Used to display a concrete time (e.g. `12:13`).
+                /// </summary>
                 Time,
+                /// <summary>
+                /// Used to indicate that this trip skips this stop (e.g. `|`).
+                /// </summary>
                 Skip,
+                /// <summary>
+                /// Used to indicate that this stop is either before the first or after the last trip stop in the list.
+                /// May be indicated by a centred dot.
+                /// </summary>
                 BeforeOrAfter,
             }
 
