@@ -61,5 +61,10 @@ public class VipHistory : IHistory
                                                     Reiterweg/Alleestraße in beiden Richtungen nicht mehr bedient werden. Außerdem kommt es zu Fahrtzeitverlängerungen
                                                     auf den Linien 92 und 96 in beiden Richtungen sowie kleinen Anpassungen auf den Linien 91 und 94.
                                                     """),
+        new HistoryEntry(new DateOnly(2024, 8, 9), """
+                                                   Anlässlich der Schlössernacht wird von ca. 16 Uhr bis 20 Uhr und von ca. 21 Uhr bis 0:30 Uhr wieder die Tram 98 zwischen S Hauptbahnhof
+                                                   und Schloss Charlottenhof verkehren. Ebenso verkehrt der Bus X15 bis in die Nacht vom Hauptbahnhof zur Kirschallee.
+                                                   """),
+        new HistoryEntry(new DateOnly(2024, 8, 11), "Mit dem Ende der Schlössernacht werden auch die Verstärkerleistungen wieder eingestellt.")
     ];
 }
