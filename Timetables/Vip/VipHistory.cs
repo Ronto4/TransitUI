@@ -60,6 +60,7 @@ public class VipHistory : IHistory
                                                     Reiterweg/Alleestraße eingleisig auf dem stadtauswärtigem Gleis geführt. Dadurch kann die Haltestelle
                                                     Reiterweg/Alleestraße in beiden Richtungen nicht mehr bedient werden. Außerdem kommt es zu Fahrtzeitverlängerungen
                                                     auf den Linien 92 und 96 in beiden Richtungen sowie kleinen Anpassungen auf den Linien 91 und 94.
+                                                    Die baustellenbedingten Änderungen auf der Linie 99 vom Wochenende werden wieder rückgängig gemacht.
                                                     """),
         new HistoryEntry(new DateOnly(2024, 8, 9), """
                                                    Anlässlich der Schlössernacht wird von ca. 16 Uhr bis 20 Uhr und von ca. 21 Uhr bis 0:30 Uhr wieder die Tram 98 zwischen S Hauptbahnhof
