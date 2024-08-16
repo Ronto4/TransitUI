@@ -110,7 +110,7 @@ public record Line
         DaysOfOperation = trip.DaysOfOperation,
     });
 
-    public required ICollection<TripCreate> TripsCreate { private get; init; }
+    public required ICollection<TripCreate> TripsCreate { internal get; init; }
 
     public required TransportationType TransportationType { get; init; }
     // public required Stop[] NotableStops { get; init; }
