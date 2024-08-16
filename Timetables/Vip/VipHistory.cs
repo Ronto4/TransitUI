@@ -65,6 +65,11 @@ public class VipHistory : IHistory
                                                    Anlässlich der Schlössernacht wird von ca. 16 Uhr bis 20 Uhr und von ca. 21 Uhr bis 0:30 Uhr wieder die Tram 98 zwischen S Hauptbahnhof
                                                    und Schloss Charlottenhof verkehren. Ebenso verkehrt der Bus X15 bis in die Nacht vom Hauptbahnhof zur Kirschallee.
                                                    """),
-        new HistoryEntry(new DateOnly(2024, 8, 11), "Mit dem Ende der Schlössernacht werden auch die Verstärkerleistungen wieder eingestellt.")
+        new HistoryEntry(new DateOnly(2024, 8, 11), "Mit dem Ende der Schlössernacht werden auch die Verstärkerleistungen wieder eingestellt."),
+        new HistoryEntry(new DateOnly(2024, 8, 16), """
+                                                    Erneut wird die Friedrich-Ebert-Straße voll gesperrt; es wird die befahrene Gleisseite gewechselt.
+                                                    Die Tramlinien 92 und 96 verkehren wieder nur zwischen Marie-Juchacz-Str. und Platz der Einheit.
+                                                    Die Tram 99 wird freitags ganztägig bis S Hauptbahnhof verlängert.
+                                                    """),
     ];
 }
