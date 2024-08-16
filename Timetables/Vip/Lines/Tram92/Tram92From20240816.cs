@@ -8,6 +8,8 @@ public class Tram92From20240816 : ILineInstance
 {
     public DateOnly ValidFrom { get; } = new(2024, 8, 16);
 
+    public DateOnly? ValidUntilInclusive() => new DateOnly(2024, 8, 18);
+
     public Line Line { get; } = new()
     {
         Name = "92",

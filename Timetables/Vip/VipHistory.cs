@@ -72,5 +72,6 @@ public class VipHistory : IHistory
                                                     Die Tramlinien 92 und 96 verkehren wieder nur zwischen Marie-Juchacz-Str. und Platz der Einheit.
                                                     Die Tram 99 wird freitags ganztägig bis S Hauptbahnhof verlängert.
                                                     """),
+        new HistoryEntry(new DateOnly(2024, 8, 19), "Nach Beendigung der Sperrung gilt wieder der reguläre Baufahrplan."),
     ];
 }
