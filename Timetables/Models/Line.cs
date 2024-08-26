@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Timetables.Models;
 
 public record Line

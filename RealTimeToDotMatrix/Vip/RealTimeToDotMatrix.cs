@@ -5,8 +5,6 @@ namespace RealTimeToDotMatrix.Vip;
 
 public static class RealTimeToDotMatrix
 {
-    private static uint MinimalCols => 32;
-    private static uint MaximalCols => 64;
     private static uint MaximalRows => 16;
     private static uint UsableRows => MaximalRows - 6;
 
@@ -163,16 +161,6 @@ public static class RealTimeToDotMatrix
         }
 
         return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), ((uint)targetCols, MaximalRows));
-    }
-
-    public static async Task<Stream> Convert(Station station, CancellationToken cancellationToken)
-    {
-        var (messages, dimensions) = GenerateTarget(station);
-        var pictures = messages.Select(message => new DotMatrixPicture(message, RgbColor.Border, RgbColor.Background,
-            RgbColor.InactivePixels, RgbColor.ActivePixels, dimensions));
-        var gif = await Animator.GifCreator.ConvertImageStreamsToGifStream(
-            await Task.WhenAll(pictures.Select(picture => picture.GetPicture())), cancellationToken);
-        return gif;
     }
 
     public static Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)

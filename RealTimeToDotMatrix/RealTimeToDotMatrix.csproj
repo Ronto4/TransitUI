@@ -10,7 +10,6 @@
     <ItemGroup>
       <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
       <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
-      <ProjectReference Include="..\Animator\Animator.csproj" />
     </ItemGroup>
 
 </Project>
