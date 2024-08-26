@@ -1,8 +1,5 @@
 @page "/vip/manual-history"
 @using System.Text
-@using Timetables
-@using Timetables.Models
-@using Timetables.Vip
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -40,15 +37,6 @@
     }
 
     OnlyShowMainRoutes = onlyShowMainRoutes;
-
-    // if (onlyShowMainRoutes)
-    // {
-    //   Timer?.Dispose();
-    // }
-    // else
-    // {
-    //   StartPageStepping();
-    // }
   }
 
   private readonly struct Frequency

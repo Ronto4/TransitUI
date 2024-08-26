@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace RealTimeModels.Vip.JsonObjects;
 
 class Route

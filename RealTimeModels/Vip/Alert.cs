@@ -2,17 +2,9 @@ using RealTimeModels.Vip.JsonObjects;
 
 namespace RealTimeModels.Vip;
 
-public class Alert
+public record Alert(string Message)
 {
-    // Attributes
-    public string Message { get; }
-    // Constructors
-    public Alert(string message)
+    internal Alert(AlertEntry entry) : this(entry.title)
     {
-        Message = message;
-    }
-    internal Alert(AlertEntry entry)
-    {
-        Message = entry.title;
     }
 }

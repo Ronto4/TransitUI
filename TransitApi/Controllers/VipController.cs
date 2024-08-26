@@ -28,33 +28,12 @@ public class VipController : ControllerBase
             return NotFound();
         }
     }
-    
-    [HttpGet("test")]
-    public IActionResult Test()
-    {
-        var stream = new MemoryStream();
-        var canvas =
-            new DotMatrixCanvas<Rgb24>(new DotMatrixDimensions {Width = 10, Height = 10}, new Rgb24(0x23, 0x29, 0x23),
-                new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
-        canvas.SaveToStream(stream);
-        stream.Seek(0, SeekOrigin.Begin);
-        return File(stream, "image/png");
-    }
 
+    [Obsolete("The functionality of generating GIFs has been removed.")]
     [HttpGet("{id:int}/dotmatrix")]
-    public async Task<IActionResult> GetDotMatrixById(int id, CancellationToken cancellationToken)
+    public IActionResult GetDotMatrixById()
     {
-        try
-        {
-            var station = await Crawler.GetFromWeb(id, cancellationToken);
-            var stream = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.Convert(station, cancellationToken);
-            return File(stream, "image/gif");
-        }
-        catch (WebException ex)
-        {
-            var json = JsonSerializer.Serialize(ex.ToString());
-            return NotFound(json);
-        }
+        return RedirectPermanentPreserveMethod($"dotmatrix/1");
     }
 
     [HttpGet("{id:int}/dotmatrix/info")]

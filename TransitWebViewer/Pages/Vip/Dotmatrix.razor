@@ -1,46 +1,11 @@
 @page "/vip/dotmatrix"
-@using System.ComponentModel.DataAnnotations
-@using System.Diagnostics
-@using DotMatrixDisplay
-@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @using RealTimeDataCrawler.Vip
-@using RealTimeToDotMatrix.Vip
-@using SixLabors.ImageSharp.PixelFormats
 @implements IDisposable
 @inject NavigationManager NavigationManager
-@inject IWebAssemblyHostEnvironment HostEnvironment
-@inject IJSRuntime Js
 
 <PageTitle>Ronto4 - Transit - ViP</PageTitle>
 
 <h3>ViP &ndash; Anzeigen</h3>
-
-@*<p>
-    <img id="image" alt="DMI" src=""/>
-</p>
-
-<button @onclick="SetImageAsync">
-    Set Image
-</button>
-
-@code {
-
-    DotMatrixCanvas<Rgb24> DotMatrixCanvas { get; } = new(10, 10, new Rgb24(0x23, 0x29, 0x23), new Rgb24(0x23, 0x2d, 0x23), new Rgb24(0xd1, 0x5a, 0x1a));
-    private Stream GetImageStream()
-    {
-        var stream = new MemoryStream();
-        DotMatrixCanvas.SaveToStream(stream);
-        return stream;
-    }
-
-    private async Task SetImageAsync()
-    {
-        var imageStream = GetImageStream();
-        var dotnetImageStream = new DotNetStreamReference(imageStream);
-        await Js.InvokeVoidAsync("setImage", "image", dotnetImageStream);
-        Console.WriteLine("Done");
-    }
-}*@
 
 @code
 {
@@ -89,6 +54,16 @@
     async Task<bool> UpdatePageCount(CancellationToken? cancellationToken = null)
     {
         cancellationToken ??= new CancellationToken();
+
+        var pageCountUrl = ApiUrl.Replace("%STOP_ID%", StopId.ToString()).Replace("%PAGE_ID%", "info");
+        var pageCountString = await DownloadString(pageCountUrl, cancellationToken.Value);
+        if (pageCountString is null)
+        {
+            return false;
+        }
+        PageCount = int.Parse(pageCountString);
+        return true;
+
         // Source: https://stackoverflow.com/a/76582825
         static async Task<string?> DownloadString(string url, CancellationToken cancellationToken)
         {
@@ -103,15 +78,6 @@
                 return null;
             }
         }
-
-        var pageCountUrl = ApiUrl.Replace("%STOP_ID%", StopId.ToString()).Replace("%PAGE_ID%", "info");
-        var pageCountString = await DownloadString(pageCountUrl, cancellationToken.Value);
-        if (pageCountString is null)
-        {
-            return false;
-        }
-        PageCount = int.Parse(pageCountString);
-        return true;
     }
 
     async Task StopStep(CancellationToken? cancellationToken)
@@ -142,14 +108,13 @@
     async Task PageStep()
     {
         await UpdatePageCount();
-        // var previousPageId = PageId;
         PageId++;
         if (PageId > PageCount)
         {
             PageId = 1;
         }
         // Always toggle refresh to force reloading even if page didn't change.
-        /*if (PageId != previousPageId)*/ RefreshDotMatrix();
+        RefreshDotMatrix();
     }
 
     protected override void OnInitialized()
@@ -218,85 +183,7 @@
             <img src="@ImageSource" alt="Abfahrtstafel" class="img-fluid" />
 
         </div>
-        
-        @* <div class="col"> *@
-        @*     $1$ <button @onclick="() => Timer?.Dispose()">Stop</button> #1# *@
-        @*      *@
-        @*      *@
-        @*     <button type="button" class="btn btn-primary" @onclick="() => StopStep(new CancellationToken())">Eins weiter</button> *@
-        @* </div> *@
 
     </div>
 
 </div>
-
-@* @if (Request is not null)
-{
-    <div class="form-group">
-        <EditForm Model="@Request">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>
-
-            <label for="stopId">ID der Haltestelle</label>
-
-            <InputNumber class="form-control" id="stopId" @bind-Value="Request.StopId"/>
-            <small id="stopIdHelp" class="form-text text-muted">Numerische ID der gesuchten Haltestelle von 1 bis 1000 (nicht alle IDs sind besetzt).</small>
-            <br/>
-            <button class="btn btn-primary" type="submit">Anzeigetafel anzeigen</button>
-        </EditForm>
-    </div>
-
-    <br/>
-
-    @if (Request.StopId is not null)
-    {
-        <div style="height: 75vh;">
-            <a href="@Request.DotmatrixUrl">
-                <img src="@Request.DotmatrixUrl" alt="Abfahrtstafel" class="img-fluid" style="max-height: 100%;"/>
-            </a>
-            <br/>
-            <br/>
-            <a href="@Request.InfoUrl">
-                Rohdaten (formatiert)
-            </a>
-            <br/>
-            <br/>
-            <a href="@Request.JsonUrl">
-                Rohdaten (Json)
-            </a>
-        </div>
-    }
-}
-
-@code {
-
-    private class VipRequestModel
-    {
-        internal VipRequestModel(string hostUri, IWebAssemblyHostEnvironment environment)
-        {
-            if (environment.IsDevelopment())
-                return;
-            HostUri = hostUri;
-        }
-
-        [Required(ErrorMessage = "Die Haltestellen-ID muss angegeben werden")]
-        [Range(1, 1000, ErrorMessage = "Die Haltestellen-ID muss zwischen 1 und 1000 liegen")]
-        public int? StopId { get; set; }
-
-        private string HostUri { get; } = "https://transit.ronto4.dynv6.net/";
-
-        private string BaseUrl => $"{HostUri}api/vip/";
-        public string CheckUrl => $"{BaseUrl}{StopId}";
-        public string DotmatrixUrl => $"{BaseUrl}{StopId}/dotmatrix";
-        public string InfoUrl => $"{BaseUrl}{StopId}/info";
-        public string JsonUrl => $"{BaseUrl}{StopId}/json";
-    }
-
-    private VipRequestModel? Request { get; set; }
-
-    protected override void OnInitialized()
-    {
-        Request = new VipRequestModel(NavigationManager.BaseUri, HostEnvironment);
-    }
-
-}*@

@@ -19,14 +19,10 @@ public static class Crawler
     public static async Task<string> GetJsonSource(int stopId, CancellationToken cancellationToken) =>
         await GetJsonSource(stopId, RequestUri, cancellationToken);
 
-    public static async Task<string> GetJsonSource(int stopId, string requestUri, CancellationToken cancellationToken)
+    private static async Task<string> GetJsonSource(int stopId, string requestUri, CancellationToken cancellationToken)
     {
         var url = requestUri.Replace("%STOP_ID%", stopId.ToString());
         return await DownloadString(url, cancellationToken);
-        // using HttpClient httpClient = new();
-        // var response = await httpClient.GetAsync(RequestUri.Replace("%STOP_ID%", stopId.ToString()), cancellationToken);
-        // response.EnsureSuccessStatusCode();
-        // return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     // Source: https://stackoverflow.com/a/76582825
