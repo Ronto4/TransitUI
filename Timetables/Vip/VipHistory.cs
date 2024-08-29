@@ -73,5 +73,13 @@ public class VipHistory : IHistory
                                                     Die Tram 99 wird freitags ganztägig bis S Hauptbahnhof verlängert.
                                                     """),
         new HistoryEntry(new DateOnly(2024, 8, 19), "Nach Beendigung der Sperrung gilt wieder der reguläre Baufahrplan."),
+        new HistoryEntry(new DateOnly(2024, 8, 26), """
+                                                    Aufgrund von Gleisbauarbeiten in Höhe Alt Nowawes wird die Tram 94 nach Glienicker Brücke umgeleitet;
+                                                    ein Ersatzverkehr verkehrt alle 20 Minuten ab Plantagenstr. als Ringlinie über Rathaus Babelsberg,
+                                                    S Hauptbahnhof/Nord ILB und Platz der Einheit/Bildungsforum.
+                                                    Die Tram 99 entfällt ersatzlos.
+                                                    Die Tram 93 verkehrt zwischen S Hauptbahnhof und Glienicker Brücke freitags und samstags bis 1 Uhr im Spätverkehr.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 9, 1), "Die Bauarbeiten in Alt Nowawes sind beendet, die Fahrten nach Babelsberg folgen wieder dem regulären Fahrplan."),
     ];
 }
