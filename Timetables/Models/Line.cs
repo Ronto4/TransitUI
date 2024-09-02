@@ -4,7 +4,8 @@ public record Line
 {
     public record Route
     {
-        public override string ToString() => $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
+        public override string ToString() =>
+            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
 
         public record TimeProfile
         {
@@ -44,6 +45,7 @@ public record Line
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
+        public required (string symbol, string text)? Annotation { get; init; }
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -65,6 +67,7 @@ public record Line
         public required Index TimeProfileIndex { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
+        public string AnnotationSymbol { get; init; }
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)
         {
@@ -77,7 +80,8 @@ public record Line
 
             yield return this;
             var newStartTime = StartTime;
-            while ((newStartTime = newStartTime.Add(interval)) <= until || newStartTime >= StartTime && until < StartTime)
+            while ((newStartTime = newStartTime.Add(interval)) <= until ||
+                   newStartTime >= StartTime && until < StartTime)
             {
                 yield return this with { StartTime = newStartTime };
                 // The next add would land after `until`.
@@ -100,17 +104,20 @@ public record Line
 
     public required string Name { get; init; }
     public required Route[] Routes { get; init; }
+
     public IEnumerable<Trip> Trips => TripsCreate.Select(trip => new Trip
     {
         Route = Routes[trip.RouteIndex],
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
+        Annotation = trip.AnnotationSymbol is { } symbol ? (symbol, Annotations[symbol]) : null,
     });
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }
 
     public required TransportationType TransportationType { get; init; }
+
     // public required Stop[] NotableStops { get; init; }
     public IEnumerable<Route> MainRoutes => MainRouteIndices.Select(index => Routes[index]);
 
@@ -118,6 +125,8 @@ public record Line
     public IEnumerable<Route> OverviewRoutes => OverviewRouteIndices.Select(index => Routes[index]);
 
     public required Index[] OverviewRouteIndices { get; init; }
+
+    public Dictionary<string, string> Annotations { get; init; } = new();
 
     public Dictionary<Route, List<string>> GetFrequencies(List<(TimeOnly startTime, TimeOnly endTime)> timeLimits,
         DaysOfOperation daysOfOperation)
@@ -129,6 +138,7 @@ public record Line
         {
             route.InterpretAsBidirectional = false;
         }
+
         var result = Trips
             .Where(trip => (trip.DaysOfOperation & daysOfOperation) == daysOfOperation)
             .GroupBy(trip => trip.Route)
@@ -160,7 +170,7 @@ public record Line
                 {
                     return singleTrips;
                 }
-                    
+
                 // Check histogram (only if there is more than one different interval).
                 var frequencies = intervals
                     .GroupBy(self => self)
@@ -271,6 +281,7 @@ public record Line
             if (result.ContainsKey(route)) continue;
             result.Add(route, Enumerable.Range(0, timeLimits.Count).Select(_ => none).ToList());
         }
+
         return result;
     }
 }

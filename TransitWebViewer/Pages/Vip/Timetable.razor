@@ -155,6 +155,11 @@
             {
                 <th scope="col" class="text-center">
                     @TranslateDays(trip.DaysOfOperation)
+                    @if (trip.AnnotationSymbol is { } annotationSymbol)
+                    {
+                        <hr/>
+                        @annotationSymbol
+                    }
                 </th>
             }
         </tr>
@@ -172,4 +177,13 @@
         }
         </tbody>
     </table>
+
+    <ul class="list-group">
+        @foreach (var (symbol, text) in Line.Annotations)
+        {
+            <li class="list-group-item">
+                @symbol: @text
+            </li>
+        }
+    </ul>
 }
