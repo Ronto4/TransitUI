@@ -292,7 +292,7 @@ internal class Tram93From20240102 : ILineInstance
                 RouteIndex = 1,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.School,
-                StartTime = new TimeOnly(7, 58),
+                StartTime = new TimeOnly(6, 58),
             },
             new Line.TripCreate
             {
