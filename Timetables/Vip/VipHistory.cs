@@ -81,5 +81,12 @@ public class VipHistory : IHistory
                                                     Die Tram 93 verkehrt zwischen S Hauptbahnhof und Glienicker Brücke freitags und samstags bis 1 Uhr im Spätverkehr.
                                                     """),
         new HistoryEntry(new DateOnly(2024, 9, 1), "Die Bauarbeiten in Alt Nowawes sind beendet, die Fahrten nach Babelsberg folgen wieder dem regulären Fahrplan."),
+        new HistoryEntry(new DateOnly(2024, 9, 9), """
+                                                   Aufgrund von Gleisbauarbeiten in der Ankunftshaltestelle des Wendedreiecks Glienicker Brücke
+                                                   verkehrt die Tram 93 nur zwischen Platz der Einheit und Bf Rehbrücke.
+                                                   Der Ersatzverkehr verkehrt auch morgens am Wochenende nur bis Platz der Einheit;
+                                                   der Abschnitt nach S Hauptbahnhof entfällt ersatzlos zu diesen Zeiten.
+                                                   """),
+        new HistoryEntry(new DateOnly(2024, 9, 21), "Die Bauarbeiten in der Berliner Straße sind beendet, die Tram 93 fährt wieder nach dem regulären Fahrplan."),
     ];
 }
