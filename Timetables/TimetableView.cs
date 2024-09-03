@@ -81,6 +81,7 @@ public class TimetableView
         }
 
         public required DaysOfOperation DaysOfOperation { get; init; }
+        public required string? AnnotationSymbol { get; init; }
         public required ICollection<TimeEntry> Times { get; init; }
     }
 
@@ -213,6 +214,7 @@ public class TimetableView
         var allTrips = trips.Select(trip => new TripView
         {
             DaysOfOperation = trip.DaysOfOperation,
+            AnnotationSymbol = trip.Annotation is {} annotation ? annotation.symbol : null,
             Times = allPositions
                 .Select((_, positionIndex) => (
                     routePositionIndex: positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex),
