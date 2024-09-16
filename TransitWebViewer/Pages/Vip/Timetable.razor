@@ -88,6 +88,7 @@
         TimetableView = new TimetableView
         {
             SourceTrips = trips,
+            DaysOfOperation = Days,
         };
         return string.Empty;
     }
@@ -154,7 +155,7 @@
             @foreach (var trip in TimetableView.Trips)
             {
                 <th scope="col" class="text-center">
-                    @TranslateDays(trip.DaysOfOperation)
+                    @(trip.DaysOfOperation is {} daysOfOperation ? TranslateDays(daysOfOperation) : "")
                     @if (trip.AnnotationSymbol is { } annotationSymbol)
                     {
                         <hr/>
@@ -168,10 +169,10 @@
         @for (var i = 0; i < TimetableView.Stops.Count; ++i)
         {
             <tr>
-                <th scope="row">@TimetableView.Stops.ElementAt(i).DisplayName</th>
+                <th scope="row" class="align-content-center">@TimetableView.Stops.ElementAt(i).DisplayName</th>
                 @foreach (var trip in TimetableView.Trips)
                 {
-                    <td class="text-center">@trip.Times.ElementAt(i)</td>
+                    <td class="text-center align-content-center">@trip.ElementAt(i)</td>
                 }
             </tr>
         }
