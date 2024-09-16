@@ -87,6 +87,14 @@ public class VipHistory : IHistory
                                                    Der Ersatzverkehr verkehrt auch morgens am Wochenende nur bis Platz der Einheit;
                                                    der Abschnitt nach S Hauptbahnhof entfällt ersatzlos zu diesen Zeiten.
                                                    """),
-        new HistoryEntry(new DateOnly(2024, 9, 21), "Die Bauarbeiten in der Berliner Straße sind beendet, die Tram 93 fährt wieder nach dem regulären Fahrplan."),
+        new HistoryEntry(new DateOnly(2024, 9, 21), """
+                                                    Die Bauarbeiten in der Berliner Straße sind beendet, die Tram 93 fährt wieder nach dem regulären Fahrplan.
+                                                    <br>
+                                                    Außerdem ist an diesem Wochenende die Friedrich-Ebert-Straße wieder voll gesperrt.
+                                                    Es wird ein der Juni-Sperrung vergleichbares Konzept gefahren, allerdings ohne die Änderungen an der Tram 99.
+                                                    Außerdem wird die Ersatzlinie der 92 am Sonntag mit einer Schleife von Campus Fachhochschule zusätzlich die Haltestelle Volkspark
+                                                    bedienen, da dort an diesem Wochenende das Stadtwerke-Fest stattfindet.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 9, 23), "Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach dem regulären Baufahrplan."),
     ];
 }

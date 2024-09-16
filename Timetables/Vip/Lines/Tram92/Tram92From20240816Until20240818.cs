@@ -4,7 +4,7 @@ namespace Timetables.Vip.Lines.Tram92;
 
 using static Minutes;
 
-public class Tram92From20240816 : ILineInstance
+public class Tram92From20240816Until20240818 : ILineInstance
 {
     public DateOnly ValidFrom { get; } = new(2024, 8, 16);
 
