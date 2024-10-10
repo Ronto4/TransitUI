@@ -91,10 +91,13 @@ public class VipHistory : IHistory
                                                     Die Bauarbeiten in der Berliner Straße sind beendet, die Tram 93 fährt wieder nach dem regulären Fahrplan.
                                                     <br>
                                                     Außerdem ist an diesem Wochenende die Friedrich-Ebert-Straße wieder voll gesperrt.
-                                                    Es wird ein der Juni-Sperrung vergleichbares Konzept gefahren, allerdings ohne die Änderungen an der Tram 99.
+                                                    Es wird das Konzept der Juni-Sperrung vergleichbares gefahren, auch wenn die Änderungen an der Tram 99 diesmal nicht kommuniziert wurden.
                                                     Außerdem wird die Ersatzlinie der 92 am Sonntag mit einer Schleife von Campus Fachhochschule zusätzlich die Haltestelle Volkspark
                                                     bedienen, da dort an diesem Wochenende das Stadtwerke-Fest stattfindet.
                                                     """),
-        new HistoryEntry(new DateOnly(2024, 9, 23), "Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach dem regulären Baufahrplan."),
+        new HistoryEntry(new DateOnly(2024, 9, 23), """
+                                                    Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach einem Baufahrplan.
+                                                    Dieser wurde aber angepasst. So wird nun in beide Richtungen eine Minute weniger zwischen Puschkinallee und Rathaus eingeplant.
+                                                    """),
     ];
 }
