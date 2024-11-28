@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using Timetables.Models;
 
@@ -27,7 +28,39 @@ file static class EnumerableExtensions
 
 public class TimetableView
 {
-    public record TripView
+    public interface ITimetableColumn
+    {
+        public DaysOfOperation? DaysOfOperation { get; }
+        public string? AnnotationSymbol { get; }
+        public string? ElementAt(int index);
+    }
+
+    public record FrequencyColumn : ITimetableColumn
+    {
+        /// <summary>
+        /// The frequency to display.
+        /// </summary>
+        public required TimeSpan Interval { get; init; }
+
+        /// <summary>
+        /// The row at which the first time entry is present.
+        /// </summary>
+        public required int StartRow { get; init; }
+
+        DaysOfOperation? ITimetableColumn.DaysOfOperation => null;
+
+        string? ITimetableColumn.AnnotationSymbol => null;
+
+        string? ITimetableColumn.ElementAt(int index) => StartRow > 0 ? index switch
+            {
+                _ when index == StartRow - 1 => Interval.TotalMinutes.ToString(CultureInfo.CurrentCulture),
+                _ when index == StartRow => @"\/",
+                _ => null,
+            } :
+            index == 0 ? $@"{Interval.TotalMinutes.ToString(CultureInfo.CurrentCulture)} \/" : null;
+    }
+
+    public record TripView : ITimetableColumn
     {
         public record TimeEntry
         {
@@ -37,10 +70,12 @@ public class TimetableView
                 /// Used to display a concrete time (e.g. `12:13`).
                 /// </summary>
                 Time,
+
                 /// <summary>
                 /// Used to indicate that this trip skips this stop (e.g. `|`).
                 /// </summary>
                 Skip,
+
                 /// <summary>
                 /// Used to indicate that this stop is either before the first or after the last trip stop in the list.
                 /// May be indicated by a centred dot.
@@ -81,17 +116,21 @@ public class TimetableView
         }
 
         public required DaysOfOperation DaysOfOperation { get; init; }
+        DaysOfOperation? ITimetableColumn.DaysOfOperation => DaysOfOperation;
         public required string? AnnotationSymbol { get; init; }
         public required ICollection<TimeEntry> Times { get; init; }
+        string ITimetableColumn.ElementAt(int index) => Times.ElementAt(index).ToString();
     }
 
     public required ICollection<Line.Trip> SourceTrips { private get; init; }
+    public required DaysOfOperation DaysOfOperation { get; init; }
+    public required bool DoCollapseTrips { get; init; }
 
     public Comparer<Stop.Position> PositionEqualityProvider { private get; init; } =
         (a, b) => a.Stop.DisplayName == b.Stop.DisplayName;
 
     private ICollection<Stop>? _stops = null;
-    private ICollection<TripView>? _trips = null;
+    private ICollection<ITimetableColumn>? _trips = null;
 
     public ICollection<Stop> Stops
     {
@@ -106,7 +145,7 @@ public class TimetableView
         }
     }
 
-    public ICollection<TripView> Trips
+    public ICollection<ITimetableColumn> Trips
     {
         get
         {
@@ -214,7 +253,7 @@ public class TimetableView
         var allTrips = trips.Select(trip => new TripView
         {
             DaysOfOperation = trip.DaysOfOperation,
-            AnnotationSymbol = trip.Annotation is {} annotation ? annotation.symbol : null,
+            AnnotationSymbol = trip.Annotation is { } annotation ? annotation.symbol : null,
             Times = allPositions
                 .Select((_, positionIndex) => (
                     routePositionIndex: positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex),
@@ -229,10 +268,10 @@ public class TimetableView
                 })
                 .ToList(),
         });
-        _trips = allTrips.ToList();
+        var tripViews = allTrips.ToList();
         for (var positionIndex = allPositions.Count - 1; positionIndex >= 0; --positionIndex)
         {
-            _trips = _trips
+            tripViews = tripViews
                 .OrderBy(
                     tripView => tripView.Times.ElementAt(positionIndex).TimeOrNull(),
                     new NullableTimeOnlyComparer(new TimeOnly(3, 0))
@@ -240,7 +279,76 @@ public class TimetableView
                 .ToList();
         }
 
+        _trips = DoCollapseTrips ? CollapseTrips(tripViews, DaysOfOperation).ToList() : [..tripViews];
+
         _stops = allPositions.Select(position => position.Stop).ToList();
+    }
+
+    private static IEnumerable<ITimetableColumn> CollapseTrips(List<TripView> trips, DaysOfOperation tripDays)
+    {
+        // Up to two trips *never* create an interval.
+        if (trips.Count < 3)
+        {
+            foreach (var tmp in trips)
+                yield return tmp;
+            yield break;
+        }
+        
+        var intervals = GetIntervals(trips, tripDays);
+        
+        var intervalsIndices = intervals.Select((interval, index) => (interval, index)).ToList();
+        List<int> indicesToYield =
+        [
+            // The first entry is always required.
+            0,
+            // Before every `null`
+            ..intervalsIndices.Where(tuple => tuple.interval is null).Select(tuple => tuple.index),
+            // In-between every change
+            ..intervalsIndices.Where(tuple => tuple.index != 0)
+                .Where(tuple => tuple.interval != intervals[tuple.index - 1]).Select(tuple => tuple.index),
+            // The last entry is always required.
+            trips.Count - 1,
+        ];
+        indicesToYield = indicesToYield.Order().Distinct().ToList();
+        var lastYieldedIndex = -1;
+        foreach (var index in indicesToYield)
+        {
+            if (index - lastYieldedIndex > 1)
+                yield return new FrequencyColumn
+                {
+                    Interval = intervals[index - 1] ?? throw new NullReferenceException(),
+                    StartRow = GetFirstTimeEntryRow(trips[index])
+                };
+            yield return trips[index];
+            lastYieldedIndex = index;
+        }
+        
+        yield break;
+
+        static TimeSpan?[] GetIntervals(List<TripView> trips, DaysOfOperation tripDays)
+        {
+            var intervals = new TimeSpan?[trips.Count - 1];
+            for (var i = 1; i < trips.Count; i++)
+            {
+                var previous = trips[i - 1];
+                var current = trips[i];
+                var interval = current.Times.First(time => time.Time is not null).Time!.Value -
+                               previous.Times.First(time => time.Time is not null).Time!.Value;
+                // The trips happen at different days -> no interval.
+                if ((previous.DaysOfOperation & tripDays) != (current.DaysOfOperation & tripDays)) continue;
+                // The trips are annotated differently -> no interval.
+                if (previous.AnnotationSymbol != current.AnnotationSymbol) continue;
+                // There is at least one stop where the trips do not differ by exactly the interval -> no interval.
+                if (previous.Times.Zip(current.Times,
+                        (previousTimeEntry, currentTimeEntry) =>
+                            previousTimeEntry.Time?.Add(interval) != currentTimeEntry.Time).Any(b => b)) continue;
+                intervals[i - 1] = interval;
+            }
+            return intervals;
+        }
+
+        static int GetFirstTimeEntryRow(TripView trip) => trip.Times.Select((time, index) => (time, index))
+            .First(tuple => tuple.time.Time is not null).index;
     }
 
     private class NullableTimeOnlyComparer(TimeOnly startOfNewDay) : IComparer<TimeOnly?>
