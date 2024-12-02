@@ -1,4 +1,5 @@
 @page "/vip/timetable"
+@using System.Globalization
 @using Timetables
 @using Timetables.Models
 @using Timetables.Vip
@@ -7,6 +8,32 @@
 
 @code
 {
+    private static string DisplayMinMaxTimeSpan((TimeSpan min, TimeSpan max)? maybeInterval) =>
+        maybeInterval is { } interval
+            ? interval.min == interval.max
+                ? interval.min.TotalMinutes.ToString(CultureInfo.CurrentCulture)
+                : $"{interval.min.TotalMinutes.ToString(CultureInfo.CurrentCulture)}–{interval.max.TotalMinutes.ToString(CultureInfo.CurrentCulture)}"
+            : "|";
+
+    private static string AnnotateDays(DaysOfOperation days, DaysOfOperation mask) => (days & mask) == mask
+        ? ""
+        : (days & mask) switch
+        {
+            DaysOfOperation.Monday => "1",
+            DaysOfOperation.Tuesday => "2",
+            DaysOfOperation.Wednesday => "3",
+            DaysOfOperation.Thursday => "4",
+            DaysOfOperation.Friday => "5",
+            DaysOfOperation.Saturday => "6",
+            DaysOfOperation.Sunday => "7",
+            DaysOfOperation.Monday | DaysOfOperation.Tuesday | DaysOfOperation.Wednesday | DaysOfOperation.Thursday => "14",
+            DaysOfOperation.Weekday => "15",
+            DaysOfOperation.Weekend => "67",
+            DaysOfOperation.School => "99",
+            DaysOfOperation.Holiday => "98",
+            _ => throw new Exception($"Unhandled days {days}.")
+        };
+    
     private static string TranslateDays(DaysOfOperation days) => TranslateDays(days.ToString());
 
     private static string TranslateDays(string days) => days.Contains(", ")
@@ -95,6 +122,17 @@
         };
         return string.Empty;
     }
+
+    private static StopTimetableView StopTimetableView { get; set; } = null!;
+
+    private static string SetStopTimetableView()
+    {
+        var allLines = HistoryEntry!.OrderedLinesById.Select(element => element.Value).ToList();
+        StopTimetableView = new StopTimetableView(allLines, Trips!, DaysOfOperation.Daily, StartStopForStopView!);
+        return string.Empty;
+    }
+
+    private static Stop? StartStopForStopView { get; set; } = Stops.SHauptbahnhof;
 }
 
 <div class="button-group">
@@ -164,7 +202,7 @@
             @foreach (var trip in TimetableView.Trips)
             {
                 <th scope="col" class="text-center">
-                    @(trip.DaysOfOperation is {} daysOfOperation ? TranslateDays(daysOfOperation & Days) : "")
+                    @(trip.DaysOfOperation is { } daysOfOperation ? TranslateDays(daysOfOperation & Days) : "")
                     @if (trip.AnnotationSymbol is { } annotationSymbol)
                     {
                         <hr/>
@@ -196,4 +234,116 @@
             </li>
         }
     </ul>
+
+    <hr/>
+
+    @if (Routes.Count > 0 && StartStopForStopView is {} startStop)
+    {
+        @SetStopTimetableView()
+        <div class="container text-center">
+        <div class="row">
+            <div class="col-1">
+                <b>@string.Join(", ", StopTimetableView.Lines.Select(line => line.Name))</b>
+            </div>
+            <div class="col-5">
+                <b>&gt; @StopTimetableView.TargetStops.First().DisplayName</b>
+                @for (var i = 1; i < StopTimetableView.TargetStops.Count; ++i)
+                {
+                    <i> oder</i>
+                    <b>&gt; @StopTimetableView.TargetStops.ElementAt(i).DisplayName</b>
+                }
+            </div>
+            <div class="col-4">
+                <b>@StopTimetableView.StartStop.DisplayName</b>
+            </div>
+        </div>
+        <div class="row">
+        <div class="col-6">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" colspan="@StopTimetableView.StopInfos.First().Times.Count">
+                        Minuten
+                    </th>
+                    <th scope="col"></th>
+                </tr>
+                <tr>
+                    <th scope="col">
+                        Anschl&uuml;sse
+                    </th>
+                    @for (var i = 0; i < StopTimetableView.StopInfos.First().Times.Count; ++i)
+                    {
+                        <th scope="col">
+                            [@(i + 1)]
+                        </th>
+                    }
+                    <th scope="col">
+                        Haltestellen
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var stopInfo in StopTimetableView.StopInfos)
+                {
+                    <tr>
+                        <td class="text-center align-content-center">@string.Join(", ", stopInfo.ConnectionLines.Select(line => line.Name))</td>
+                        @foreach (var minutes in stopInfo.Times)
+                        {
+                            <td class="text-center align-content-center">
+                                @DisplayMinMaxTimeSpan(minutes)
+                            </td>
+                        }
+                        <td class="text-center align-content-center">@stopInfo.Stop.DisplayName</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-4">
+        <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">
+                h
+            </th>
+            <th scope="col" colspan="@StopTimetableView.MaximumColumns.moFrColumns">
+                Montag–Freitag
+            </th>
+            <th scope="col" colspan="@StopTimetableView.MaximumColumns.saSoColumns">
+                Sa, So
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var (hour, info) in StopTimetableView.HourInfos)
+        {
+            <tr>
+                <th scope="row" class="align-content-center">@hour</th>
+                @foreach (var moFrDeparture in info.MoFrDepartures)
+                {
+                    <td class="text-center align-content-center">@moFrDeparture.Minute.ToString("00")<sub>@AnnotateDays(moFrDeparture.Days, DaysOfOperation.Weekday)</sub> [@(moFrDeparture.RouteIndex + 1)]</td>
+                }
+                @for (var i = info.MoFrDepartures.Count; i < StopTimetableView.MaximumColumns.moFrColumns; ++i)
+                {
+                    <td class="text-center align-content-center"></td>
+                }
+
+                @foreach (var saSoDeparture in info.SaSoDepartures)
+                {
+                <td class="text-center align-content-center">@saSoDeparture.Minute.ToString("00")<sub>@AnnotateDays(saSoDeparture.Days, DaysOfOperation.Weekend)</sub> [@(saSoDeparture.RouteIndex + 1)]</td>
+                }
+                @for (var i = info.SaSoDepartures.Count; i < StopTimetableView.MaximumColumns.saSoColumns; ++i)
+                {
+                <td class="text-center align-content-center"></td>
+                }
+            </tr>
+        }
+        </tbody>
+        </table>
+        </div>
+        </div>
+        </div>
+
+    }
 }

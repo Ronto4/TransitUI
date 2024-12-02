@@ -2,7 +2,8 @@ using Timetables.Models;
 
 namespace Timetables.Vip;
 
-internal static class Stops
+// TODO: Revert.
+public static class Stops
 {
     private const string Berlin = "Berlin";
 
