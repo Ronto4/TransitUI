@@ -1,0 +1,22 @@
+@using global::Timetables
+
+<tr>
+    <td class="text-center align-content-center col-1" colspan="1">
+        <span class="fw-bold">@string.Join(", ", StopTimetableView.Lines.Select(line => line.Name))</span>
+    </td>
+    <td class="text-center align-content-center col-3" colspan="3">
+        <span class="fw-bold">&gt; @StopTimetableView.TargetStops.First().DisplayName</span>
+        @for (var i = 1; i < StopTimetableView.TargetStops.Count; ++i)
+        {
+            <span class="fst-italic"> oder</span>
+            <span class="fw-bold">&gt; @StopTimetableView.TargetStops.ElementAt(i).DisplayName</span>
+        }
+    </td>
+    <td class="text-center align-content-center col-6" colspan="6">
+        <span class="fw-bold">@StopTimetableView.StartStop.DisplayName</span>
+    </td>
+</tr>
+
+@code {
+    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+}

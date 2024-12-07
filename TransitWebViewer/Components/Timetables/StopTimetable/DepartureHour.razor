@@ -1,0 +1,25 @@
+@using global::Timetables
+@using global::Timetables.Models
+
+<tr>
+    <th scope="row" class="align-content-center">@Hour</th>
+    @foreach (var (departures, index) in HourInfo.Departures.Select((dep, index) => (dep, index)))
+    {
+        @foreach (var departure in departures)
+        {
+            <td class="text-center align-content-center">
+                <DepartureMinute Departure="departure" DayMask="StopTimetableView.DaysPartition.ElementAt(index)" StopTimetableView="StopTimetableView" />
+            </td>
+        }
+        @for (var i = departures.Count; i < Math.Max(StopTimetableView.MaximumColumns.ElementAt(index), 1); ++i)
+        {
+            <td class="text-center align-content-center"></td>
+        }
+    }
+</tr>
+
+@code {
+    [Parameter] public required int Hour { get; init; }
+    [Parameter] public required StopTimetableView.HourInfo HourInfo { get; init; }
+    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+}

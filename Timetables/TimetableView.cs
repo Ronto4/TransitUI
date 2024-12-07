@@ -122,9 +122,14 @@ public class TimetableView
         string ITimetableColumn.ElementAt(int index) => Times.ElementAt(index).ToString();
     }
 
-    public required ICollection<Line.Trip> SourceTrips { private get; init; }
+    public required IReadOnlyCollection<Line.Trip> SourceTrips { private get; init; }
     public required DaysOfOperation DaysOfOperation { get; init; }
     public required bool DoCollapseTrips { get; init; }
+
+    private Dictionary<string, string> _annotations = new();
+
+    public IReadOnlyCollection<Line.Trip.AnnotationDefinition> Annotations => _annotations
+        .Select(kvp => new Line.Trip.AnnotationDefinition(kvp.Key, kvp.Value)).ToArray();
 
     public Comparer<Stop.Position> PositionEqualityProvider { private get; init; } =
         (a, b) => a.Stop.DisplayName == b.Stop.DisplayName;
@@ -241,7 +246,7 @@ public class TimetableView
 
     private void CalculateView()
     {
-        var trips = CleanTrips(SourceTrips).ToList();
+        var trips = CleanTrips(SourceTrips, DaysOfOperation).ToList();
         var routes = trips.Select(trip => trip.Route).Distinct().ToList();
         var positionsLookup = routes.Select((_, index) => (index, new List<int>())).ToDictionary();
         var routeLookup = routes.Select((route, index) => (route, index)).ToDictionary();
@@ -253,7 +258,14 @@ public class TimetableView
         var allTrips = trips.Select(trip => new TripView
         {
             DaysOfOperation = trip.DaysOfOperation,
-            AnnotationSymbol = trip.Annotation is { } annotation ? annotation.symbol : null,
+            AnnotationSymbol = trip.Annotation is { } annotation ? new Func<string>(() =>
+            {
+                if (!_annotations.ContainsKey(annotation.Symbol))
+                {
+                    _annotations.Add(annotation.Symbol, annotation.Text);
+                }
+                return annotation.Symbol;
+            })() : null,
             Times = allPositions
                 .Select((_, positionIndex) => (
                     routePositionIndex: positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex),
@@ -367,10 +379,12 @@ public class TimetableView
         }
     }
 
-    private static IEnumerable<Line.Trip> CleanTrips(IEnumerable<Line.Trip> trips)
+    private static IEnumerable<Line.Trip> CleanTrips(IEnumerable<Line.Trip> trips, DaysOfOperation daysOfOperation)
     {
         // Sort. Consider every start of a trip until 01:15 LOC as belonging to the previous day.
+        // Also, remove all trips that are only on other days.
         var sortedTrips = trips
+            .Where(trip => (trip.DaysOfOperation & daysOfOperation) != DaysOfOperation.None)
             .Select(trip => (trip, trip.StartTime - new TimeOnly(1, 15)))
             .OrderBy(trip => trip.Item2)
             .Select(trip => trip.trip)

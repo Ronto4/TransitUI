@@ -1,0 +1,56 @@
+@using global::Timetables.Models
+@implements ISelector<IReadOnlyCollection<Line.Trip>>
+
+<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    @(Line is null ? "Linie" : Line.Name)
+</button>
+<ul class="dropdown-menu">
+    @foreach (var line in HistoryEntry.OrderedLinesById.Select(entry => entry.Value))
+    {
+        <li><a class="dropdown-item" @onclick="_ => Line = line">@line.Name</a></li>
+    }
+</ul>
+
+@if (Line is not null)
+{
+    <span class="ps-1">
+        @foreach (var route in Line.Routes)
+        {
+            <div class="form-check-inline">
+                <input class="form-check-input" type="checkbox" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
+                <label class="form-check-label" for="@route.GetHashCode()">
+                    @route
+                </label>
+            </div>
+        }
+    </span>
+}
+
+@code {
+    [Parameter] public required IHistoryEntry HistoryEntry { get; init; }
+    private IHistoryEntry? _historyEntry = null;
+    [Parameter] public required Action<IReadOnlyCollection<Line.Trip>> OnUpdate { get; init; }
+    private Line? Line { get; set; } = null;
+    private List<Line.Route> Routes { get; } = [];
+    private static DaysOfOperation Days => DaysOfOperation.Daily;
+
+    private void EmitUpdate()
+    {
+        var trips = Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToArray() ?? [];
+        OnUpdate(trips);
+    }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        // Blazor is doing some bad stuff under the hood...
+        if (parameters.TryGetValue<IHistoryEntry>(nameof(HistoryEntry), out var nextHistoryView) && _historyEntry != nextHistoryView)
+        {
+            _historyEntry = nextHistoryView;
+            Line = null;
+            StateHasChanged();
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+
+}

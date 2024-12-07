@@ -1,0 +1,21 @@
+@using global::Timetables.Models
+@using global::Timetables.Vip
+@implements ISelector<IHistoryEntry?>
+
+<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
+</button>
+<ul class="dropdown-menu">
+    @foreach (var historyEntry in VipHistory.History)
+    {
+        <li><a class="dropdown-item" @onclick="_ => { HistoryEntry = historyEntry; EmitUpdate(); }">ab @historyEntry.EffectiveDate</a></li>
+    }
+</ul>
+
+@code {
+    [Parameter] public required Action<IHistoryEntry?> OnUpdate { get; init; }
+
+    private IHistoryEntry? HistoryEntry { get; set; } = null;
+
+    private void EmitUpdate() => OnUpdate(HistoryEntry);
+}

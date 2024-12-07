@@ -1,0 +1,36 @@
+@using global::Timetables.Models
+@using TransitWebViewer.Utils
+@implements ISelector<DaysOfOperation>
+
+<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    @Days.Display()
+</button>
+<ul class="dropdown-menu">
+    @foreach (var days in Enum.GetValues(typeof(DaysOfOperation)).Cast<DaysOfOperation>().Where(ShowDays))
+    {
+    <li><a class="dropdown-item" @onclick="_ => { Days = days; OnUpdate(Days); }">@days.Display()</a></li>
+    }
+</ul>
+
+@code {
+
+    private DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
+
+    private static bool ShowDays(DaysOfOperation days) => ((DaysOfOperation[])
+    [
+        DaysOfOperation.Monday,
+        DaysOfOperation.Tuesday,
+        DaysOfOperation.Wednesday,
+        DaysOfOperation.Thursday,
+        DaysOfOperation.Friday,
+        DaysOfOperation.Saturday,
+        DaysOfOperation.Sunday,
+        DaysOfOperation.School,
+        DaysOfOperation.Holiday,
+        DaysOfOperation.Weekday,
+        DaysOfOperation.Weekend,
+        DaysOfOperation.Daily,
+    ]).Contains(days);
+
+    [Parameter] public required Action<DaysOfOperation> OnUpdate { get; init; }
+}

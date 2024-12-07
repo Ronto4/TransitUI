@@ -1,0 +1,58 @@
+@using global::Timetables
+@using global::Timetables.Models
+
+@if (SourceTripsForTimetable.Count == 0)
+{
+    <strong>Es wurden noch keine Fahrten ausgewählt.</strong>
+}
+else
+{
+    <table class="table table-borderless">
+        <StopTimetableHeader StopTimetableView="StopTimetableView"/>
+        <tr>
+            <td class="col-4" colspan="4">
+                <StopList StopTimetableView="StopTimetableView"/>
+            </td>
+            <td class="col-6" colspan="6">
+                <DepartureTable StopTimetableView="StopTimetableView"/>
+                <AnnotationDisplay StopTimetableView="StopTimetableView"/>
+            </td>
+        </tr>
+    </table>
+}
+
+@code {
+
+    /// <summary>
+    /// The stop which is used as the position of this timetable.
+    /// </summary>
+    [Parameter]
+    public required Stop TimetableOriginStop { get; init; }
+
+    /// <summary>
+    /// The trips to include in the timetable.
+    /// </summary>
+    [Parameter]
+    public required IReadOnlyCollection<Line.Trip> SourceTripsForTimetable { get; init; }
+
+    /// <summary>
+    /// All lines, used e.g. for generating connections.
+    /// </summary>
+    [Parameter]
+    public required IReadOnlyCollection<Line> AllLines { get; init; }
+    
+    [Parameter] public required IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        // We need to reset the timetable view as it would not update automatically.
+        // They are changing init-only properties after initialization...
+        _stopTimetableView = null;
+
+        await base.SetParametersAsync(parameters);
+    }
+
+    private StopTimetableView? _stopTimetableView = null;
+    private StopTimetableView StopTimetableView => _stopTimetableView ??= new StopTimetableView(AllLines, SourceTripsForTimetable, DaysPartition, TimetableOriginStop);
+
+}

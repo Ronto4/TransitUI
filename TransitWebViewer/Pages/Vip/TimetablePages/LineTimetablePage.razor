@@ -1,0 +1,35 @@
+@page "/vip/timetables/line"
+@using Timetables.Models
+@using TransitWebViewer.Components.Timetables.LineTimetable
+@using TransitWebViewer.Components.Timetables.Selectors
+
+<h3>ViP - Linienfahrpläne</h3>
+
+@code
+{
+    private static IHistoryEntry? HistoryEntry { get; set; } = null;
+
+    private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
+
+    private static bool CollapseTrips { get; set; } = true;
+
+    private static IReadOnlyCollection<Line.Trip> Trips { get; set; } = [];
+}
+
+<div class="button-group">
+    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }" />
+
+    <DaySelector OnUpdate="days => { Days = days; StateHasChanged(); }" />
+    <BooleanSelector OnUpdate="collapseTrips => { CollapseTrips = collapseTrips; StateHasChanged(); }" Text="Fasse im Takt verkehrende Fahrten zusammen" />
+</div>
+
+@if (HistoryEntry is not null)
+{
+    <div class="button-group pt-1">
+        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }"/>
+    </div>
+}
+
+<hr/>
+
+<LineTimetable Trips="Trips" Days="Days" CollapseTrips="CollapseTrips" />
