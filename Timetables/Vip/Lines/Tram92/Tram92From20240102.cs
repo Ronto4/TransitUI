@@ -575,7 +575,7 @@ public class Tram92From20240102 : ILineInstance
                 RouteIndex = 2,
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.School,
-                StartTime = new TimeOnly(18, 40)
+                StartTime = new TimeOnly(18, 40),
             }.AlsoEvery(M20, 2),
             ..new Line.TripCreate
             {

@@ -10,6 +10,13 @@ public record Line
         public record TimeProfile
         {
             public required TimeSpan[] StopDistances { get; init; }
+
+            /// <summary>
+            /// Get the time it takes to travel from stop index <paramref name="fromIndex"/> to <paramref name="toIndex"/>.
+            /// </summary>
+            /// <remarks><paramref name="fromIndex"/> MUST be smaller than <paramref name="toIndex"/>!</remarks>
+            public TimeSpan TimeBetweenStops(int fromIndex, int toIndex) => TimeSpan.FromTicks(StopDistances
+                .Skip(fromIndex).Take(toIndex - fromIndex).Select(time => time.Ticks).Sum());
         }
 
         public required Stop.Position[] StopPositions { get; init; }
@@ -20,6 +27,42 @@ public record Line
         /// It is advised that the departure time does not vary due to time adjustments at this stop.
         /// </summary>
         public required int CommonStopIndex { get; init; }
+        
+        /// <summary>
+        /// Get the minimum and maximum time it takes to travel from stop index <see cref="fromIndex"/> to <see cref="toIndex"/>
+        /// depending on the time profiles.
+        /// </summary>
+        public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(int fromIndex, int toIndex)
+        {
+            if (toIndex < fromIndex) throw new ArgumentException($"The indices are swapped: {fromIndex} -> {toIndex}");
+            var times = TimeProfiles.Select(profile => profile.TimeBetweenStops(fromIndex, toIndex)).ToList();
+            return (times.Min(), times.Max());
+        }
+
+        public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to) =>
+            TimeBetweenStops(GetIndexOfStop(from), GetIndexOfStop(to));
+
+        public int GetIndexOfStop(Stop stop)
+        {
+            var exists = TryGetIndexOfStop(stop, out var index);
+            return exists
+                ? index
+                : throw new ArgumentException(
+                    $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
+                    nameof(stop));
+        }
+
+        public bool TryGetIndexOfStop(Stop stop, out int index)
+        {
+            index = StopPositions.Select((position, index) => (position.Stop, index))
+                .SingleOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
+            return index != -1;
+        }
+
+        public bool DoesStopAt(Stop stop, bool onlyDepartures) => StopPositions
+            .Take(StopPositions.Length - (onlyDepartures
+                ? /* when we only want departures, the last stop is no longer relevant */ 1
+                : 0)).Select(pos => pos.Stop).Contains(stop);
 
         public bool LooslyIsReverse(Route other) => StopPositions.Last().Stop == other.StopPositions.First().Stop &&
                                                     StopPositions.First().Stop == other.StopPositions.Last().Stop;
@@ -41,11 +84,13 @@ public record Line
 
     public record Trip
     {
+        public record AnnotationDefinition(string Symbol, string Text);
+        public required Line Line { get; init; }
         public required Route Route { get; init; }
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required (string symbol, string text)? Annotation { get; init; }
+        public required AnnotationDefinition? Annotation { get; init; }
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -105,13 +150,36 @@ public record Line
     public required string Name { get; init; }
     public required Route[] Routes { get; init; }
 
+    public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to)
+    {
+        if (from == to) return (TimeSpan.Zero, TimeSpan.Zero);
+        var currentMinimum = TimeSpan.MaxValue;
+        var currentMaximum = TimeSpan.MinValue;
+        foreach (var route in Routes)
+        {
+            var fromExists = route.TryGetIndexOfStop(from, out var fromIndex);
+            var toExists = route.TryGetIndexOfStop(to, out var toIndex);
+            if (!(fromExists && toExists)) continue;
+            if (fromIndex > toIndex) continue;
+            var (min, max) = route.TimeBetweenStops(fromIndex, toIndex);
+            currentMinimum = Min(currentMinimum, min);
+            currentMaximum = Max(currentMaximum, max);
+        }
+        
+        return (currentMinimum, currentMaximum);
+        
+        static TimeSpan Min(TimeSpan a, TimeSpan b) => a < b ? a : b;
+        static TimeSpan Max(TimeSpan a, TimeSpan b) => a > b ? a : b;
+    }
+
     public IEnumerable<Trip> Trips => TripsCreate.Select(trip => new Trip
     {
+        Line = this,
         Route = Routes[trip.RouteIndex],
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
-        Annotation = trip.AnnotationSymbol is { } symbol ? (symbol, Annotations[symbol]) : null,
+        Annotation = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
     });
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }
@@ -127,6 +195,9 @@ public record Line
     public required Index[] OverviewRouteIndices { get; init; }
 
     public Dictionary<string, string> Annotations { get; init; } = new();
+
+    public bool DoesStopAt(Stop stop, bool onlyMainRoutes, bool onlyDepartures) =>
+        (onlyMainRoutes ? MainRoutes : Routes).Any(route => route.DoesStopAt(stop, onlyDepartures));
 
     public Dictionary<Route, List<string>> GetFrequencies(List<(TimeOnly startTime, TimeOnly endTime)> timeLimits,
         DaysOfOperation daysOfOperation)

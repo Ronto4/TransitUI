@@ -1,0 +1,43 @@
+@page "/vip/timetables/stop"
+@using Timetables.Models
+@using TransitWebViewer.Components.Timetables.StopTimetable
+@using TransitWebViewer.Components.Timetables.Selectors
+
+<h3>ViP - Haltestellenfahrpläne</h3>
+
+@code
+{
+    private static IHistoryEntry? HistoryEntry { get; set; } = null;
+
+    private static IReadOnlyCollection<Line.Trip> Trips { get; set; } = [];
+
+    private static IReadOnlyCollection<Line> GetAllLines() => HistoryEntry?.OrderedLinesById.Select(element => element.Value).ToList() ?? [];
+
+    private static Stop? StartStopForStopView { get; set; } = null;
+
+    private static IReadOnlyCollection<DaysOfOperation> DaysPartition { get; set; } = DaysPartitionSelector.Initial;
+}
+
+<div class="button-group">
+    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }" />
+    <StopSelector SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops" OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" />
+    <DaysPartitionSelector OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }" />
+</div>
+
+@if (HistoryEntry is not null)
+{
+    <div class="button-group pt-1">
+        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }"/>
+    </div>
+}
+
+<hr/>
+
+@if (StartStopForStopView is { } startStop)
+{
+    <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLines()" DaysPartition="DaysPartition"/>
+}
+else
+{
+    <strong>Es wurde noch keine Starthaltestelle ausgewählt.</strong>
+}

@@ -1,0 +1,28 @@
+@using global::Timetables
+@using TransitWebViewer.Utils
+
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th scope="col">
+            🕐
+        </th>
+        @foreach (var (days, index) in StopTimetableView.DaysPartition.Select((days, index) => (days, index)))
+        {
+            <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)">
+                @days.Display()
+            </th>
+        }
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var (hour, info) in StopTimetableView.HourInfos)
+    {
+        <DepartureHour Hour="hour" HourInfo="info" StopTimetableView="StopTimetableView" />
+    }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+}

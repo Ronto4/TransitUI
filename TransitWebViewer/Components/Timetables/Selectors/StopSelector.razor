@@ -1,0 +1,60 @@
+@using global::Timetables.Models
+@using TransitWebViewer.Utils
+@implements ISelector<Stop?>
+
+<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    @(SelectedStop is not null ? SelectedStop.DisplayName : "Haltestelle")
+</button>
+<ul class="dropdown-menu">
+    @foreach (var stop in PossibleStops)
+    {
+    <li><a class="dropdown-item" @onclick="_ => { SelectedStop = stop; OnUpdate(stop); }">@stop.DisplayName</a></li>
+    }
+</ul>
+
+@code {
+
+    [Parameter]
+    public required IReadOnlyCollection<Line.Trip> SourceTrips
+    {
+        init => PossibleStops = GetPossibleStops(value);
+    }
+
+    public enum Mode
+    {
+        /// Only consider stops that occur in all routes.
+        IntersectRouteStops,
+        /// Consider all stop that appear in any route.
+        UnionRouteStops,
+    }
+    
+    [Parameter] public required Mode SelectionMode { get; init; }
+
+    private IReadOnlyCollection<Stop> GetPossibleStops(IReadOnlyCollection<Line.Trip> trips)
+        => SelectionMode is Mode.UnionRouteStops
+            ? trips.SelectMany(trip => trip.Route.StopPositions.Select(pos => pos.Stop)).OrderBy(stop => stop.DisplayName).Distinct().ToArray()
+            : trips.Select(trip => trip.Route).Distinct().Select(route => route.StopPositions.Select(pos => pos.Stop).ToList()).Intersect().OrderBy(stop => stop.DisplayName).ToArray();
+
+    private IReadOnlyCollection<Stop> PossibleStops { get; set; } = null!; // Will be initialized above. */
+    [Parameter] public required Action<Stop?> OnUpdate { get; init; }
+
+    private Stop? SelectedStop { get; set; } = null;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<IReadOnlyCollection<Line.Trip>>(nameof(SourceTrips), out var trips))
+        {
+            PossibleStops = GetPossibleStops(trips);
+            if (SelectedStop is not null && !PossibleStops.Contains(SelectedStop))
+            {
+                SelectedStop = null;
+                // Strangely enough, this gets called *before* the initializers are run.
+                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                OnUpdate?.Invoke(SelectedStop);
+            }
+            StateHasChanged();
+        }
+        return base.SetParametersAsync(parameters);
+    }
+
+}

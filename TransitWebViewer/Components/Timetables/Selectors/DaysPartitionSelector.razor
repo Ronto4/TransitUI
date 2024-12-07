@@ -1,0 +1,33 @@
+@using global::Timetables.Models
+@using TransitWebViewer.Utils
+@implements ISelector<IReadOnlyCollection<DaysOfOperation>>
+
+<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    @Display(CurrentSelection)
+</button>
+<ul class="dropdown-menu">
+    @foreach (var daysPartition in Possibilities)
+    {
+        <li><a class="dropdown-item" @onclick="_ => { CurrentSelection = daysPartition; OnUpdate(CurrentSelection); }">@Display(daysPartition)</a></li>
+    }
+</ul>
+
+@code {
+    [Parameter] public required Action<IReadOnlyCollection<DaysOfOperation>> OnUpdate { get; init; }
+
+    public static IReadOnlyCollection<DaysOfOperation> Initial => [DaysOfOperation.Weekday, DaysOfOperation.Weekend];
+
+    private IReadOnlyCollection<DaysOfOperation> CurrentSelection { get; set; } = Initial;
+
+    private IReadOnlyCollection<IReadOnlyCollection<DaysOfOperation>> Possibilities { get; } =
+    [
+        [DaysOfOperation.Daily],
+        [DaysOfOperation.Weekday, DaysOfOperation.Weekend],
+        [DaysOfOperation.Weekday, DaysOfOperation.Saturday, DaysOfOperation.Sunday],
+        [DaysOfOperation.School, DaysOfOperation.Holiday, DaysOfOperation.Weekend],
+        [DaysOfOperation.School, DaysOfOperation.Holiday, DaysOfOperation.Saturday, DaysOfOperation.Sunday],
+    ];
+
+    private static string Display(IReadOnlyCollection<DaysOfOperation> daysPartition) => string.Join(" & ", daysPartition.Select(days => days.Display()));
+
+}

@@ -1,0 +1,74 @@
+@using System.Globalization
+@using global::Timetables
+
+<table class="table table-striped table-hover">
+    @if (StopTimetableView.MultipleRoutes)
+    {
+    <thead>
+    <tr>
+        <th scope="col"></th>
+        <th scope="col" colspan="@StopTimetableView.StopInfos.First().Times.Count">
+            Minuten / Routen
+        </th>
+        <th scope="col"></th>
+    </tr>
+    <tr>
+        <th scope="col">
+            Anschl&uuml;sse
+        </th>
+        <th scope="col"></th>
+        @for (var i = 1; i < StopTimetableView.StopInfos.First().Times.Count; ++i)
+        {
+        <th scope="col">
+            [@(i + 1)]
+        </th>
+        }
+        <th scope="col">
+            Haltestellen
+        </th>
+    </tr>
+    </thead>
+    }
+    else
+    {
+    <thead>
+    <tr>
+        <th scope="col">
+            Anschl&uuml;sse
+        </th>
+        <th scope="col">
+            Minuten
+        </th>
+        <th scope="col">
+            Haltestellen
+        </th>
+    </tr>
+    </thead>
+    }
+    <tbody>
+    @foreach (var (stopInfo, rowIndex) in StopTimetableView.StopInfos.Select((info, infoIndex) => (info, infoIndex)))
+    {
+    <tr class="@(stopInfo.IsRelevantStop ? "fw-bold" : "fw-normal")">
+        <td class="text-center align-content-center">@string.Join(", ", stopInfo.ConnectionLines.Select(line => line.Name))</td>
+        @foreach (var (minutes, columnIndex) in stopInfo.Times.Select((minutes, index) => (minutes, index)))
+        {
+        <td class="text-center align-content-center">
+            @DisplayMinMaxTimeSpan(minutes, rowIndex < StopTimetableView.StopInfos.Select((info, infoIndex) => (info, infoIndex)).Last(tuple => tuple.info.Times[columnIndex] is not null).infoIndex)
+        </td>
+        }
+        <td class="text-start align-content-center">@stopInfo.Stop.DisplayName</td>
+    </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    
+    private static string DisplayMinMaxTimeSpan((TimeSpan min, TimeSpan max)? maybeInterval, bool anotherStopComesAfterwards) =>
+        maybeInterval is { } interval
+            ? interval.min == interval.max
+                ? interval.min.TotalMinutes.ToString(CultureInfo.CurrentCulture)
+                : $"{interval.min.TotalMinutes.ToString(CultureInfo.CurrentCulture)}–{interval.max.TotalMinutes.ToString(CultureInfo.CurrentCulture)}"
+            : anotherStopComesAfterwards ? "|" : "·";
+}
