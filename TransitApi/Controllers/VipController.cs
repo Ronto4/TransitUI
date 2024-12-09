@@ -1,9 +1,15 @@
 using System.Net;
-using RealTimeDataCrawler.Vip;
+using System.Text;
 using System.Text.Json;
 using DotMatrixDisplay;
 using Microsoft.AspNetCore.Mvc;
+using R4Utils.Uri;
 using SixLabors.ImageSharp.PixelFormats;
+using TtssClient;
+using TtssClient.Dtos;
+using TtssClient.Dtos.Requests;
+using TtssClient.Dtos.Responses;
+using TtssClient.Models;
 
 namespace TransitApi.Controllers;
 
@@ -11,38 +17,41 @@ namespace TransitApi.Controllers;
 [ApiController]
 public class VipController : ControllerBase
 {
+    private readonly ITtssApi _ttssApi;
+
+    public VipController(ITtssApi ttssApi)
+    {
+        _ttssApi = ttssApi;
+    }
     private static Rgb24 BackgroundColor { get; } = new(0x23, 0x29, 0x23); 
     private static Rgb24 InactivePixelColor { get; } = new(0x23, 0x2d, 0x23);
     private static Rgb24 ActivePixelColor { get; } = new(0xd1, 0x5a, 0x1a);
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> CheckIfStationExists(int id, CancellationToken cancellationToken)
+    [HttpGet("{stopId:int}")]
+    public async Task<IActionResult> CheckIfStopExists(int stopId, CancellationToken cancellationToken)
     {
-        try
-        {
-            await Crawler.GetFromWeb(id, cancellationToken);
-            return Ok();
-        }
-        catch (WebException)
-        {
-            return NotFound();
-        }
+        var stops = await _ttssApi.GetStopsAsync(new StopsRequest(), cancellationToken);
+        return stops.Stops.Any(stop => stop.ShortName == stopId.ToString()) ? Ok() : NotFound();
     }
 
     [Obsolete("The functionality of generating GIFs has been removed.")]
     [HttpGet("{id:int}/dotmatrix")]
-    public IActionResult GetDotMatrixById()
+    public IActionResult GetDotMatrixById(int id)
     {
         return RedirectPermanentPreserveMethod($"dotmatrix/1");
     }
 
-    [HttpGet("{id:int}/dotmatrix/info")]
-    public async Task<IActionResult> GetDotMatrixInfo(int id, CancellationToken cancellationToken)
+    [HttpGet("{stopId:int}/dotmatrix/info")]
+    public async Task<IActionResult> GetDotMatrixInfo(int stopId, CancellationToken cancellationToken)
     {
         try
         {
-            var station = await Crawler.GetFromWeb(id, cancellationToken);
-            var (pages, _) = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(station, cancellationToken);
+            var stop = await _ttssApi.GetStopPassagesAsync(new StopPassagesRequest
+            {
+                StopName = stopId.ToString(),
+                PassageMode = Mode.Departure,
+            }, cancellationToken);
+            var (pages, _) = await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(stop, cancellationToken);
             return Ok(pages.Count);
         }
         catch (HttpRequestException ex)
@@ -52,19 +61,23 @@ public class VipController : ControllerBase
         }
     }
 
-    [HttpGet("{id:int}/dotmatrix/{page:int}")]
-    public async Task<IActionResult> GetDotMatrixPageById(int id, int page, CancellationToken cancellationToken)
+    [HttpGet("{stopId:int}/dotmatrix/{page:int}")]
+    public async Task<IActionResult> GetDotMatrixPageById(int stopId, int page, CancellationToken cancellationToken)
     {
         try
         {
-            var station = await Crawler.GetFromWeb(id, cancellationToken);
+            var stop = await _ttssApi.GetStopPassagesAsync(new StopPassagesRequest
+            {
+                PassageMode = Mode.Departure,
+                StopName = stopId.ToString(),
+            }, cancellationToken);
             var (pages, dimensions) =
-                await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(station, cancellationToken);
+                await RealTimeToDotMatrix.Vip.RealTimeToDotMatrix.GetPages(stop, cancellationToken);
             if (page <= 0 || pages.Count < page)
             {
                 return NotFound($$"""
                 {
-                    "message": "Page {{page}} is out of bounds for station {{station.StationName}} with {{pages.Count}} page(s)."
+                    "message": "Page {{page}} is out of bounds for station {{stop.StopName}} with {{pages.Count}} page(s)."
                 }
                 """);
             }
@@ -86,13 +99,17 @@ public class VipController : ControllerBase
         }
     }
 
-    [HttpGet("{id:int}/info")]
-    public async Task<IActionResult> GetInfoById(int id, CancellationToken cancellationToken)
+    [HttpGet("{stopId:int}/info")]
+    public async Task<IActionResult> GetInfoById(int stopId, CancellationToken cancellationToken)
     {
         try
         {
-            var station = await Crawler.GetFromWeb(id, cancellationToken);
-            return Content(station.ToString());
+            var stop = await _ttssApi.GetStopPassagesAsync(new StopPassagesRequest
+            {
+                PassageMode = Mode.Departure,
+                StopName = stopId.ToString(),
+            }, cancellationToken);
+            return Content(stop.Display());
         }
         catch (WebException ex)
         {
@@ -101,12 +118,20 @@ public class VipController : ControllerBase
         }
     }
 
-    [HttpGet("{id:int}/json")]
-    public async Task<IActionResult> GetJsonSourceById(int id, CancellationToken cancellationToken)
+    [HttpGet("{stopId:int}/json")]
+    public async Task<IActionResult> GetJsonSourceById(int stopId, CancellationToken cancellationToken)
     {
         try
         {
-            var jsonSource = await Crawler.GetJsonSource(id, cancellationToken);
+            var request = new StopPassagesRequest
+            {
+                PassageMode = Mode.Departure,
+                StopName = stopId.ToString(),
+            };
+            var baseUri = request.GetRequestPath(R4Uri.Create(_ttssApi.BaseUri));
+            var uri = request.AppendToUri(baseUri);
+            using var httpClient = new HttpClient();
+            var jsonSource = await httpClient.GetStringAsync(uri, cancellationToken);
             return Content(jsonSource, "application/json");
         }
         catch (WebException ex)
@@ -114,5 +139,47 @@ public class VipController : ControllerBase
             var json = JsonSerializer.Serialize(ex);
             return NotFound(json);
         }
+    }
+}
+
+file static class TtssExtensions
+{
+    public static string Display(this StopPassagesResponse response)
+    {
+        var infoSb = new StringBuilder();
+        infoSb.Append($"Haltestellenname: {response.StopName}, Id: {response.StopShortName}{Environment.NewLine}");
+        if (response.Alerts.Count > 0)
+        {
+            infoSb.Append("Hinweise:");
+            foreach (var alert in response.Alerts)
+            {
+                infoSb.Append($"  - {alert.Message}{Environment.NewLine}");
+            }
+        }
+
+        infoSb.Append($"Erste Zeit: {response.FirstPassageTime}, letzte Zeit: {response.LastPassageTime}{Environment.NewLine}");
+        if (response.Directions.Count > 0)
+        {
+            infoSb.Append("Ziele (Directions):");
+            for (var i = 0; i < response.Directions.Count; i++)
+            {
+                infoSb.Append($"  - {response.Directions[i]}{Environment.NewLine}");
+            }
+        }
+
+        infoSb.Append($"Es fahren:{Environment.NewLine}");
+        for (var i = 0; i < response.Actual.Count; i++)
+        {
+            infoSb.Append($"  {i + 1}. {response.Actual[i].Display(response.Routes)}{Environment.NewLine}");
+        }
+
+        return infoSb.ToString();
+    }
+    
+    public static string Display(this Passage passage, List<RouteWithType> routes)
+    {
+        var route = routes.First(route => route.Id == passage.RouteId);
+        return
+            $"Fahrt der Linie {route.RouteType} {(passage.PatternText is { Length: > 0 } ? passage.PatternText : route.Name)} Richtung {passage.Direction}{(passage.Vias is null or { Count: 0 } ? string.Empty : $" ({string.Join(", ", passage.Vias)})")}, planmäßig um {passage.PlannedTime}, erwartet um {passage.ActualTime} (in {passage.ActualRelativeTime} Sekunden){(passage.VehicleId is null ? string.Empty : $" mit Fahrzeug-Id {passage.VehicleId}")}.";
     }
 }

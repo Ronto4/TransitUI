@@ -9,7 +9,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
-      <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="TtssClient" Version="1.2.0" />
     </ItemGroup>
 
 </Project>
