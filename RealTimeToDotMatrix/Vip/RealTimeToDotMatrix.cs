@@ -1,5 +1,6 @@
 using DotMatrixDisplay;
-using RealTimeModels.Vip;
+using TtssClient.Dtos;
+using TtssClient.Dtos.Responses;
 
 namespace RealTimeToDotMatrix.Vip;
 
@@ -17,15 +18,15 @@ public static class RealTimeToDotMatrix
         while (message.Length > cols)
         {
             message = message.Trim();
-            string prevMessage = message;
-            for (int i = cols - 1; i >= 0; i--)
+            var prevMessage = message;
+            for (var i = cols - 1; i >= 0; i--)
             {
-                int index = Array.IndexOf(LineBreakCharacters, message[i]);
+                var index = Array.IndexOf(LineBreakCharacters, message[i]);
                 if (index == -1)
                     continue;
 
-                lines.Add(message.Substring(0, i + 1));
-                message = message.Substring(i + 1);
+                lines.Add(message[..(i + 1)]);
+                message = message[(i + 1)..];
                 break;
             }
             if (message != prevMessage)
@@ -36,16 +37,16 @@ public static class RealTimeToDotMatrix
             if (message[cols] != ' ')
                 throw new Exception($"Sequence too long.");
 
-            lines.Add(message.Substring(0, cols + 1));
-            message = message.Substring(cols + 1);
+            lines.Add(message[..(cols + 1)]);
+            message = message[(cols + 1)..];
         }
         message = message.Trim();
         lines.Add($"{message}");
     }
     
-    private static void AddHeaderToPage(Station station, List<string> emptyPage, int cols, int gap)
+    private static void AddHeaderToPage(StopPassagesResponse stopPassages, List<string> emptyPage, int cols, int gap)
     {
-        emptyPage.Add(station.StationName);
+        emptyPage.Add(stopPassages.StopName);
         emptyPage.Add(new string('-', cols));
         emptyPage.Add($"Linie | Ziel/Richtung %GAP% | Abf.");
         emptyPage[^1] = emptyPage[^1].Replace("%GAP%", new string(' ', Math.Max(cols - emptyPage[^1].Length + "%GAP%".Length, 0)));
@@ -61,13 +62,13 @@ public static class RealTimeToDotMatrix
         page[^1] = page[^1].Replace("%GAP%", new string(' ', Math.Max(cols - page[^1].Length + "%GAP%".Length, 0)));
     }
 
-    private static void AddDestinationToPage(List<string> page, RealTimeEntry realTimeEntry, int maxDirectionWidth)
+    private static void AddDestinationToPage(List<string> page, Passage passage, int maxDirectionWidth, List<RouteWithType> routes)
     {
-        string destinationLine = string.Empty;
-        string lineNumber =
-            realTimeEntry.PatternText is string && string.IsNullOrWhiteSpace(realTimeEntry.PatternText!) == false
-                ? realTimeEntry.PatternText!
-                : realTimeEntry.Route.LineName;
+        var destinationLine = string.Empty;
+        var lineNumber =
+            passage.PatternText is { } patternText && string.IsNullOrWhiteSpace(patternText) == false
+                ? patternText
+                : routes.First(route => route.Id == passage.RouteId).Name;
         destinationLine += lineNumber.Length switch
         {
             0 => $"  ??  ",
@@ -80,10 +81,10 @@ public static class RealTimeToDotMatrix
             _ => $"??????"
         };
         destinationLine += "| ";
-        destinationLine += realTimeEntry.Direction;
-        destinationLine += new string(' ', maxDirectionWidth - realTimeEntry.Direction.Length);
+        destinationLine += passage.Direction;
+        destinationLine += new string(' ', maxDirectionWidth - passage.Direction.Length);
         destinationLine += " |";
-        string mixedTime = realTimeEntry.MixedTime;
+        var mixedTime = passage.MixedTime;
         mixedTime = mixedTime.Replace("%UNIT_MIN%", "");
         mixedTime = mixedTime.Trim();
         destinationLine += mixedTime.Length switch
@@ -97,30 +98,27 @@ public static class RealTimeToDotMatrix
             _ => $"?????"
         };
         page.Add(destinationLine);
-        if (realTimeEntry.Vias is null)
+        if (passage.Vias is null)
             return;
-        foreach (var via in realTimeEntry.Vias)
-        {
-            string viaLine = $"{new string(' ', 6)}| {via}{new string(' ', maxDirectionWidth - via.Length)} |";
-            page.Add(viaLine);
-        }
+        page.AddRange(passage.Vias.Select(via =>
+            $"{new string(' ', 6)}| {via}{new string(' ', maxDirectionWidth - via.Length)} |"));
     }
-    private static (string[] messages, (uint cols, uint rows) dimensions) GenerateTarget(Station station)
+    private static (string[] messages, (uint cols, uint rows) dimensions) GenerateTarget(StopPassagesResponse stopPassages)
     {
-        int pageCount = station.Alerts.Count + 1;
-        List<List<RealTimeEntry>> pagedEntries = new(pageCount);
-        int currentPositionOnPage = 0;
-        pagedEntries.Add(new List<RealTimeEntry>());
-        int maxDestinationWidth = 0;
-        foreach (var realTimeEntry in station.Actual)
+        var pageCount = stopPassages.Alerts.Count + 1;
+        List<List<Passage>> pagedEntries = new(pageCount);
+        var currentPositionOnPage = 0;
+        pagedEntries.Add([]);
+        var maxDestinationWidth = 0;
+        foreach (var realTimeEntry in stopPassages.Actual)
         {
-            int localLength = (realTimeEntry.Vias?.Count ?? 0) + 1;
+            var localLength = (realTimeEntry.Vias?.Count ?? 0) + 1;
             currentPositionOnPage += localLength;
             if (currentPositionOnPage > UsableRows)
             {
                 pageCount++;
                 currentPositionOnPage = localLength;
-                pagedEntries.Add(new List<RealTimeEntry>());
+                pagedEntries.Add([]);
             }
             pagedEntries[^1].Add(realTimeEntry);
             maxDestinationWidth = realTimeEntry.Vias is not null
@@ -128,21 +126,21 @@ public static class RealTimeToDotMatrix
                 : Math.Max(realTimeEntry.Direction.Length, maxDestinationWidth);
         }
 
-        int targetCols = Math.Max(maxDestinationWidth + 15, 30);
-        if (station.StationName.Length > targetCols)
+        var targetCols = Math.Max(maxDestinationWidth + 15, 30);
+        if (stopPassages.StopName.Length > targetCols)
         {
-            targetCols = station.StationName.Length;
+            targetCols = stopPassages.StopName.Length;
             maxDestinationWidth = targetCols - 15;
         }
 
         List<List<string>> pages = new(pageCount);
-        int alert = 0;
-        foreach (var stationAlert in station.Alerts)
+        var alert = 0;
+        foreach (var stationAlert in stopPassages.Alerts)
         {
             alert++;
             List<string> page = new();
-            AddHeaderToPage(station, page, targetCols, maxDestinationWidth);
-            page.Add($"Hinweis {alert}/{station.Alerts.Count}:");
+            AddHeaderToPage(stopPassages, page, targetCols, maxDestinationWidth);
+            page.Add($"Hinweis {alert}/{stopPassages.Alerts.Count}:");
             AddAlertToList(stationAlert.Message, page, targetCols);
             pages.Add(page);
             AddFooterToPage(page, targetCols, DateTime.Now, pages.Count, pageCount);
@@ -150,11 +148,11 @@ public static class RealTimeToDotMatrix
 
         foreach (var pagedEntry in pagedEntries)
         {
-            List<string> page = new();
-            AddHeaderToPage(station, page, targetCols, maxDestinationWidth);
+            List<string> page = [];
+            AddHeaderToPage(stopPassages, page, targetCols, maxDestinationWidth);
             foreach (var realTimeEntry in pagedEntry)
             {
-                AddDestinationToPage(page, realTimeEntry, maxDestinationWidth);
+                AddDestinationToPage(page, realTimeEntry, maxDestinationWidth, stopPassages.Routes);
             }
             pages.Add(page);
             AddFooterToPage(page, targetCols, DateTime.Now, pages.Count, pageCount);
@@ -163,9 +161,9 @@ public static class RealTimeToDotMatrix
         return (pages.Select(page => string.Join(Environment.NewLine, page)).ToArray(), ((uint)targetCols, MaximalRows));
     }
 
-    public static Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(Station station, CancellationToken cancellationToken)
+    public static Task<(List<string> pages, DotMatrixDimensions dimensions)> GetPages(StopPassagesResponse stopPassages, CancellationToken cancellationToken)
     {
-        var (messages, dimensions) = GenerateTarget(station);
+        var (messages, dimensions) = GenerateTarget(stopPassages);
         return Task.FromResult((messages.ToList(),
             new DotMatrixDimensions
                 {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)}));

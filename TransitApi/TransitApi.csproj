@@ -11,12 +11,11 @@
     <ItemGroup>
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="TtssClient" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
-      <ProjectReference Include="..\RealTimeDataCrawler\RealTimeDataCrawler.csproj" />
-      <ProjectReference Include="..\RealTimeModels\RealTimeModels.csproj" />
       <ProjectReference Include="..\RealTimeToDotMatrix\RealTimeToDotMatrix.csproj" />
     </ItemGroup>
 
