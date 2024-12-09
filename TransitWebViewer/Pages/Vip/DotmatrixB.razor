@@ -1,0 +1,87 @@
+@page "/DotmatrixB"
+<style>
+    @@font-face {
+        font-family: 'DMI';
+        src: url('fonts/dmi/Dot-Matrix-Regular.ttf') format("truetype");
+        font-weight: normal;
+    }
+    @@font-face {
+        font-family: 'DMI';
+        src: url('fonts/dmi/Dot-Matrix-Bold.ttf') format("truetype");
+        font-weight: bold;
+    }
+
+    #scroll-container {
+        border: 3px solid black;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    #scroll-text {
+        /* animation properties */
+        -moz-transform: translateX(100%);
+        -webkit-transform: translateX(100%);
+        transform: translateX(100%);
+
+        -moz-animation: my-animation 15s linear infinite;
+        -webkit-animation: my-animation 15s linear infinite;
+        animation: my-animation 15s linear infinite;
+    }
+
+    /* for Firefox */
+    @@-moz-keyframes my-animation {
+        from { -moz-transform: translateX(100%); }
+        to { -moz-transform: translateX(-100%); }
+    }
+
+    /* for Chrome */
+    @@-webkit-keyframes my-animation {
+        from { -webkit-transform: translateX(100%); }
+        to { -webkit-transform: translateX(-100%); }
+    }
+
+    @@keyframes my-animation {
+        from {
+            -moz-transform: translateX(100%);
+            -webkit-transform: translateX(100%);
+            transform: translateX(100%);
+        }
+        to {
+            -moz-transform: translateX(-100%);
+            -webkit-transform: translateX(-100%);
+            transform: translateX(-100%);
+        }
+     }
+
+</style>
+
+<div style="font-family: 'DMI',sans-serif; color: yellowgreen !important; font-size: 48pt; background-color: black;">
+    <table class="table table-borderless" style="color: yellowgreen !important;">
+        <thead>
+        <tr>
+            <th scope="col" class="text-start align-content-center" colspan="3">Alter Markt/Landtag</th>
+        </tr>
+        <tr>
+            <th scope="col" class="text-start align-content-center">Linie</th>
+            <th scope="col" class="text-start align-content-center">Ziel/Richtung</th>
+            <th scope="col" class="text-start align-content-center">Abf.</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="text-center align-content-center">91</td>
+            <td class="text-start align-content-center">Bhf Pirschheide</td>
+            <td class="text-center align-content-center">0</td>
+        </tr>
+        <tr>
+            <td class="text-center align-content-center">99</td>
+            <td class="text-start align-content-center"><div id="scroll-container"><div id="scroll-text">Fontanestraße via Schiffbauergasse</div></div></td>
+            <td class="text-center align-content-center">1</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    
+}
