@@ -80,6 +80,28 @@ public record Line
                                                            other.StopPositions.Select(position => position.Stop));
 
         public bool InterpretAsBidirectional { get; set; } = false;
+
+        public Route WithoutStop(Stop stopToExclude) => StopPositions.Any(pos => pos.Stop == stopToExclude)
+            ? this with
+            {
+                StopPositions = StopPositions.Where(stop => stop.Stop != stopToExclude)
+                    .ToArray(),
+                TimeProfiles = TimeProfiles.Select(profile =>
+                {
+                    var indexOfLps = StopPositions.Select((pos, index) => (pos, index))
+                        .First(tuple => tuple.pos.Stop == stopToExclude).index;
+                    return profile with
+                    {
+                        StopDistances =
+                        [
+                            ..profile.StopDistances[..(indexOfLps - 1)],
+                            profile.StopDistances[indexOfLps - 1] + profile.StopDistances[indexOfLps],
+                            ..profile.StopDistances[(indexOfLps + 1)..]
+                        ],
+                    };
+                }).ToArray(),
+            }
+            : this;
     }
 
     public record Trip

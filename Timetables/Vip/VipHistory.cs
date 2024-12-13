@@ -91,10 +91,38 @@ public class VipHistory : IHistory
                                                     Die Bauarbeiten in der Berliner Straße sind beendet, die Tram 93 fährt wieder nach dem regulären Fahrplan.
                                                     <br>
                                                     Außerdem ist an diesem Wochenende die Friedrich-Ebert-Straße wieder voll gesperrt.
-                                                    Es wird ein der Juni-Sperrung vergleichbares Konzept gefahren, allerdings ohne die Änderungen an der Tram 99.
+                                                    Es wird das Konzept der Juni-Sperrung vergleichbares gefahren, auch wenn die Änderungen an der Tram 99 diesmal nicht kommuniziert wurden.
                                                     Außerdem wird die Ersatzlinie der 92 am Sonntag mit einer Schleife von Campus Fachhochschule zusätzlich die Haltestelle Volkspark
                                                     bedienen, da dort an diesem Wochenende das Stadtwerke-Fest stattfindet.
                                                     """),
-        new HistoryEntry(new DateOnly(2024, 9, 23), "Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach dem regulären Baufahrplan."),
+        new HistoryEntry(new DateOnly(2024, 9, 23), """
+                                                    Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach einem Baufahrplan.
+                                                    Dieser wurde aber angepasst. So wird nun in beide Richtungen eine Minute weniger zwischen Puschkinallee und Rathaus eingeplant.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 10, 12), """
+                                                     Erneut ist die Friedrich-Ebert-Straße für ein Wochenende gesperrt.
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 10, 14), """
+                                                     Die Sperrung ist wieder beendet.
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 10, 21), """
+                                                     Aufgrund von Bauarbeiten wird während der Herbstferien die Haltestelle Luisenplatz-Süd/Park Sanssouci in beide Richtungen nicht bedient.
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 10, 26), """
+                                                     Die Friedrich-Ebert-Straße ist ein letztes Mal gesperrt, dieses Mal für über eine Woche.
+                                                     Abends in der Woche entfällt dabei die 92 zwischen Platz der Einheit und S Hauptbahnhof ersatzlos.
+                                                     Ebenso verkehrt der Ersatzverkehr der 92 in der Woche nur alle 20 Minuten.
+                                                     <br>
+                                                     <b>Die Fahrpläne fehlen aktuell noch.</b>
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 11, 3), """
+                                                    Die Haltestelle Luisenplatz-Süd/Park Sanssouci wird wieder bedient.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 11, 4), """
+                                                    Die Sperrung und Eingleisigkeit der Friedrich-Ebert-Straße sind beendet.
+                                                    Die Fahrpläne von vor der Sperrung treten wieder in Kraft.
+                                                    Die Haltestelle Reiterweg/Alleestr. wird weiterhin in beide Richtungen nicht bedient.
+                                                    """),
+
     ];
 }

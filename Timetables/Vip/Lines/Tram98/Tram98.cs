@@ -9,5 +9,6 @@ internal class Tram98 : ICompleteLine
         new Tram98From20240226(),
         new Tram98From20240809(),
         new Tram98From20240811(),
+        new Tram98From20241021Until20241102(),
     ];
 }
