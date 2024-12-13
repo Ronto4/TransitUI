@@ -108,9 +108,21 @@ public class VipHistory : IHistory
         new HistoryEntry(new DateOnly(2024, 10, 21), """
                                                      Aufgrund von Bauarbeiten wird während der Herbstferien die Haltestelle Luisenplatz-Süd/Park Sanssouci in beide Richtungen nicht bedient.
                                                      """),
-        new HistoryEntry(new DateOnly(2024, 11, 3), """
-                                                     Die Haltestelle Luisenplatz-Süd/Park Sanssouci wird wieder bedient.
+        new HistoryEntry(new DateOnly(2024, 10, 26), """
+                                                     Die Friedrich-Ebert-Straße ist ein letztes Mal gesperrt, dieses Mal für über eine Woche.
+                                                     Abends in der Woche entfällt dabei die 92 zwischen Platz der Einheit und S Hauptbahnhof ersatzlos.
+                                                     Ebenso verkehrt der Ersatzverkehr der 92 in der Woche nur alle 20 Minuten.
+                                                     <br>
+                                                     <b>Die Fahrpläne fehlen aktuell noch.</b>
                                                      """),
+        new HistoryEntry(new DateOnly(2024, 11, 3), """
+                                                    Die Haltestelle Luisenplatz-Süd/Park Sanssouci wird wieder bedient.
+                                                    """),
+        new HistoryEntry(new DateOnly(2024, 11, 4), """
+                                                    Die Sperrung und Eingleisigkeit der Friedrich-Ebert-Straße sind beendet.
+                                                    Die Fahrpläne von vor der Sperrung treten wieder in Kraft.
+                                                    Die Haltestelle Reiterweg/Alleestr. wird weiterhin in beide Richtungen nicht bedient.
+                                                    """),
 
     ];
 }
