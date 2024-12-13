@@ -105,6 +105,12 @@ public class VipHistory : IHistory
         new HistoryEntry(new DateOnly(2024, 10, 14), """
                                                      Die Sperrung ist wieder beendet.
                                                      """),
+        new HistoryEntry(new DateOnly(2024, 10, 21), """
+                                                     Aufgrund von Bauarbeiten wird während der Herbstferien die Haltestelle Luisenplatz-Süd/Park Sanssouci in beide Richtungen nicht bedient.
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 11, 3), """
+                                                     Die Haltestelle Luisenplatz-Süd/Park Sanssouci wird wieder bedient.
+                                                     """),
 
     ];
 }
