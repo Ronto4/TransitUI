@@ -123,6 +123,10 @@ public class VipHistory : IHistory
                                                     Die Fahrpläne von vor der Sperrung treten wieder in Kraft.
                                                     Die Haltestelle Reiterweg/Alleestr. wird weiterhin in beide Richtungen nicht bedient.
                                                     """),
-
+        new HistoryEntry(new DateOnly(2024, 12, 14), """
+                                                     Es werden nun auch Buslinien der ViP in dieser Historie gepflegt.
+                                                     Dabei werden zunächst nur langfristige Fahrplanänderungen berücksichtigt.
+                                                     Dabei sind aktuelle baubedingte Änderungen direkt eingearbeitet.
+                                                     """),
     ];
 }

@@ -126,6 +126,7 @@
               private static IEnumerable<Line.Route> DeduplicateWithPrevious(IEnumerable<Line.Route> routes, string lineId)
               {
                 if (_previous is null) return routes;
+                if (_previous.OrderedLinesById.All(pair => pair.Key != lineId)) return routes;
                 var previousRoutes = DeduplicateRoutesStrict(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value.OverviewRoutes, lineId, false);
                 return routes.Where(route => !previousRoutes.Any(route.StrictlyIsSame));
               }
@@ -222,6 +223,7 @@
               private static IEnumerable<KeyValuePair<Line.Route, List<string>>> RemoveDuplicatesWithPrevious(IEnumerable<KeyValuePair<Line.Route, List<string>>> frequencies, string lineId)
               {
                 if (_previous is null) return frequencies;
+                if (_previous.OrderedLinesById.All(pair => pair.Key != lineId)) return frequencies;
                 var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
                 return frequencies.Where(frequency =>
                 {
