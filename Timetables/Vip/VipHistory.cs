@@ -99,5 +99,12 @@ public class VipHistory : IHistory
                                                     Die Vollsperrung der Friedrich-Ebert-Straße ist wieder beendet, die Tramlinien 92 und 96 fahren wieder nach einem Baufahrplan.
                                                     Dieser wurde aber angepasst. So wird nun in beide Richtungen eine Minute weniger zwischen Puschkinallee und Rathaus eingeplant.
                                                     """),
+        new HistoryEntry(new DateOnly(2024, 10, 12), """
+                                                     Erneut ist die Friedrich-Ebert-Straße für ein Wochenende gesperrt.
+                                                     """),
+        new HistoryEntry(new DateOnly(2024, 10, 14), """
+                                                     Die Sperrung ist wieder beendet.
+                                                     """),
+
     ];
 }
