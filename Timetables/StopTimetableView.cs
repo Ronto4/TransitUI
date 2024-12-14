@@ -123,7 +123,7 @@ public class StopTimetableView
         var relevantLinesForConnections = allLines.Except(ownLines).ToList();
         foreach (var (route, routeIndex) in routes.Select((route, routeIndex) => (route, routeIndex)))
         {
-            if (!route.TryGetIndexOfStop(startStop, out var indexOfStartStop)) continue;
+            if (!route.TryGetIndexOfStopFirst/*TryGetIndexOfStop*/(startStop, out var indexOfStartStop)) continue;
             var lastAssignedIndex = -1;
             var relevantStops = route.StopPositions.Skip(indexOfStartStop).ToList();
             foreach (var (stop, index) in relevantStops.Select((pos, index) => (pos.Stop, index)))
@@ -138,7 +138,7 @@ public class StopTimetableView
                         }, (null! /* will be discarded immediately */, -1)).index;
                 if (previousIndex >= 0)
                 {
-                    stopInfos[previousIndex].Times[routeIndex] = route.TimeBetweenStops(startStop, stop);
+                    stopInfos[previousIndex].Times[routeIndex] = route.TimeBetweenStops(indexOfStartStop, indexOfStartStop + index);
                     lastAssignedIndex = previousIndex;
                     if (index == relevantStops.Count - 1)
                     {
@@ -152,7 +152,7 @@ public class StopTimetableView
                     .ToList();
                 var minutes = Enumerable.Repeat<(TimeSpan minimumTime, TimeSpan maximumTime)?>(null, routes.Count)
                     .ToList();
-                minutes[routeIndex] = route.TimeBetweenStops(startStop, stop);
+                minutes[routeIndex] = route.TimeBetweenStops(indexOfStartStop, indexOfStartStop + index);
                 stopInfos.Add(new StopInfo
                 {
                     Stop = stop,
@@ -286,7 +286,7 @@ public class StopTimetableView
             {
                 if ((trip.DaysOfOperation & days) == DaysOfOperation.None) continue;
                 var route = trip.Route;
-                var startStopIndex = route.GetIndexOfStop(startStop);
+                var startStopIndex = route.GetIndexOfStopFirst(startStop);
                 var time = trip.TimeAtStop(startStopIndex);
                 if (time.Hour != hour) continue;
                 var minute = time.Minute;

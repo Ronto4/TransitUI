@@ -42,9 +42,22 @@ public record Line
         public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to) =>
             TimeBetweenStops(GetIndexOfStop(from), GetIndexOfStop(to));
 
+        public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, int toIndex) =>
+            TimeBetweenStops(GetIndexOfStop(from), toIndex);
+
         public int GetIndexOfStop(Stop stop)
         {
             var exists = TryGetIndexOfStop(stop, out var index);
+            return exists
+                ? index
+                : throw new ArgumentException(
+                    $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
+                    nameof(stop));
+        }
+        
+        public int GetIndexOfStopFirst(Stop stop)
+        {
+            var exists = TryGetIndexOfStopFirst(stop, out var index);
             return exists
                 ? index
                 : throw new ArgumentException(
@@ -56,6 +69,13 @@ public record Line
         {
             index = StopPositions.Select((position, index) => (position.Stop, index))
                 .SingleOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
+            return index != -1;
+        }
+        
+        public bool TryGetIndexOfStopFirst(Stop stop, out int index)
+        {
+            index = StopPositions.Select((position, index) => (position.Stop, index))
+                .FirstOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
             return index != -1;
         }
 
