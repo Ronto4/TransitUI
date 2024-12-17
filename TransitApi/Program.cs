@@ -1,4 +1,5 @@
 using TtssClient;
+using TtssProxy;
 
 const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -38,5 +39,6 @@ app.UseCors(myAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapTtssRoutes("api/vip");
 
 app.Run();

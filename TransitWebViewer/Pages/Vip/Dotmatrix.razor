@@ -12,6 +12,7 @@
 {
     const string BaseApiUrl = @"%HOST%api/vip/%STOP_ID%/dotmatrix/%PAGE_ID%";
     string ApiUrl => BaseApiUrl.Replace("%HOST%", NavigationManager.BaseUri);
+    string TtssProxyUrl => $"{NavigationManager.BaseUri}api/vip";
     static string ImageSource { get; set; } = "";
 
     private Timer? Timer { get; set; } = null;
@@ -24,18 +25,18 @@
         StateHasChanged();
     }
 
-    private readonly ITtssApi _ttssApi = new TtssApi
-    {
-        Language = "de",
-        BaseUri = new Uri("https://www.swp-potsdam.de/"),
-    };
-
     async Task UpdateNextStopId(ChangeEventArgs e)
     {
+        var ttssApi = new TtssApi
+        {
+            Language = "de",
+            BaseUri = new Uri("https://www.swp-potsdam.de/"),
+            ProxyUri = new Uri(TtssProxyUrl),
+        };
         NextStopId = e.Value?.ToString() ?? NextStopId;
         try
         {
-            var stops = await _ttssApi.GetStopsAsync(new StopsRequest());
+            var stops = await ttssApi.GetStopsAsync(new StopsRequest());
             NextStopName = stops.Stops.First(stop => stop.ShortName == NextStopId).Name;
             SubmissionPossible = true;
         }
