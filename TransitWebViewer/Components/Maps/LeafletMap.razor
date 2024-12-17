@@ -1,0 +1,51 @@
+@using TtssClient
+@using TtssClient.Dtos.Requests
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
+
+<div id="map" style="height: 500px;"></div>
+
+
+@code {
+    private IJSObjectReference? _leafletMap;
+
+    string TtssProxyUrl => $"{NavigationManager.BaseUri}api/vip";
+    
+    private Timer? Timer { get; set; } = null;
+
+    private async Task VehicleUpdate()
+    {
+        var ttssApi = new TtssApi
+        {
+            Language = "de",
+            BaseUri = new Uri("https://www.swp-potsdam.de/"),
+            ProxyUri = new Uri(TtssProxyUrl),
+            // ProxyUri = new Uri("http://localhost:5177"),
+        };
+        var vehicles = await ttssApi.GetVehiclesAsync(new VehicleRequest());
+        foreach (var vehicle in vehicles.Vehicles)
+        {
+            if (vehicle.IsDeleted) continue;
+            if (vehicle.Position is null) continue;
+            await JsRuntime.InvokeAsync<IJSObjectReference>(
+                "leafletMap.vehicleAt", _leafletMap, vehicle.Position.Latitude, vehicle.Position.Longitude, vehicle.Direction ?? "unbekannt"
+            );
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+// Call the JavaScript function to initialize the Leaflet map
+            _leafletMap = await JsRuntime.InvokeAsync<IJSObjectReference>(
+                "leafletMap.initialize", "map", 52.395833, 13.061389, 13
+            );
+
+            await VehicleUpdate();
+
+            // Timer = new Timer(_ => Task.Run(VehicleUpdate), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+    }
+
+}
