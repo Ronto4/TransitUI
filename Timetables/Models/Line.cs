@@ -19,6 +19,7 @@ public record Line
                 .Skip(fromIndex).Take(toIndex - fromIndex).Select(time => time.Ticks).Sum());
         }
 
+        internal Line? Line { get; set; }
         public required Stop.Position[] StopPositions { get; init; }
         public required TimeProfile[] TimeProfiles { get; init; }
 
@@ -122,6 +123,8 @@ public record Line
                 }).ToArray(),
             }
             : this;
+
+        public int? TripCount() => Line?.Trips.Count(trip => trip.Route == this);
     }
 
     public record Trip
@@ -190,7 +193,19 @@ public record Line
     }
 
     public required string Name { get; init; }
-    public required Route[] Routes { get; init; }
+    private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+    public required Route[] Routes
+    {
+        get => _routes;
+        init
+        {
+            _routes = value;
+            foreach (var route in Routes)
+            {
+                route.Line = this;
+            }
+        }
+    }
 
     public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to)
     {

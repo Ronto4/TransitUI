@@ -77,12 +77,13 @@ public class StopTimetableView
             : new Func<char>(
                 () =>
                 {
+                    const char placeholder = ' ';
                     var annotationCharacter = index.stop.Name.FirstOrDefault(
                         c => !char.IsWhiteSpace(c) && !TargetStopAnnotations.ContainsValue(char.ToUpperInvariant(c)),
-                        'a');
-                    if (annotationCharacter is not 'a')
+                        placeholder);
+                    if (annotationCharacter is not placeholder)
                     {
-                        TargetStopAnnotations.Add(index, annotationCharacter);
+                        TargetStopAnnotations.Add(index, char.ToUpperInvariant(annotationCharacter));
                         return TargetStopAnnotations[index];
                     }
 
@@ -123,7 +124,7 @@ public class StopTimetableView
         var relevantLinesForConnections = allLines.Except(ownLines).ToList();
         foreach (var (route, routeIndex) in routes.Select((route, routeIndex) => (route, routeIndex)))
         {
-            if (!route.TryGetIndexOfStopFirst/*TryGetIndexOfStop*/(startStop, out var indexOfStartStop)) continue;
+            if (!route.TryGetIndexOfStopFirst /*TryGetIndexOfStop*/(startStop, out var indexOfStartStop)) continue;
             var lastAssignedIndex = -1;
             var relevantStops = route.StopPositions.Skip(indexOfStartStop).ToList();
             foreach (var (stop, index) in relevantStops.Select((pos, index) => (pos.Stop, index)))
@@ -138,7 +139,8 @@ public class StopTimetableView
                         }, (null! /* will be discarded immediately */, -1)).index;
                 if (previousIndex >= 0)
                 {
-                    stopInfos[previousIndex].Times[routeIndex] = route.TimeBetweenStops(indexOfStartStop, indexOfStartStop + index);
+                    stopInfos[previousIndex].Times[routeIndex] =
+                        route.TimeBetweenStops(indexOfStartStop, indexOfStartStop + index);
                     lastAssignedIndex = previousIndex;
                     if (index == relevantStops.Count - 1)
                     {
@@ -153,13 +155,13 @@ public class StopTimetableView
                 var minutes = Enumerable.Repeat<(TimeSpan minimumTime, TimeSpan maximumTime)?>(null, routes.Count)
                     .ToList();
                 minutes[routeIndex] = route.TimeBetweenStops(indexOfStartStop, indexOfStartStop + index);
-                stopInfos.Add(new StopInfo
+                stopInfos.Insert(lastAssignedIndex + 1, new StopInfo
                 {
                     Stop = stop,
                     Times = minutes,
                     ConnectionLines = stoppingLines,
                 });
-                lastAssignedIndex = stopInfos.Count - 1;
+                lastAssignedIndex++; // = stopInfos.Count - 1;
                 if (index == relevantStops.Count - 1)
                 {
                     stopInfos[lastAssignedIndex].IsRelevantStop = true;
@@ -225,15 +227,20 @@ public class StopTimetableView
             } while (collapsed);
         }
 
-        // Re-order routes such that the longest ones are first.
+        // Re-order routes such that the most-used ones are first.
         {
             var previousRoutes = Enumerable.Range(0, currentRouteCount)
                 .Select(routeIndex => stopInfos.Select(stopInfo => stopInfo.Times[routeIndex]).ToList()).ToList();
-            var previousToOrderedMapping = Enumerable.Range(0, currentRouteCount)
-                .Select(routeIndex => (previousIndex: routeIndex,
-                    maximumTime: stopInfos.Last(stopInfo => stopInfo.Times[routeIndex] is not null).Times[routeIndex]!
-                        .Value.maximumTime)).OrderByDescending(tuple => tuple.maximumTime)
-                .Select(tuple => tuple.previousIndex).ToList();
+            var previousToOrderedMapping = Enumerable.Range(0, currentRouteCount).Select(routeIndex => new
+            {
+                PreviousIndex = routeIndex,
+                PhysicalRoutes = mapping.Where(kvp => kvp.Value == routeIndex).Select(kvp => kvp.Key).ToList(),
+            }).Select(tmp => new
+            {
+                tmp.PreviousIndex,
+                TripCount = tmp.PhysicalRoutes.Select(route => route.TripCount() ?? 0)
+                    .Aggregate(0, (prev, current) => prev + current),
+            }).OrderByDescending(tmp => tmp.TripCount).Select(tmp => tmp.PreviousIndex).ToList();
             // Re-order entries in stop info.
             foreach (var (stopInfo, stopInfoIndex) in stopInfos.Select((stopInfo, index) => (stopInfo, index)))
             {
