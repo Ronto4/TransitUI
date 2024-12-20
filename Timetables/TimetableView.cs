@@ -396,7 +396,9 @@ public class TimetableView
             var daysOfIdenticalTrips = sortedTrips
                 .Select((other, index) => (other, index))
                 .Skip(i + 1)
-                .Where(other => trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile)
+                .Where(other =>
+                    trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile &&
+                    trip.Annotation == other.other.Annotation)
                 .Select(other => (other.other.DaysOfOperation, other.index))
                 .ToList();
             var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation,
