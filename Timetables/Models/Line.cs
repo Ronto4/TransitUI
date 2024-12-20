@@ -5,7 +5,7 @@ public record Line
     public record Route
     {
         public override string ToString() =>
-            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
+            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         public record TimeProfile
         {
@@ -19,8 +19,11 @@ public record Line
                 .Skip(fromIndex).Take(toIndex - fromIndex).Select(time => time.Ticks).Sum());
         }
 
+        internal Line? Line { get; set; }
         public required Stop.Position[] StopPositions { get; init; }
         public required TimeProfile[] TimeProfiles { get; init; }
+        
+        public string? ManualAnnotation { get; init; }
 
         /// <summary>
         /// The stop that is used when calculating frequencies.
@@ -122,6 +125,9 @@ public record Line
                 }).ToArray(),
             }
             : this;
+
+        public int? TripCount(DaysOfOperation days) => Line?.Trips.Where(trip => trip.Route == this)
+            .Select(trip => int.PopCount((int)(trip.DaysOfOperation & days))).Sum();
     }
 
     public record Trip
@@ -190,7 +196,19 @@ public record Line
     }
 
     public required string Name { get; init; }
-    public required Route[] Routes { get; init; }
+    private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+    public required Route[] Routes
+    {
+        get => _routes;
+        init
+        {
+            _routes = value;
+            foreach (var route in Routes)
+            {
+                route.Line = this;
+            }
+        }
+    }
 
     public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to)
     {

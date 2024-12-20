@@ -19,7 +19,7 @@
             <div class="form-check-inline">
                 <input class="form-check-input" type="checkbox" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
                 <label class="form-check-label" for="@route.GetHashCode()">
-                    @route
+                    <RouteName Route="route" />
                 </label>
             </div>
         }

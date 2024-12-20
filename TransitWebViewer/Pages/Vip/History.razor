@@ -1,6 +1,7 @@
 @page "/vip/history"
 @using Timetables.Models
 @using Timetables.Vip
+@using TransitWebViewer.Components.Timetables
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -316,7 +317,7 @@
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
                   <td>@line.Name</td>
-                  <td>@route</td>
+                  <td><RouteName Route="route" /></td>
                   @foreach (var frequency in frequencies)
                   {
                     <td>@frequency</td>

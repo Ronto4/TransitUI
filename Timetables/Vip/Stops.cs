@@ -51,6 +51,7 @@ internal static class Stops
 
     public static Stop BerlinAmOmnibusbahnhof { get; } = new() { Name = "Am Omnibusbahnhof", City = Berlin };
     public static Stop AmPark { get; } = new() { Name = "Am Park" };
+    public static Stop AmPfingstberg { get; } = new() { Name = "Am Pfingstberg" };
     public static Stop AmSchlahn { get; } = new() { Name = "Am Schlahn" };
     public static Stop AmSchragen { get; } = new() { Name = "Am Schragen" };
     public static Stop AmUpstall { get; } = new() { Name = "Am Upstall" };
