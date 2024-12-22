@@ -44,7 +44,7 @@ internal static class Stops
     public static Stop RoteKaserneNedlitzerStr { get; } = new() { Name = "Rote Kaserne/Nedlitzer Str." };
     public static Stop AmGrünenWeg { get; } = new() { Name = "Am Grünen Weg" };
     public static Stop AmHämphorn { get; } = new() { Name = "Am Hämphorn" };
-    public static Stop AmHavelblich { get; } = new() { Name = "Am Havelblick" };
+    public static Stop AmHavelblick { get; } = new() { Name = "Am Havelblick" };
     public static Stop AmHirtengraben { get; } = new() { Name = "Am Hirtengraben" };
     public static Stop AmKüssel { get; } = new() { Name = "Am Küssel" };
     public static Stop AmMoosfenn { get; } = new() { Name = "Am Moosfenn" };
