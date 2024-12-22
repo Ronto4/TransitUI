@@ -1,0 +1,22 @@
+@using global::Timetables.Models
+
+@Route.StopPositions.First().Stop.DisplayName
+@(Route.InterpretAsBidirectional ? "–" : ">")
+@Route.StopPositions.Last().Stop.DisplayName
+
+@if (Route.ManualAnnotation is { } manualAnnotation)
+{
+    @* 
+        Dear future me: this is the only way to preserve the following whitespace.
+        DO NOT DELETE.
+        Source: https://stackoverflow.com/a/76285808
+    *@
+    @(" ")
+    <span class="fst-italic">
+        @manualAnnotation
+    </span>
+}
+
+@code {
+    [Parameter] public required Line.Route Route { get; init; }
+}

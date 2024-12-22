@@ -5,7 +5,7 @@ public record Line
     public record Route
     {
         public override string ToString() =>
-            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
+            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         public record TimeProfile
         {
@@ -19,8 +19,11 @@ public record Line
                 .Skip(fromIndex).Take(toIndex - fromIndex).Select(time => time.Ticks).Sum());
         }
 
+        internal Line? Line { get; set; }
         public required Stop.Position[] StopPositions { get; init; }
         public required TimeProfile[] TimeProfiles { get; init; }
+        
+        public string? ManualAnnotation { get; init; }
 
         /// <summary>
         /// The stop that is used when calculating frequencies.
@@ -42,9 +45,22 @@ public record Line
         public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to) =>
             TimeBetweenStops(GetIndexOfStop(from), GetIndexOfStop(to));
 
+        public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, int toIndex) =>
+            TimeBetweenStops(GetIndexOfStop(from), toIndex);
+
         public int GetIndexOfStop(Stop stop)
         {
             var exists = TryGetIndexOfStop(stop, out var index);
+            return exists
+                ? index
+                : throw new ArgumentException(
+                    $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
+                    nameof(stop));
+        }
+        
+        public int GetIndexOfStopFirst(Stop stop)
+        {
+            var exists = TryGetIndexOfStopFirst(stop, out var index);
             return exists
                 ? index
                 : throw new ArgumentException(
@@ -56,6 +72,13 @@ public record Line
         {
             index = StopPositions.Select((position, index) => (position.Stop, index))
                 .SingleOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
+            return index != -1;
+        }
+        
+        public bool TryGetIndexOfStopFirst(Stop stop, out int index)
+        {
+            index = StopPositions.Select((position, index) => (position.Stop, index))
+                .FirstOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
             return index != -1;
         }
 
@@ -102,6 +125,9 @@ public record Line
                 }).ToArray(),
             }
             : this;
+
+        public int? TripCount(DaysOfOperation days) => Line?.Trips.Where(trip => trip.Route == this)
+            .Select(trip => int.PopCount((int)(trip.DaysOfOperation & days))).Sum();
     }
 
     public record Trip
@@ -112,7 +138,7 @@ public record Line
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required AnnotationDefinition? Annotation { get; init; }
+        public required List<AnnotationDefinition> Annotations { get; init; }
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -130,11 +156,19 @@ public record Line
 
     public readonly record struct TripCreate
     {
+        public TripCreate()
+        {
+        }
+
         public required Index RouteIndex { get; init; }
         public required Index TimeProfileIndex { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public string AnnotationSymbol { get; init; }
+        public string AnnotationSymbol
+        {
+            init => AnnotationSymbols.Add(value);
+        }
+        public List<string> AnnotationSymbols { get; init; } = [];
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)
         {
@@ -170,7 +204,19 @@ public record Line
     }
 
     public required string Name { get; init; }
-    public required Route[] Routes { get; init; }
+    private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+    public required Route[] Routes
+    {
+        get => _routes;
+        init
+        {
+            _routes = value;
+            foreach (var route in Routes)
+            {
+                route.Line = this;
+            }
+        }
+    }
 
     public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to)
     {
@@ -201,7 +247,8 @@ public record Line
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
-        Annotation = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
+        Annotations = trip.AnnotationSymbols.Select(symbol => new Trip.AnnotationDefinition(symbol, Annotations[symbol])).ToList(),
+        // Annotations = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
     });
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }
