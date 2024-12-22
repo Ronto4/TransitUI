@@ -331,5 +331,15 @@ internal static class Stops
     public static Stop RotdornwegStahnsdorferStr { get; } = new() { Name = "Rotdornweg/Stahnsdorfer Str." };
     public static Stop Lindenpark { get; } = new() { Name = "Lindenpark" };
     public static Stop StahnsdorferStrAugustBebelStr { get; } = new() { Name = "Stahnsdorfer Str./August-Bebel-Str." };
-    public static Stop SGriebnitzsee { get; } = new() {Name = "S Griebnitzsee Bhf/Süd" };
+    public static Stop SGriebnitzsee { get; } = new() { Name = "S Griebnitzsee Bhf/Süd" };
+    public static Stop HeinrichVonKleistStr { get; } = new() { Name = "Heinrich-von-Kleist-Str." };
+    public static Stop AmFindlingWilliFrohweinPlatz { get; } = new() { Name = "Am-Findling/Willi-Frohwein-Platz" };
+    public static Stop Eichenweg { get; } = new() { Name = "Eichenweg" };
+    public static Stop KleineStr { get; } = new() { Name = "Kleine Str." };
+    public static Stop Filmpark { get; } = new() { Name = "Filmpark" };
+    public static Stop BahnhofMedienstadtBabelsberg { get; } = new() { Name = "Bahnhof Medienstadt Babelsberg" };
+    public static Stop Katjes { get; } = new() { Name = "Katjes" };
+    public static Stop BetriebshofViP { get; } = new() { Name = "Betriebshof ViP" };
+    public static Stop SternCenterNuthestr { get; } = new() { Name = "Stern-Center/Nuthestr." };
+    public static Stop OttoHahnRing { get; } = new() { Name = "Otto-Hahn-Ring" };
 }

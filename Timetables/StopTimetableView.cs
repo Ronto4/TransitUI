@@ -328,18 +328,75 @@ public class StopTimetableView
 
 file static class DepartureEnumerableExtension
 {
+    private class ValueEqualityListWrapper<T> : IEquatable<ValueEqualityListWrapper<T>>
+    {
+        private readonly List<T> _list = null! /* will be set by required property below */;
+
+        public required IReadOnlyCollection<T> List
+        {
+            get => _list;
+            init => _list = value as List<T> ?? [..value];
+        }
+
+        public bool Equals(ValueEqualityListWrapper<T>? other)
+        {
+            if (other is null) return false;
+            return ReferenceEquals(this, other) || _list.Order().SequenceEqual(other._list.Order());
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is null) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == GetType() && Equals((ValueEqualityListWrapper<T>)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return _list.Aggregate(0, HashCode.Combine);
+        }
+    }
+
+    private static ValueEqualityListWrapper<T> ToValueEqualityList<T>(this IEnumerable<T> source) => new()
+    {
+        List = source as List<T> ?? source.ToList(),
+    };
+
+    private class KeyComparer : IEqualityComparer<(int Minute, int RouteIndex,
+        ValueEqualityListWrapper<Line.Trip.AnnotationDefinition> Annotations, Stop TargetStop)>
+    {
+        public bool Equals(
+            (int Minute, int RouteIndex, ValueEqualityListWrapper<Line.Trip.AnnotationDefinition> Annotations, Stop
+                TargetStop) x,
+            (int Minute, int RouteIndex, ValueEqualityListWrapper<Line.Trip.AnnotationDefinition> Annotations, Stop
+                TargetStop) y)
+        {
+            return x.Minute == y.Minute && x.RouteIndex == y.RouteIndex && Equals(x.Annotations, y.Annotations) &&
+                   Equals(x.TargetStop, y.TargetStop);
+        }
+
+        public int GetHashCode(
+            (int Minute, int RouteIndex, ValueEqualityListWrapper<Line.Trip.AnnotationDefinition> Annotations, Stop
+                TargetStop) obj)
+        {
+            return HashCode.Combine(obj.Minute, obj.RouteIndex, obj.Annotations, obj.TargetStop);
+        }
+    }
+
     public static IEnumerable<StopTimetableView.HourInfo.Departure>
         Collapse(this IEnumerable<StopTimetableView.HourInfo.Departure> departures) => departures
-        .GroupBy(departure => (departure.Minute, departure.RouteIndex, departure.Annotations, departure.TargetStop)).Select(group =>
+        .GroupBy(
+            departure => (departure.Minute, departure.RouteIndex,
+                Annotations: departure.Annotations.ToValueEqualityList(), departure.TargetStop), new KeyComparer())
+        .Select(group =>
             new StopTimetableView.HourInfo.Departure
             {
-                Annotations = group.Key.Annotations,
+                Annotations = group.Key.Annotations.List.ToList(),
                 Days = group.Select(departure => departure.Days)
                     .Aggregate(DaysOfOperation.None, (current, next) => current | next),
                 Minute = group.Key.Minute, RouteIndex = group.Key.RouteIndex,
                 TargetStop = group.Key.TargetStop,
             }).OrderBy(departure => departure.Minute);
-
 }
 
 file static class TimeAtStopExtension
