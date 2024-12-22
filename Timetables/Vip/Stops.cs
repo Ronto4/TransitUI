@@ -165,6 +165,7 @@ internal static class Stops
     public static Stop JohannesKeplerPlatz { get; } = new() { Name = "Johannes-Kepler-Platz" };
     public static Stop KaiserFriedrichStrPolizei { get; } = new() { Name = "Kaiser-Friedrich-Str./Polizei" };
     public static Stop Kaiserplatz { get; } = new() { Name = "Kaiserplatz" };
+    public static Stop KarlLiebknechtStadion { get; } = new() { Name = "Karl-Liebknecht-Stadion" };
     public static Stop BerlinKarolinenhöhe { get; } = new() { Name = "Karolinenhöhe", City = Berlin };
     public static Stop BerlinKaserneHottengrund { get; } = new() { Name = "Kaserne Hottengrund", City = Berlin };
     public static Stop KastanienalleeZeppelinstr { get; } = new() { Name = "Kastanienallee/Zeppelinstr." };
@@ -245,7 +246,7 @@ internal static class Stops
     public static Stop Rückerstr { get; } = new() { Name = "Rückerstr." };
     public static Stop Ruinenbergstr { get; } = new() { Name = "Ruinenbergstr." };
     public static Stop SBabelsbergLutherplatz { get; } = new() { Name = "S\u00a0Babelsberg/Lutherplatz" };
-    public static Stop SBabelsbergSchulplatz { get; } = new() { Name = "S\u00a0Babelsberg/Schulplatz" };
+    public static Stop SBabelsbergSchulstr { get; } = new() { Name = "S\u00a0Babelsberg/Schulstr." };
     public static Stop SBabelsbergWattstr { get; } = new() { Name = "S\u00a0Babelsberg/Wattstr." };
     public static Stop SHauptbahnhof { get; } = new() { Name = "S\u00a0Hauptbahnhof" };
 
@@ -277,6 +278,7 @@ internal static class Stops
     public static Stop SchuleFahrland { get; } = new() { Name = "Schule Fahrland" };
     public static Stop SchuleMarquardt { get; } = new() { Name = "Schule Marquardt" };
     public static Stop Sonnenlandstr { get; } = new() { Name = "Sonnenlandstr." };
+    public static Stop Spindelstr { get; } = new() { Name = "Spindelstr." };
     public static Stop Sporthalle { get; } = new() { Name = "Sporthalle" };
     public static Stop TöplitzSportplatz { get; } = new() { Name = "Sportplatz", City = Töplitz };
     public static Stop SportplatzBornim { get; } = new() { Name = "Sportplatz Bornim" };
@@ -320,4 +322,14 @@ internal static class Stops
     public static Stop BerlinSteinstücken { get; } = new() { Name = "Steinstücken", City = Berlin };
     public static Stop BerlinStahnsdorferBrücke { get; } = new() { Name = "Stahnsdorfer Brücke", City = Berlin };
     public static Stop Wiesenpark { get; } = new() { Name = "Wiesenpark" };
+    public static Stop Sternwarte { get; } = new() { Name = "Sternwarte" };
+    public static Stop SchlossBabelsberg { get; } = new() { Name = "Schloss Babelsberg" };
+    public static Stop KarlMarxStrBehringstr { get; } = new() { Name = "Karl-Marx-Str./Behringstr." };
+    public static Stop HermannMaaßStr { get; } = new() { Name = "Hermann-Maaß-Str." };
+    public static Stop Scheffelstr { get; } = new() { Name = "Scheffelstr." };
+    public static Stop Goetheplatz { get; } = new() { Name = "Goetheplatz" };
+    public static Stop RotdornwegStahnsdorferStr { get; } = new() { Name = "Rotdornweg/Stahnsdorfer Str." };
+    public static Stop Lindenpark { get; } = new() { Name = "Lindenpark" };
+    public static Stop StahnsdorferStrAugustBebelStr { get; } = new() { Name = "Stahnsdorfer Str./August-Bebel-Str." };
+    public static Stop SGriebnitzsee { get; } = new() {Name = "S Griebnitzsee Bhf/Süd" };
 }
