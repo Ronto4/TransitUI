@@ -18,10 +18,14 @@ else
             {
                 <th scope="col" class="text-center">
                     @(trip.DaysOfOperation is { } daysOfOperation ? (daysOfOperation & Days).Display() : "")
-                    @if (trip.AnnotationSymbol is { } annotationSymbol)
+                    @if (trip.AnnotationSymbols.Count > 0)
                     {
                         <hr/>
+                    }
+                    @foreach (var annotationSymbol in trip.AnnotationSymbols)
+                    {
                         @annotationSymbol
+                        @(" ")
                     }
                 </th>
             }

@@ -21,7 +21,7 @@ public class StopTimetableView
         {
             public required int Minute { get; init; }
             public required DaysOfOperation Days { get; init; }
-            public required Line.Trip.AnnotationDefinition? Annotation { get; init; }
+            public required List<Line.Trip.AnnotationDefinition> Annotations { get; init; }
             public required int RouteIndex { get; init; }
             public required Stop TargetStop { get; init; }
         }
@@ -304,15 +304,16 @@ public class StopTimetableView
                     GetOrCreateTargetStopAnnotation((route.StopPositions.Last().Stop, routeIndex));
                 }
 
-                var annotation = trip.Annotation;
-                if (annotation is not null && !_tripAnnotations.ContainsKey(annotation.Symbol))
+                var annotations = trip.Annotations;
+                foreach (var annotation in annotations)
                 {
+                    if (_tripAnnotations.ContainsKey(annotation.Symbol)) continue;
                     _tripAnnotations.Add(annotation.Symbol, annotation.Text);
                 }
 
                 departures.Add(new HourInfo.Departure
                 {
-                    Annotation = annotation,
+                    Annotations = annotations,
                     Days = trip.DaysOfOperation,
                     Minute = minute,
                     RouteIndex = routeIndex,
@@ -329,10 +330,10 @@ file static class DepartureEnumerableExtension
 {
     public static IEnumerable<StopTimetableView.HourInfo.Departure>
         Collapse(this IEnumerable<StopTimetableView.HourInfo.Departure> departures) => departures
-        .GroupBy(departure => (departure.Minute, departure.RouteIndex, departure.Annotation, departure.TargetStop)).Select(group =>
+        .GroupBy(departure => (departure.Minute, departure.RouteIndex, departure.Annotations, departure.TargetStop)).Select(group =>
             new StopTimetableView.HourInfo.Departure
             {
-                Annotation = group.Key.Annotation,
+                Annotations = group.Key.Annotations,
                 Days = group.Select(departure => departure.Days)
                     .Aggregate(DaysOfOperation.None, (current, next) => current | next),
                 Minute = group.Key.Minute, RouteIndex = group.Key.RouteIndex,

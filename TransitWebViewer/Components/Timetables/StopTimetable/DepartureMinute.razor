@@ -1,20 +1,16 @@
 @using global::Timetables
 @using global::Timetables.Models
 @Departure.Minute.ToString("00")<sub>@AnnotateDays(Departure.Days, DayMask)</sub>
-@if (Departure.Annotation is { } annotation)
+@foreach (var annotation in Departure.Annotations)
 {
-<sup class="border border-dark">@annotation.Symbol</sup>
+    <sup class="border border-dark">@annotation.Symbol</sup>
 }
 @if (Departure.RouteIndex > 0 || Departure.TargetStop != StopTimetableView.LastStopOfRoute(Departure.RouteIndex))
 {
-<!-- <sup class="border border-dark"><abbr title="Nur bis @moFrDeparture.TargetStop.DisplayName">@StopTimetableView.GetOrCreateTargetStopAnnotation(moFrDeparture.TargetStop)</abbr></sup> -->
-<!-- <sup class="border border-dark rounded-circle">@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup> -->
-<sup>@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup>
+    <!-- <sup class="border border-dark"><abbr title="Nur bis @moFrDeparture.TargetStop.DisplayName">@StopTimetableView.GetOrCreateTargetStopAnnotation(moFrDeparture.TargetStop)</abbr></sup> -->
+    <!-- <sup class="border border-dark rounded-circle">@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup> -->
+    <sup>@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup>
 }
-@* @if (StopTimetableView.MultipleRoutes && Departure.RouteIndex > 0) *@
-@* { *@
-@* @PrintRouteIndex(Departure.RouteIndex) *@
-@* } *@
 
 @code {
     [Parameter] public required StopTimetableView.HourInfo.Departure Departure { get; init; }

@@ -138,7 +138,7 @@ public record Line
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required AnnotationDefinition? Annotation { get; init; }
+        public required List<AnnotationDefinition> Annotations { get; init; }
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -156,11 +156,19 @@ public record Line
 
     public readonly record struct TripCreate
     {
+        public TripCreate()
+        {
+        }
+
         public required Index RouteIndex { get; init; }
         public required Index TimeProfileIndex { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public string AnnotationSymbol { get; init; }
+        public string AnnotationSymbol
+        {
+            init => AnnotationSymbols.Add(value);
+        }
+        public List<string> AnnotationSymbols { get; init; } = [];
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)
         {
@@ -239,7 +247,8 @@ public record Line
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
-        Annotation = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
+        Annotations = trip.AnnotationSymbols.Select(symbol => new Trip.AnnotationDefinition(symbol, Annotations[symbol])).ToList(),
+        // Annotations = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
     });
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }

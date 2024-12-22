@@ -31,7 +31,7 @@ public class TimetableView
     public interface ITimetableColumn
     {
         public DaysOfOperation? DaysOfOperation { get; }
-        public string? AnnotationSymbol { get; }
+        public List<string> AnnotationSymbols { get; }
         public string? ElementAt(int index);
     }
 
@@ -49,7 +49,7 @@ public class TimetableView
 
         DaysOfOperation? ITimetableColumn.DaysOfOperation => null;
 
-        string? ITimetableColumn.AnnotationSymbol => null;
+        List<string> ITimetableColumn.AnnotationSymbols => [];
 
         string? ITimetableColumn.ElementAt(int index) => StartRow > 0 ? index switch
             {
@@ -117,7 +117,8 @@ public class TimetableView
 
         public required DaysOfOperation DaysOfOperation { get; init; }
         DaysOfOperation? ITimetableColumn.DaysOfOperation => DaysOfOperation;
-        public required string? AnnotationSymbol { get; init; }
+        // public required string? AnnotationSymbol { get; init; }
+        public required List<string> AnnotationSymbols { get; init; }
         public required ICollection<TimeEntry> Times { get; init; }
         string ITimetableColumn.ElementAt(int index) => Times.ElementAt(index).ToString();
     }
@@ -258,14 +259,14 @@ public class TimetableView
         var allTrips = trips.Select(trip => new TripView
         {
             DaysOfOperation = trip.DaysOfOperation,
-            AnnotationSymbol = trip.Annotation is { } annotation ? new Func<string>(() =>
+            AnnotationSymbols = trip.Annotations.Select(annotation =>
             {
                 if (!_annotations.ContainsKey(annotation.Symbol))
                 {
                     _annotations.Add(annotation.Symbol, annotation.Text);
                 }
                 return annotation.Symbol;
-            })() : null,
+            }).ToList(),
             Times = allPositions
                 .Select((_, positionIndex) => (
                     routePositionIndex: positionsLookup[routeLookup[trip.Route]].IndexOf(positionIndex),
@@ -349,7 +350,7 @@ public class TimetableView
                 // The trips happen at different days -> no interval.
                 if ((previous.DaysOfOperation & tripDays) != (current.DaysOfOperation & tripDays)) continue;
                 // The trips are annotated differently -> no interval.
-                if (previous.AnnotationSymbol != current.AnnotationSymbol) continue;
+                if (!previous.AnnotationSymbols.SequenceEqual(current.AnnotationSymbols)) continue;
                 // There is at least one stop where the trips do not differ by exactly the interval -> no interval.
                 if (previous.Times.Zip(current.Times,
                         (previousTimeEntry, currentTimeEntry) =>
@@ -398,7 +399,7 @@ public class TimetableView
                 .Skip(i + 1)
                 .Where(other =>
                     trip.StartTime == other.other.StartTime && trip.TimeProfile == other.other.TimeProfile &&
-                    trip.Annotation == other.other.Annotation)
+                    trip.Annotations.SequenceEqual(other.other.Annotations))
                 .Select(other => (other.other.DaysOfOperation, other.index))
                 .ToList();
             var days = daysOfIdenticalTrips.Aggregate(trip.DaysOfOperation,
