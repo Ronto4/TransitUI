@@ -174,13 +174,44 @@ public class StopTimetableView
 
         var mapping = routes.Select((route, index) => (route, index)).ToDictionary();
 
-        // Collapse routes.
+        // Collapse & reorder routes.
         var currentRouteCount = routes.Count;
         {
             bool collapsed;
             do
             {
                 collapsed = false;
+                // Re-order routes such that the most-used ones are first.
+                {
+                    var previousRoutes = Enumerable.Range(0, currentRouteCount)
+                        .Select(routeIndex => stopInfos.Select(stopInfo => stopInfo.Times[routeIndex]).ToList()).ToList();
+                    var previousToOrderedMapping = Enumerable.Range(0, currentRouteCount).Select(routeIndex => new
+                    {
+                        PreviousIndex = routeIndex,
+                        PhysicalRoutes = mapping.Where(kvp => kvp.Value == routeIndex).Select(kvp => kvp.Key).ToList(),
+                    }).Select(tmp => new
+                    {
+                        tmp.PreviousIndex,
+                        TripCount = tmp.PhysicalRoutes.Select(route => route.TripCount(allDays) ?? 0)
+                            .Aggregate(0, (prev, current) => prev + current),
+                    }).OrderByDescending(tmp => tmp.TripCount).Select(tmp => tmp.PreviousIndex).ToList();
+                    // Re-order entries in stop info.
+                    foreach (var (stopInfo, stopInfoIndex) in stopInfos.Select((stopInfo, index) => (stopInfo, index)))
+                    {
+                        foreach (var (previousIndex, orderedIndex) in previousToOrderedMapping.Select(
+                                     (previousIndex, orderedIndex) => (previousIndex, orderedIndex)))
+                        {
+                            stopInfo.Times[orderedIndex] = previousRoutes[previousIndex][stopInfoIndex];
+                        }
+                    }
+
+                    // Re-order route mapping.
+                    foreach (var (route, previouslyMappedIndex) in mapping)
+                    {
+                        mapping[route] = previousToOrderedMapping.IndexOf(previouslyMappedIndex);
+                    }
+                }
+                // Now collapse.
                 for (var routeIndex = 0; routeIndex < currentRouteCount; routeIndex++)
                 {
                     var containingRouteIndex = Enumerable.Range(0, currentRouteCount)
@@ -226,37 +257,6 @@ public class StopTimetableView
                     break;
                 }
             } while (collapsed);
-        }
-
-        // Re-order routes such that the most-used ones are first.
-        {
-            var previousRoutes = Enumerable.Range(0, currentRouteCount)
-                .Select(routeIndex => stopInfos.Select(stopInfo => stopInfo.Times[routeIndex]).ToList()).ToList();
-            var previousToOrderedMapping = Enumerable.Range(0, currentRouteCount).Select(routeIndex => new
-            {
-                PreviousIndex = routeIndex,
-                PhysicalRoutes = mapping.Where(kvp => kvp.Value == routeIndex).Select(kvp => kvp.Key).ToList(),
-            }).Select(tmp => new
-            {
-                tmp.PreviousIndex,
-                TripCount = tmp.PhysicalRoutes.Select(route => route.TripCount(allDays) ?? 0)
-                    .Aggregate(0, (prev, current) => prev + current),
-            }).OrderByDescending(tmp => tmp.TripCount).Select(tmp => tmp.PreviousIndex).ToList();
-            // Re-order entries in stop info.
-            foreach (var (stopInfo, stopInfoIndex) in stopInfos.Select((stopInfo, index) => (stopInfo, index)))
-            {
-                foreach (var (previousIndex, orderedIndex) in previousToOrderedMapping.Select(
-                             (previousIndex, orderedIndex) => (previousIndex, orderedIndex)))
-                {
-                    stopInfo.Times[orderedIndex] = previousRoutes[previousIndex][stopInfoIndex];
-                }
-            }
-
-            // Re-order route mapping.
-            foreach (var (route, previouslyMappedIndex) in mapping)
-            {
-                mapping[route] = previousToOrderedMapping.IndexOf(previouslyMappedIndex);
-            }
         }
 
         return (stopInfos, mapping);

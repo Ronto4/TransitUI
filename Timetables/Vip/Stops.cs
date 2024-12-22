@@ -5,6 +5,9 @@ namespace Timetables.Vip;
 internal static class Stops
 {
     private const string Berlin = "Berlin";
+    private const string Leest = "Leest";
+    private const string Töplitz = "Töplitz";
+    private const string NeuTöplitz = "Neu Töplitz";
 
     public static Stop AbzweigBetriebshofViP { get; } = new()
         { Name = "Abzweig Betriebshof ViP", Positions = ["Norden", "Süden"] };
@@ -99,6 +102,7 @@ internal static class Stops
         new() { Name = "Campus Universität/Abraham-Geiger-Kolleg" };
 
     public static Stop DeutscherWetterdienst { get; } = new() { Name = "Deutscher Wetterdienst" };
+    public static Stop TöplitzDorfplatz { get; } = new() { Name = "Dorfplatz", City = Töplitz };
     public static Stop Dortustr { get; } = new() { Name = "Dortustr." };
     public static Stop Drachenhaus { get; } = new() { Name = "Drachenhaus" };
     public static Stop DrewitzerStrErichWeinertStr { get; } = new() { Name = "Drewitzer Str./Erich-Weinert-Str." };
@@ -112,12 +116,14 @@ internal static class Stops
 
     public static Stop Ehrenpfortenbergstr { get; } = new() { Name = "Ehrenpfortenbergstr." };
     public static Stop Eichenring { get; } = new() { Name = "Eichenring" };
+    public static Stop LeestEichholzweg { get; } = new() { Name = "Eichholzweg", City = Leest };
     public static Stop Eisbergstücke { get; } = new() { Name = "Eisbergstücke" };
     public static Stop EisenbahnbrückeMarquardt { get; } = new() { Name = "Eisenbahnbrücke Marquardt" };
     public static Stop FahrländerSee { get; } = new() { Name = "Fahrländer See" };
     public static Stop Fährweg { get; } = new() { Name = "Fährweg" };
     public static Stop Falkenhorst { get; } = new() { Name = "Falkenhorst" };
     public static Stop Feuerbachstr { get; } = new() { Name = "Feuerbachstr." };
+    public static Stop TöplitzFeuerwehr { get; } = new() { Name = "Feuerwehr", City = Töplitz };
     public static Stop Finkenweg { get; } = new() { Name = "Finkenweg" };
     public static Stop BerlinFinnenhausSiedlung { get; } = new() { Name = "Finnenhaus-Siedlung", City = Berlin };
     public static Stop Florastr { get; } = new() { Name = "Florastr." };
@@ -146,6 +152,7 @@ internal static class Stops
     public static Stop HorstwegGroßbeerenstr { get; } = new() { Name = "Horstweg/Großbeerenstr." };
     public static Stop Holzmarktstr { get; } = new() { Name = "Holzmarktstr." };
     public static Stop Hugstr { get; } = new() { Name = "Hugstr." };
+    public static Stop LeestKirche { get; } = new() { Name = "Kirche", City = Leest };
     public static Stop KircheBornim { get; } = new() { Name = "Kirche Bornim" };
     public static Stop HumboldtringLottePulewkaStr { get; } = new() { Name = "Humboldtring/Lotte-Pulewka-Str." };
     public static Stop HumboldtringNuthestr { get; } = new() { Name = "Humboldtring/Nuthestr." };
@@ -170,6 +177,7 @@ internal static class Stops
     public static Stop KircheKartzow { get; } = new() { Name = "Kirche Kartzow" };
     public static Stop KircheUetz { get; } = new() { Name = "Kirche Uetz" };
     public static Stop Kirschallee { get; } = new() { Name = "Kirschallee" };
+    public static Stop TöplitzKirschweg { get; } = new() { Name = "Kirschweg", City = Töplitz };
     public static Stop KläranlagePotsdamNord { get; } = new() { Name = "Kläranlage Potsdam-Nord" };
     public static Stop KleineWeinmeisterstr { get; } = new() { Name = "Kleine Weinmeisterstr." };
     public static Stop Klinikum { get; } = new() { Name = "Klinikum" };
@@ -185,6 +193,7 @@ internal static class Stops
 
     public static Stop LangeBrücke { get; } = new() { Name = "Lange Brücke" };
     public static Stop LanghansstrGroßeWeinmeisterstr { get; } = new() { Name = "Langhansstr./Große Weinmeisterstr." };
+    public static Stop TöplitzLeesterStr { get; } = new() { Name = "Leester Str.", City = Töplitz };
     public static Stop LerchensteigKleingartenanlage { get; } = new() { Name = "Lerchensteig/Kleingartenanlage" };
     public static Stop LindstedterChaussee { get; } = new() { Name = "Lindstedter Chaussee" };
     public static Stop LeonardoDaVinciStr { get; } = new() { Name = "Leonardo-da-Vinci-Str." };
@@ -254,7 +263,7 @@ internal static class Stops
     public static Stop Schilfhof { get; } = new() { Name = "Schilfhof" };
     public static Stop SchillerplatzSchafgraben { get; } = new() { Name = "Schillerplatz/Schafgraben" };
     public static Stop Schlaatzstr { get; } = new() { Name = "Schlaatzstr." };
-    public static Stop SchlänitzseeWeg { get; } = new() { Name = "Schlänitzsee Weg" };
+    public static Stop SchlänitzseeWeg { get; } = new() { Name = "Schlänitzseer Weg" };
     public static Stop SchlegelstrPappelallee { get; } = new() { Name = "Schlegelstr./Pappelallee" };
     public static Stop SchlossCecilienhof { get; } = new() { Name = "Schloss Cecilienhof" };
     public static Stop SchlossMarquardt { get; } = new() { Name = "Schloss Marquardt" };
@@ -269,6 +278,7 @@ internal static class Stops
     public static Stop SchuleMarquardt { get; } = new() { Name = "Schule Marquardt" };
     public static Stop Sonnenlandstr { get; } = new() { Name = "Sonnenlandstr." };
     public static Stop Sporthalle { get; } = new() { Name = "Sporthalle" };
+    public static Stop TöplitzSportplatz { get; } = new() { Name = "Sportplatz", City = Töplitz };
     public static Stop SportplatzBornim { get; } = new() { Name = "Sportplatz Bornim" };
     public static Stop StudentenwohnheimEiche { get; } = new() { Name = "Studentenwohnheim Eiche" };
     public static Stop Telegrafenberg { get; } = new() { Name = "Telegrafenberg" };
@@ -286,10 +296,12 @@ internal static class Stops
     public static Stop WaldsiedlungGroßGlienicke { get; } = new() { Name = "Waldsiedlung Groß Glienicke" };
     public static Stop WaldstrHorstweg { get; } = new() { Name = "Waldstr./Horstweg" };
     public static Stop WasserwerkWildpark { get; } = new() { Name = "Wasserwerk Wildpark" };
+    public static Stop NeuTöplitzWeinbergstr { get; } = new() { Name = "Weinbergstr.", City = NeuTöplitz };
     public static Stop Weinmeisterweg { get; } = new() { Name = "Weinmeisterweg" };
     public static Stop BerlinWeinmeisterhornweg { get; } = new() { Name = "Weinmeisterhornweg", City = Berlin };
     public static Stop Weinmeisterstr { get; } = new() { Name = "Weinmeisterstr." };
     public static Stop WeißerSee { get; } = new() { Name = "Weißer See" };
+    public static Stop NeuTöplitzWendeplatz { get; } = new() { Name = "Wendeplatz", City = NeuTöplitz };
     public static Stop WerderscherDammForststr { get; } = new() { Name = "Werderscher Damm/Forststr." };
     public static Stop WiesenstrLottePulewkaStr { get; } = new() { Name = "Wiesenstr./Lotte-Pulewka-Str." };
     public static Stop ScienceParkWest { get; } = new() { Name = "Science Park West" };
@@ -300,6 +312,7 @@ internal static class Stops
     public static Stop ZumGroßenHerzberg { get; } = new() { Name = "Zum Großen Herzberg" };
     public static Stop ZumKahleberg { get; } = new() { Name = "Zum Kahleberg" };
     public static Stop ZumTelegrafenberg { get; } = new() { Name = "Zum Telegrafenberg" };
+    public static Stop TöplitzZurAltenFähre { get; } = new() { Name = "Zur alten Fähre", City = Töplitz };
     public static Stop Moosgarten { get; } = new() { Name = "Moosgarten" };
     public static Stop DorfstrKönigsweg { get; } = new() { Name = "Dorfstr./Königsweg" };
     public static Stop TemplinerStr { get; } = new() { Name = "Templiner Str." };
