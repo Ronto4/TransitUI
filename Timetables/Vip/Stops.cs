@@ -342,4 +342,20 @@ internal static class Stops
     public static Stop BetriebshofViP { get; } = new() { Name = "Betriebshof ViP" };
     public static Stop SternCenterNuthestr { get; } = new() { Name = "Stern-Center/Nuthestr." };
     public static Stop OttoHahnRing { get; } = new() { Name = "Otto-Hahn-Ring" };
+    public static Stop Gerlachstr { get; } = new() { Name = "Gerlachstr." };
+    public static Stop SternCenterGerlachstr { get; } = new() { Name = "Stern-Center/Gerlachstr." };
+    public static Stop Kreuzstr { get; } = new() { Name = "Kreuzstr." };
+    public static Stop Freiligrathstr { get; } = "Freiligrathstr.";
+    public static Stop OttoErichStr { get; } = "Otto-Erich-Str.";
+    public static Stop HiroshimaNagasakiPlatz { get; } = "Hiroshima-Nagasaki-Platz";
+    public static Stop RoteKreuzStr { get; } = "Rote-Kreuz-Str.";
+    public static Stop AmGehölz { get; } = "Am Gehölz";
+    public static Stop InDerAue { get; } = "In der Aue";
+    public static Stop HubertusdammSteinstr { get; } = "Hubertusdamm/Steinstr.";
+    public static Stop Stadtwerke { get; } = "Stadtwerke";
+    public static Stop Jagdhausstr { get; } = "Jagdhausstr.";
+    public static Stop Chopinstr { get; } = "Chopinstr.";
+    public static Stop NeuendorferStrMendelssohnBartholdyStr { get; } = "Neuendorfer Str./Mendelssohn-Bartholdy-Str.";
+    public static Stop Lilienthalstr { get; } = "Lilienthalstr.";
+    public static Stop KonradWolfAlleeSternstr { get; } = "Konrad-Wolf-Allee/Sternstr.";
 }

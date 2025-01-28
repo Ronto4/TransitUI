@@ -44,6 +44,7 @@
             DaysOfOperation.Friday | DaysOfOperation.Saturday => "56",
             DaysOfOperation.Monday | DaysOfOperation.Tuesday | DaysOfOperation.Wednesday | DaysOfOperation.Thursday | DaysOfOperation.Sunday => "74",
             DaysOfOperation.Weekday | DaysOfOperation.Saturday => "16",
+            DaysOfOperation.Weekday | DaysOfOperation.Sunday => "75",
             _ when mask is DaysOfOperation.Holiday or DaysOfOperation.School => AnnotateDays(days, DaysOfOperation.Weekday),
             _ => throw new Exception($"Unhandled days {days} for mask {mask}.")
         };
