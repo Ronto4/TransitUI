@@ -8,6 +8,7 @@ internal static class Stops
     private const string Leest = "Leest";
     private const string Töplitz = "Töplitz";
     private const string NeuTöplitz = "Neu Töplitz";
+    private const string BergholzRehbrücke = "Bergholz-Rehbrücke";
 
     public static Stop AbzweigBetriebshofViP { get; } = new()
         { Name = "Abzweig Betriebshof ViP", Positions = ["Norden", "Süden"] };
@@ -361,4 +362,10 @@ internal static class Stops
     public static Stop StudioBabelsberg { get; } = "Studio Babelsberg";
     public static Stop Gutsstr { get; } = "Gutsstr.";
     public static Stop HermannStruveStr { get; } = "Hermann-Struve-Str.";
+    public static Stop BergholzRehbrückeVerdistr { get; } = new() { Name = "Verdistr.", City = BergholzRehbrücke };
+    public static Stop AnDerBrauerei { get; } = "An der Brauerei";
+    public static Stop ZumHeizwerk { get; } = "Zum Heizwerk";
+    public static Stop DrewitzerStrAmBuchhorst { get; } = "Drewitzer Str./Am Buchhorst";
+    public static Stop TrebbinerStr { get; } = "Trebbiner Str.";
+    public static Stop DrewitzOrt { get; } = "Drewitz-Ort";
 }
