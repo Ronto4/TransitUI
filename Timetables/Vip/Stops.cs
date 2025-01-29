@@ -359,4 +359,6 @@ internal static class Stops
     public static Stop Lilienthalstr { get; } = "Lilienthalstr.";
     public static Stop KonradWolfAlleeSternstr { get; } = "Konrad-Wolf-Allee/Sternstr.";
     public static Stop StudioBabelsberg { get; } = "Studio Babelsberg";
+    public static Stop Gutsstr { get; } = "Gutsstr.";
+    public static Stop HermannStruveStr { get; } = "Hermann-Struve-Str.";
 }
