@@ -23,6 +23,7 @@ internal static class Lines
         ["bus699"] = new Bus699.Bus699(),
         ["busX5"] = new BusX5.BusX5(),
         ["busN14"] = new BusN14.BusN14(),
+        ["busN15"] = new BusN15.BusN15(),
         ["tram91"] = new Tram91.Tram91(),
         ["tram92"] = new Tram92.Tram92(),
         ["tram93"] = new Tram93.Tram93(),
