@@ -1,4 +1,5 @@
 @using global::Timetables
+@using global::Timetables.Models
 
 <table class="table table-striped table-hover">
     <thead>
@@ -47,7 +48,14 @@
     <tr>
         <th scope="row" class="align-content-center"></th>
         <td class="text-start align-content-center">
-            Fahrten bis 2 Uhr morgens sind dem vorherigen Kalendertag zugeordnet (z.&#8239;B. eine Fahrt um 1 Uhr nur freitags verkehrt am Samstag um 1 Uhr).
+            @if (DaytimeOnly)
+            {
+                @DaytimeOnlyTimeAnnotation
+            }
+            else
+            {
+                @NotDaytimeOnlyTimeAnnotation
+            }
         </td>
     </tr>
     </tbody>
@@ -55,4 +63,9 @@
 
 @code {
     [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    private bool? _daytimeOnly = null;
+    private bool DaytimeOnly => _daytimeOnly ??= StopTimetableView.Lines.Select(line => line.OperationTime).Distinct().Single() /* mixing different lines is currently unsupported */ == LineOperationTime.Daytime;
+
+    private const string DaytimeOnlyTimeAnnotation = "Fahrten bis 2 Uhr morgens sind dem vorherigen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Samstag um 1 Uhr).";
+    private const string NotDaytimeOnlyTimeAnnotation = "Fahrten sind immer dem tatsächlichen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Freitag um 1 Uhr).";
 }

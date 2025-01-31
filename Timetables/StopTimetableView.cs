@@ -122,7 +122,10 @@ public class StopTimetableView
     {
         var routes = trips.Select(trip => trip.Route).Distinct().ToList();
         List<StopInfo> stopInfos = [];
-        var relevantLinesForConnections = allLines.Except(ownLines).ToList();
+        var timeOfOperation = ownLines.Select(line => line.OperationTime)
+            .Aggregate(LineOperationTime.None, (previous, current) => previous | current);
+        var relevantLinesForConnections = allLines.Except(ownLines)
+            .Where(otherLine => otherLine.OperationTime.HasAnyFlag(timeOfOperation)).ToList();
         foreach (var (route, routeIndex) in routes.Select((route, routeIndex) => (route, routeIndex)))
         {
             if (!route.TryGetIndexOfStopFirst /*TryGetIndexOfStop*/(startStop, out var indexOfStartStop)) continue;

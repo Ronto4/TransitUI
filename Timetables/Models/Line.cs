@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Timetables.Models;
 
 public record Line
@@ -214,6 +216,10 @@ public record Line
             foreach (var route in Routes)
             {
                 route.Line = this;
+                // Validate that stop distances length matches route length.
+                Debug.Assert(
+                    route.TimeProfiles.All(profile => profile.StopDistances.Length == route.StopPositions.Length - 1),
+                    $"For {this.Name}, {route.ToString()}, at least one time profile has an incorrect stop distance count.");
             }
         }
     }
@@ -264,6 +270,8 @@ public record Line
     public required Index[] OverviewRouteIndices { get; init; }
 
     public Dictionary<string, string> Annotations { get; init; } = new();
+
+    public LineOperationTime OperationTime { get; init; } = LineOperationTime.Daytime;
 
     public bool DoesStopAt(Stop stop, bool onlyMainRoutes, bool onlyDepartures) =>
         (onlyMainRoutes ? MainRoutes : Routes).Any(route => route.DoesStopAt(stop, onlyDepartures));

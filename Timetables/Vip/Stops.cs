@@ -368,4 +368,5 @@ internal static class Stops
     public static Stop DrewitzerStrAmBuchhorst { get; } = "Drewitzer Str./Am Buchhorst";
     public static Stop TrebbinerStr { get; } = "Trebbiner Str.";
     public static Stop DrewitzOrt { get; } = "Drewitz-Ort";
+    public static Stop ClaraSchumannStrTrebbinerStr { get; } = "Clara-Schumann-Str./Trebbiner Str.";
 }
