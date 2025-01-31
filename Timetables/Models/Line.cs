@@ -166,10 +166,13 @@ public record Line
         public required Index TimeProfileIndex { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
+
+        [Obsolete($"Use {nameof(AnnotationSymbols)} instead.", false)]
         public string AnnotationSymbol
         {
             init => AnnotationSymbols.Add(value);
         }
+
         public List<string> AnnotationSymbols { get; init; } = [];
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)

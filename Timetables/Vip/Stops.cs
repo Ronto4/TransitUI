@@ -369,4 +369,22 @@ internal static class Stops
     public static Stop TrebbinerStr { get; } = "Trebbiner Str.";
     public static Stop DrewitzOrt { get; } = "Drewitz-Ort";
     public static Stop ClaraSchumannStrTrebbinerStr { get; } = "Clara-Schumann-Str./Trebbiner Str.";
+    public static Stop BerlinGlienickerLake { get; } = new() { City = Berlin, Name = "Glienicker Lake" };
+    public static Stop BerlinSchlossGlienicke { get; } = new() { City = Berlin, Name = "Schloss Glienicke" };
+    public static Stop BerlinNikolskoerWeg { get; } = new() { City = Berlin, Name = "Nikolskoer Weg" };
+    public static Stop BerlinSchäferberg { get; } = new() { City = Berlin, Name = "Schäferberg" };
+    public static Stop BerlinFriedenstr { get; } = new() { City = Berlin, Name = "Friedenstr." };
+    public static Stop BerlinSchuchardtweg { get; } = new() { City = Berlin, Name = "Schuchardtweg" };
+    public static Stop BerlinRathausWannsee { get; } = new() { City = Berlin, Name = "Rathaus Wannsee" };
+    public static Stop BerlinPfaueninselchausseeKönigstr { get; } = new() { City = Berlin, Name = "Pfaueninselchaussee/Königstr." };
+    public static Stop BerlinWernerstr { get; } = new() { City = Berlin, Name = "Wernerstr." };
+    public static Stop BerlinAmKleinenWannsee { get; } = new() { City = Berlin, Name = "Am Kleinen Wannsee" };
+    public static Stop BerlinWannseebrücke { get; } = new() { City = Berlin, Name = "Wannseebrücke" };
+    public static Stop BerlinSWannsee { get; } = new() { City = Berlin, Name = "S Wannsee" };
+    public static Stop BerlinTillmannsweg { get; } = new() { City = Berlin, Name = "Tillmannsweg" };
+    public static Stop BerlinAmSandwerer { get; } = new() { City = Berlin, Name = "Am Sandwerder" };
+    public static Stop BerlinWasserwerkBeelitzhof { get; } = new() { City = Berlin, Name = "Wasserwerk Beelitzhof" };
+    public static Stop BerlinBadeweg { get; } = new() { City = Berlin, Name = "Badeweg" };
+    public static Stop BerlinWannseebadweg { get; } = new() { City = Berlin, Name = "Wannseebadweg" };
+    public static Stop BerlinSNikolassee { get; } = new() { City = Berlin, Name = "S Nikolassee" };
 }
