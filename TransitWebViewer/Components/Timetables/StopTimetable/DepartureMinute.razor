@@ -1,20 +1,16 @@
 @using global::Timetables
 @using global::Timetables.Models
 @Departure.Minute.ToString("00")<sub>@AnnotateDays(Departure.Days, DayMask)</sub>
-@if (Departure.Annotation is { } annotation)
+@foreach (var annotation in Departure.Annotations)
 {
-<sup class="border border-dark">@annotation.Symbol</sup>
+    <sup class="border border-dark">@annotation.Symbol</sup>
 }
 @if (Departure.RouteIndex > 0 || Departure.TargetStop != StopTimetableView.LastStopOfRoute(Departure.RouteIndex))
 {
-<!-- <sup class="border border-dark"><abbr title="Nur bis @moFrDeparture.TargetStop.DisplayName">@StopTimetableView.GetOrCreateTargetStopAnnotation(moFrDeparture.TargetStop)</abbr></sup> -->
-<!-- <sup class="border border-dark rounded-circle">@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup> -->
-<sup>@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup>
+    <!-- <sup class="border border-dark"><abbr title="Nur bis @moFrDeparture.TargetStop.DisplayName">@StopTimetableView.GetOrCreateTargetStopAnnotation(moFrDeparture.TargetStop)</abbr></sup> -->
+    <!-- <sup class="border border-dark rounded-circle">@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup> -->
+    <sup>@StopTimetableView.GetTargetStopAnnotation((Departure.TargetStop, Departure.RouteIndex))</sup>
 }
-@* @if (StopTimetableView.MultipleRoutes && Departure.RouteIndex > 0) *@
-@* { *@
-@* @PrintRouteIndex(Departure.RouteIndex) *@
-@* } *@
 
 @code {
     [Parameter] public required StopTimetableView.HourInfo.Departure Departure { get; init; }
@@ -34,6 +30,8 @@
             DaysOfOperation.Tuesday => "2",
             DaysOfOperation.Wednesday => "3",
             DaysOfOperation.Thursday => "4",
+            DaysOfOperation.SchoolFriday when mask is DaysOfOperation.School => "5",
+            DaysOfOperation.SchoolFriday => "5 (99)",
             DaysOfOperation.Friday => "5",
             DaysOfOperation.Saturday => "6",
             DaysOfOperation.Sunday => "7",
@@ -42,9 +40,11 @@
             DaysOfOperation.Weekend => "67",
             DaysOfOperation.School => "99",
             DaysOfOperation.Holiday => "98",
+            DaysOfOperation.Holiday | DaysOfOperation.Weekend => "98 & 67",
             DaysOfOperation.Friday | DaysOfOperation.Saturday => "56",
             DaysOfOperation.Monday | DaysOfOperation.Tuesday | DaysOfOperation.Wednesday | DaysOfOperation.Thursday | DaysOfOperation.Sunday => "74",
             DaysOfOperation.Weekday | DaysOfOperation.Saturday => "16",
+            DaysOfOperation.Weekday | DaysOfOperation.Sunday => "75",
             _ when mask is DaysOfOperation.Holiday or DaysOfOperation.School => AnnotateDays(days, DaysOfOperation.Weekday),
             _ => throw new Exception($"Unhandled days {days} for mask {mask}.")
         };

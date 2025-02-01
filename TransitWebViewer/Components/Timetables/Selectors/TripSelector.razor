@@ -7,7 +7,7 @@
 <ul class="dropdown-menu">
     @foreach (var line in HistoryEntry.OrderedLinesById.Select(entry => entry.Value))
     {
-        <li><a class="dropdown-item" @onclick="_ => Line = line">@line.Name</a></li>
+        <li><a class="dropdown-item" @onclick="_ => { Line = line; ClearRoutes(); }">@line.Name</a></li>
     }
 </ul>
 
@@ -17,9 +17,9 @@
         @foreach (var route in Line.Routes)
         {
             <div class="form-check-inline">
-                <input class="form-check-input" type="checkbox" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
+                <input class="form-check-input" type="checkbox" checked="@Routes.Contains(route)" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
                 <label class="form-check-label" for="@route.GetHashCode()">
-                    @route
+                    <RouteName Route="route" />
                 </label>
             </div>
         }
@@ -38,6 +38,13 @@
     {
         var trips = Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToArray() ?? [];
         OnUpdate(trips);
+    }
+
+    private void ClearRoutes()
+    {
+        Routes.Clear();
+        StateHasChanged();
+        EmitUpdate();
     }
 
     public override Task SetParametersAsync(ParameterView parameters)

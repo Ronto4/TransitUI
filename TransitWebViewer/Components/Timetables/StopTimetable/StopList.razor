@@ -7,7 +7,7 @@
     <thead>
     <tr>
         <th scope="col"></th>
-        <th scope="col" colspan="@StopTimetableView.StopInfos.First().Times.Count">
+        <th scope="col" class="text-center align-content-center" colspan="@StopTimetableView.StopInfos.First().Times.Count">
             Minuten / Routen
         </th>
         <th scope="col"></th>
@@ -19,7 +19,7 @@
         <th scope="col"></th>
         @for (var i = 1; i < StopTimetableView.StopInfos.First().Times.Count; ++i)
         {
-        <th scope="col">
+        <th scope="col" class="text-center align-content-center">
             [@(i + 1)]
         </th>
         }
@@ -36,7 +36,7 @@
         <th scope="col">
             Anschl&uuml;sse
         </th>
-        <th scope="col">
+        <th scope="col" class="text-center align-content-center">
             Minuten
         </th>
         <th scope="col">

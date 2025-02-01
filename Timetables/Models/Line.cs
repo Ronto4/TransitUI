@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Timetables.Models;
 
 public record Line
@@ -5,7 +7,7 @@ public record Line
     public record Route
     {
         public override string ToString() =>
-            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}";
+            $"{StopPositions.First().Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Name}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         public record TimeProfile
         {
@@ -19,8 +21,11 @@ public record Line
                 .Skip(fromIndex).Take(toIndex - fromIndex).Select(time => time.Ticks).Sum());
         }
 
+        internal Line? Line { get; set; }
         public required Stop.Position[] StopPositions { get; init; }
         public required TimeProfile[] TimeProfiles { get; init; }
+        
+        public string? ManualAnnotation { get; init; }
 
         /// <summary>
         /// The stop that is used when calculating frequencies.
@@ -42,9 +47,22 @@ public record Line
         public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to) =>
             TimeBetweenStops(GetIndexOfStop(from), GetIndexOfStop(to));
 
+        public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, int toIndex) =>
+            TimeBetweenStops(GetIndexOfStop(from), toIndex);
+
         public int GetIndexOfStop(Stop stop)
         {
             var exists = TryGetIndexOfStop(stop, out var index);
+            return exists
+                ? index
+                : throw new ArgumentException(
+                    $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
+                    nameof(stop));
+        }
+        
+        public int GetIndexOfStopFirst(Stop stop)
+        {
+            var exists = TryGetIndexOfStopFirst(stop, out var index);
             return exists
                 ? index
                 : throw new ArgumentException(
@@ -56,6 +74,13 @@ public record Line
         {
             index = StopPositions.Select((position, index) => (position.Stop, index))
                 .SingleOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
+            return index != -1;
+        }
+        
+        public bool TryGetIndexOfStopFirst(Stop stop, out int index)
+        {
+            index = StopPositions.Select((position, index) => (position.Stop, index))
+                .FirstOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
             return index != -1;
         }
 
@@ -102,6 +127,9 @@ public record Line
                 }).ToArray(),
             }
             : this;
+
+        public int? TripCount(DaysOfOperation days) => Line?.Trips.Where(trip => trip.Route == this)
+            .Select(trip => int.PopCount((int)(trip.DaysOfOperation & days))).Sum();
     }
 
     public record Trip
@@ -112,7 +140,7 @@ public record Line
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required AnnotationDefinition? Annotation { get; init; }
+        public required List<AnnotationDefinition> Annotations { get; init; }
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -130,11 +158,22 @@ public record Line
 
     public readonly record struct TripCreate
     {
+        public TripCreate()
+        {
+        }
+
         public required Index RouteIndex { get; init; }
         public required Index TimeProfileIndex { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public string AnnotationSymbol { get; init; }
+
+        [Obsolete($"Use {nameof(AnnotationSymbols)} instead.", false)]
+        public string AnnotationSymbol
+        {
+            init => AnnotationSymbols.Add(value);
+        }
+
+        public List<string> AnnotationSymbols { get; init; } = [];
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)
         {
@@ -170,7 +209,23 @@ public record Line
     }
 
     public required string Name { get; init; }
-    public required Route[] Routes { get; init; }
+    private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+    public required Route[] Routes
+    {
+        get => _routes;
+        init
+        {
+            _routes = value;
+            foreach (var route in Routes)
+            {
+                route.Line = this;
+                // Validate that stop distances length matches route length.
+                Debug.Assert(
+                    route.TimeProfiles.All(profile => profile.StopDistances.Length == route.StopPositions.Length - 1),
+                    $"For {this.Name}, {route.ToString()}, at least one time profile has an incorrect stop distance count.");
+            }
+        }
+    }
 
     public (TimeSpan minimum, TimeSpan maximum) TimeBetweenStops(Stop from, Stop to)
     {
@@ -201,7 +256,8 @@ public record Line
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
-        Annotation = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
+        Annotations = trip.AnnotationSymbols.Select(symbol => new Trip.AnnotationDefinition(symbol, Annotations[symbol])).ToList(),
+        // Annotations = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
     });
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }
@@ -217,6 +273,8 @@ public record Line
     public required Index[] OverviewRouteIndices { get; init; }
 
     public Dictionary<string, string> Annotations { get; init; } = new();
+
+    public LineOperationTime OperationTime { get; init; } = LineOperationTime.Daytime;
 
     public bool DoesStopAt(Stop stop, bool onlyMainRoutes, bool onlyDepartures) =>
         (onlyMainRoutes ? MainRoutes : Routes).Any(route => route.DoesStopAt(stop, onlyDepartures));
@@ -377,6 +435,51 @@ public record Line
 
         return result;
     }
+}
+
+public static class LineOrdering
+{
+    /// <summary>
+    /// Order a collection of lines by their natural order towards customers.
+    /// This order is as follows:
+    /// <br/>1. Long-distance trains
+    /// <br/>2. Regional trains
+    /// <br/>3. S-Bahn
+    /// <br/>4. U-Bahn
+    /// <br/>5. Tram
+    /// <br/>6. Bus
+    /// <br/>7. Ferry
+    /// <br/>
+    /// Each group in itself is ordered as follows:
+    /// <br/>1. All lines that are not night-only precede all night-only lines.
+    /// <br/>2. Lines are ordered alphabetically according to the *current culture*.
+    /// </summary>
+    public class NaturalCustomerLineComparer : IComparer<Line>
+    {
+        public int Compare(Line? x, Line? y)
+        {
+            // Default comparer stuff...
+            if (ReferenceEquals(x, y)) return 0;
+            if (y is null) return 1;
+            if (x is null) return -1;
+            // 1. Order by type.
+            if (x.TransportationType != y.TransportationType)
+                return x.TransportationType.CompareTo(y.TransportationType);
+            // 2. Order by night-only/not night-only.
+            var xIsNightOnly = x.OperationTime is LineOperationTime.Nighttime;
+            var yIsNightOnly = y.OperationTime is LineOperationTime.Nighttime;
+            if (xIsNightOnly != yIsNightOnly)
+                return xIsNightOnly ? 1 : -1;
+            // 3. Order by name using current culture.
+            return string.Compare(x.Name, y.Name, StringComparison.CurrentCulture);
+        }
+    }
+
+    /// <summary>
+    /// Order a collection of lines according to <see cref="NaturalCustomerLineComparer"/>.
+    /// </summary>
+    public static IOrderedEnumerable<Line> NaturalCustomerOrdering<TCollection>(this TCollection collection)
+        where TCollection : IEnumerable<Line> => collection.OrderBy(line => line, new NaturalCustomerLineComparer());
 }
 
 // file static class MedianExtension

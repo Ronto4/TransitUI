@@ -1,6 +1,7 @@
 @page "/vip/history"
 @using Timetables.Models
 @using Timetables.Vip
+@using TransitWebViewer.Components.Timetables
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -9,13 +10,13 @@
   .frequency-table thead tr:first-child th:nth-child(3),
   .frequency-table thead tr:first-child th:nth-child(4),
   .frequency-table thead tr:last-child th:nth-child(2),
-  .frequency-table thead tr:last-child th:nth-child(8),
-  .frequency-table thead tr:last-child th:nth-child(14),
-  .frequency-table thead tr:last-child th:nth-child(17),
+  .frequency-table thead tr:last-child th:nth-child(9),
+  .frequency-table thead tr:last-child th:nth-child(16),
+  .frequency-table thead tr:last-child th:nth-child(20),
   .frequency-table tbody tr td:nth-child(2),
-  .frequency-table tbody tr td:nth-child(8),
-  .frequency-table tbody tr td:nth-child(14),
-  .frequency-table tbody tr td:nth-child(17) {
+  .frequency-table tbody tr td:nth-child(9),
+  .frequency-table tbody tr td:nth-child(16),
+  .frequency-table tbody tr td:nth-child(20) {
       border-right: 1px solid rgb(33, 37, 41);
     }
 </style>
@@ -126,6 +127,7 @@
               private static IEnumerable<Line.Route> DeduplicateWithPrevious(IEnumerable<Line.Route> routes, string lineId)
               {
                 if (_previous is null) return routes;
+                if (_previous.OrderedLinesById.All(pair => pair.Key != lineId)) return routes;
                 var previousRoutes = DeduplicateRoutesStrict(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value.OverviewRoutes, lineId, false);
                 return routes.Where(route => !previousRoutes.Any(route.StrictlyIsSame));
               }
@@ -164,13 +166,19 @@
                 <th scope="row">@line.Name</th>
                 <td>@overviewRoute.StopPositions.First().Stop.DisplayName</td>
                 <td>
-                  @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
-                  {
-                    @overviewRoute.StopPositions[i].Stop.DisplayName
-                    @if (i < overviewRoute.StopPositions.Length - 2)
+                  <span>
+                    @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
                     {
-                      @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                      @overviewRoute.StopPositions[i].Stop.DisplayName
+                      @if (i < overviewRoute.StopPositions.Length - 2)
+                      {
+                        @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                      }
                     }
+                  </span>
+                  @if (overviewRoute.StopPositions.Length < 4)
+                  {
+                    <span class="fst-italic @(overviewRoute.StopPositions.Length == 3 ? "ps-1" : "")">(@(overviewRoute.InterpretAsBidirectional ? "in beiden Richtungen" : "nur in Richtung"))</span>
                   }
                 </td>
                 <td>@overviewRoute.StopPositions.Last().Stop.DisplayName</td>
@@ -186,29 +194,33 @@
           <thead>
           <tr>
             <th rowspan="1" colspan="2" scope="col">Strecke</th>
-            <th rowspan="1" colspan="6" scope="col">Schultage</th>
-            <th rowspan="1" colspan="6" scope="col">Ferien</th>
-            <th rowspan="1" colspan="3" scope="col">Samstag</th>
-            <th rowspan="1" colspan="3" scope="col">Sonntag</th>
+            <th rowspan="1" colspan="7" scope="col">Schultage</th>
+            <th rowspan="1" colspan="7" scope="col">Ferien</th>
+            <th rowspan="1" colspan="4" scope="col">Samstag</th>
+            <th rowspan="1" colspan="4" scope="col">Sonntag</th>
           </tr>
           <tr>
             <th scope="col">Linie</th>
             <th scope="col">Abschnitt</th>
+            <th scope="col">1–4 Uhr</th>
             <th scope="col">4–6 Uhr</th>
             <th scope="col">6–9 Uhr</th>
             <th scope="col">9–13 Uhr</th>
             <th scope="col">13–18 Uhr</th>
             <th scope="col">18–20 Uhr</th>
             <th scope="col">20–1 Uhr</th>
+            <th scope="col">1–4 Uhr</th>
             <th scope="col">4–6 Uhr</th>
             <th scope="col">6–9 Uhr</th>
             <th scope="col">9–13 Uhr</th>
             <th scope="col">13–18 Uhr</th>
             <th scope="col">18–20 Uhr</th>
             <th scope="col">20–1 Uhr</th>
+            <th scope="col">1–4 Uhr</th>
             <th scope="col">4–7 Uhr</th>
             <th scope="col">7–20 Uhr</th>
             <th scope="col">20–1 Uhr</th>
+            <th scope="col">1–6 Uhr</th>
             <th scope="col">6–10 Uhr</th>
             <th scope="col">10–20 Uhr</th>
             <th scope="col">20–1 Uhr</th>
@@ -222,6 +234,7 @@
               private static IEnumerable<KeyValuePair<Line.Route, List<string>>> RemoveDuplicatesWithPrevious(IEnumerable<KeyValuePair<Line.Route, List<string>>> frequencies, string lineId)
               {
                 if (_previous is null) return frequencies;
+                if (_previous.OrderedLinesById.All(pair => pair.Key != lineId)) return frequencies;
                 var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
                 return frequencies.Where(frequency =>
                 {
@@ -264,6 +277,7 @@
               private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
               {
                 var school = line.GetFrequencies([
+                  (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(9, 0)),
                   (new TimeOnly(9, 0), new TimeOnly(13, 0)),
@@ -272,6 +286,7 @@
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.School);
                 var holiday = line.GetFrequencies([
+                  (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(9, 0)),
                   (new TimeOnly(9, 0), new TimeOnly(13, 0)),
@@ -280,11 +295,13 @@
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.Holiday);
                 var saturday = line.GetFrequencies([
+                  (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(7, 0)),
                   (new TimeOnly(7, 0), new TimeOnly(20, 0)),
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.Saturday);
                 var sunday = line.GetFrequencies([
+                  (new TimeOnly(1, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(10, 0)),
                   (new TimeOnly(10, 0), new TimeOnly(20, 0)),
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
@@ -314,7 +331,7 @@
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
                   <td>@line.Name</td>
-                  <td>@route</td>
+                  <td><RouteName Route="route" /></td>
                   @foreach (var frequency in frequencies)
                   {
                     <td>@frequency</td>
