@@ -166,13 +166,19 @@
                 <th scope="row">@line.Name</th>
                 <td>@overviewRoute.StopPositions.First().Stop.DisplayName</td>
                 <td>
-                  @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
-                  {
-                    @overviewRoute.StopPositions[i].Stop.DisplayName
-                    @if (i < overviewRoute.StopPositions.Length - 2)
+                  <span>
+                    @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
                     {
-                      @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                      @overviewRoute.StopPositions[i].Stop.DisplayName
+                      @if (i < overviewRoute.StopPositions.Length - 2)
+                      {
+                        @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
+                      }
                     }
+                  </span>
+                  @if (overviewRoute.StopPositions.Length < 4)
+                  {
+                    <span class="fst-italic @(overviewRoute.StopPositions.Length == 3 ? "ps-1" : "")">(@(overviewRoute.InterpretAsBidirectional ? "in beiden Richtungen" : "nur in Richtung"))</span>
                   }
                 </td>
                 <td>@overviewRoute.StopPositions.Last().Stop.DisplayName</td>

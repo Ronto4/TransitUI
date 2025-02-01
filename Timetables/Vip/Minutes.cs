@@ -11,6 +11,7 @@ internal static class Minutes
     public static TimeSpan M6 { get; } = TimeSpan.FromMinutes(6);
     public static TimeSpan M8 { get; } = TimeSpan.FromMinutes(8);
     public static TimeSpan M10 { get; } = TimeSpan.FromMinutes(10);
+    public static TimeSpan M15 { get; } = TimeSpan.FromMinutes(15);
     public static TimeSpan M20 { get; } = TimeSpan.FromMinutes(20);
     public static TimeSpan M30 { get; } = TimeSpan.FromMinutes(30);
     public static TimeSpan M40 { get; } = TimeSpan.FromMinutes(40);
