@@ -5,7 +5,7 @@ namespace Timetables;
 
 public class StopTimetableView
 {
-    private readonly Dictionary<string, string> _tripAnnotations = new();
+    private readonly List<Line.Trip.AnnotationDefinition> _tripAnnotations = [];
 
     public record StopInfo
     {
@@ -19,6 +19,7 @@ public class StopTimetableView
     {
         public record Departure
         {
+            public record Continuation(Stop Target, Line Line);
             public required int Minute { get; init; }
             public required DaysOfOperation Days { get; init; }
             public required List<Line.Trip.AnnotationDefinition> Annotations { get; init; }
@@ -46,7 +47,7 @@ public class StopTimetableView
     public List<Stop> TargetStops { get; }
 
     private Dictionary<Line.Route, int> RouteToStopInfoColumnMapping { get; }
-    
+
     public IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
 
     /// <summary>
@@ -61,52 +62,139 @@ public class StopTimetableView
     public Stop LastStopOfRoute(int routeIndex) =>
         StopInfos.Last(stopInfo => stopInfo.Times[routeIndex] is not null).Stop;
 
-    public IReadOnlyCollection<Line.Trip.AnnotationDefinition> TripAnnotations => _tripAnnotations
-        .Select(kvp => new Line.Trip.AnnotationDefinition(kvp.Key, kvp.Value)).ToArray();
+    public IReadOnlyCollection<Line.Trip.AnnotationDefinition> TripAnnotations => _tripAnnotations;
 
-    private Dictionary<(Stop stop, int routeIndex), char> TargetStopAnnotations { get; } = new();
+    private char NextAnnotationCharacter(IEnumerable<char> candidates)
+    {
+        const char placeholder = ' ';
+        var annotationCharacter = candidates.FirstOrDefault(
+            c => !char.IsWhiteSpace(c) &&
+                 _tripAnnotations.All(annotation => annotation.Symbol != char.ToUpperInvariant(c).ToString()),
+            placeholder);
+        if (annotationCharacter is not placeholder)
+        {
+            return char.ToUpperInvariant(annotationCharacter);
+        }
 
-    public IReadOnlyCollection<(char symbol, (Stop stop, int routeIndex))> AllTargetStopAnnotations =>
-        TargetStopAnnotations.Select(kvp => (kvp.Value, kvp.Key)).OrderBy(kvp => kvp.Value).ToArray();
+        var maxChar = _tripAnnotations.Select(annotation => annotation.Symbol).Where(symbol => symbol.Length == 1)
+            .Max();
+        if (maxChar is null) throw new Exception($"Hm...");
+        // We hope that this suffices...
+        return (char)(maxChar[0] + 1);
+    }
 
-    public char GetTargetStopAnnotation((Stop stop, int routeIndex) index) => TargetStopAnnotations[index];
+    private (Line.Trip.OnlyToAnnotation annotation, bool created) GetOrCreateTargetStopAnnotation(
+        (Stop stop, int routeIndex) index)
+    {
+        var existing = _tripAnnotations.FirstOrDefault(annotation =>
+            annotation is Line.Trip.OnlyToAnnotation { To: var to, DisplayRouteIndex: var displayRouteIndex } &&
+            to == index.stop && displayRouteIndex == index.routeIndex);
+        if (existing is Line.Trip.OnlyToAnnotation onlyToAnnotation)
+        {
+            return (onlyToAnnotation, false);
+        }
 
-    private char GetOrCreateTargetStopAnnotation((Stop stop, int routeIndex) index) =>
-        TargetStopAnnotations.TryGetValue(index, out var annotation)
-            ? annotation
-            : new Func<char>(
-                () =>
+        var created = new Func<Line.Trip.AnnotationDefinition>(() =>
+        {
+            var annotationCharacter = NextAnnotationCharacter(index.stop.Name);
+            var annotation = new Line.Trip.OnlyToAnnotation
+                { Symbol = annotationCharacter.ToString(), To = index.stop, DisplayRouteIndex = index.routeIndex, };
+            _tripAnnotations.Add(annotation);
+            return annotation;
+        })() as Line.Trip.OnlyToAnnotation ?? throw new Exception($"Incorrect type received.");
+        return (created, true);
+    }
+
+    private (Line.Trip.ContinuesAnnotation annotation, bool created) GetOrCreateContinuesToAnnotation(
+        (Stop stop, Line line, Line.Route route, TimeSpan delay, Stop? notableViaStop) index)
+    {
+        var existing = _tripAnnotations.FirstOrDefault(annotation =>
+            annotation is Line.Trip.ContinuesAnnotation
+            {
+                To: var to, As: var line, Via: var route, Delay: var delay, NotableViaStop: var notableViaStop
+            } && to == index.stop && line == index.line && route == index.route && delay == index.delay &&
+            notableViaStop == index.notableViaStop);
+        if (existing is Line.Trip.ContinuesAnnotation continuesAnnotation)
+        {
+            return (continuesAnnotation, false);
+        }
+
+        var created = new Func<Line.Trip.AnnotationDefinition>(() =>
+        {
+            var annotationCharacter = NextAnnotationCharacter(index.stop.Name);
+            var annotation = new Line.Trip.ContinuesAnnotation
+            {
+                Symbol = annotationCharacter.ToString(), To = index.stop, As = index.line, Via = index.route,
+                Delay = index.delay, NotableViaStop = index.notableViaStop
+            };
+            _tripAnnotations.Add(annotation);
+            return annotation;
+        })() as Line.Trip.ContinuesAnnotation ?? throw new Exception($"Incorrect type received.");
+        return (created, true);
+    }
+
+    private (Line.Trip.ContinuesFromToAnnotation annotation, bool created) GetOrCreateContinuesFromToAnnotation(
+        (Stop stop, int routeIndex) targetStop,
+        (Stop stop, Line line, Line.Route route, TimeSpan delay, Stop? notableViaStop) continues)
+    {
+        var existing = _tripAnnotations.FirstOrDefault(annotation =>
+            annotation is Line.Trip.ContinuesFromToAnnotation
+            {
+                ContinuesAnnotation:
                 {
-                    const char placeholder = ' ';
-                    var annotationCharacter = index.stop.Name.FirstOrDefault(
-                        c => !char.IsWhiteSpace(c) && !TargetStopAnnotations.ContainsValue(char.ToUpperInvariant(c)),
-                        placeholder);
-                    if (annotationCharacter is not placeholder)
-                    {
-                        TargetStopAnnotations.Add(index, char.ToUpperInvariant(annotationCharacter));
-                        return TargetStopAnnotations[index];
-                    }
+                    To: var continuesTo, As: var continuesAs, Via: var continuesVia, Delay: var delay,
+                    NotableViaStop: var notableViaStop
+                },
+                OnlyToAnnotation: { To: var onlyTo, DisplayRouteIndex: var onlyToRouteIndex, }
+            } && continuesTo == continues.stop && continuesAs == continues.line &&
+            continuesVia == continues.route && delay == continues.delay && notableViaStop == continues.notableViaStop &&
+            onlyTo == targetStop.stop && onlyToRouteIndex == targetStop.routeIndex);
+        if (existing is Line.Trip.ContinuesFromToAnnotation continuesFromToAnnotation)
+        {
+            return (continuesFromToAnnotation, false);
+        }
 
-                    var maxChar = TargetStopAnnotations.Values.Max();
-                    // We hope that this suffices...
-                    TargetStopAnnotations.Add(index, (char)(maxChar + 1));
-                    return TargetStopAnnotations[index];
-                })();
+        var created = new Func<Line.Trip.AnnotationDefinition>(() =>
+        {
+            var annotationCharacter = NextAnnotationCharacter(continues.stop.Name);
+            var continuesToAnnotation = new Line.Trip.ContinuesAnnotation
+            {
+                Symbol = annotationCharacter.ToString(), To = continues.stop, As = continues.line,
+                Via = continues.route, Delay = continues.delay, NotableViaStop = continues.notableViaStop,
+            };
+            var targetStopAnnotation = new Line.Trip.OnlyToAnnotation
+            {
+                Symbol = annotationCharacter.ToString(), To = targetStop.stop, DisplayRouteIndex = targetStop.routeIndex
+            };
+            var annotation = new Line.Trip.ContinuesFromToAnnotation
+            {
+                Symbol = annotationCharacter.ToString(), ContinuesAnnotation = continuesToAnnotation,
+                OnlyToAnnotation = targetStopAnnotation
+            };
+            _tripAnnotations.Add(annotation);
+            return annotation;
+        })() as Line.Trip.ContinuesFromToAnnotation ?? throw new Exception($"Incorrect type received.");
+        return (created, true);
+    }
 
     public int RouteCount => StopInfos.First().Times.Count;
     public bool MultipleRoutes => RouteCount > 1;
 
-    public StopTimetableView(IReadOnlyCollection<Line> allLines, IReadOnlyCollection<Line.Trip> trips, IReadOnlyCollection<DaysOfOperation> daysPartition,
+    public StopTimetableView(IReadOnlyDictionary<string, Line> allLines, IReadOnlyCollection<Line.Trip> trips,
+        IReadOnlyCollection<DaysOfOperation> daysPartition,
         Stop startStop)
     {
         StartStop = startStop;
         DaysPartition = daysPartition;
 
+        CollectManualAnnotations(trips);
+
         Lines = GetLines(trips);
-        (StopInfos, RouteToStopInfoColumnMapping) = GetStops(allLines, trips, Lines, startStop,
+        (StopInfos, RouteToStopInfoColumnMapping) = GetStops(allLines.Select(kvp => kvp.Value).ToList(), trips, Lines,
+            startStop,
             daysPartition.Aggregate(DaysOfOperation.None, (current, trip) => current | trip));
         TargetStops = GetTargetStops();
-        HourInfos = GetHourInfos(trips, RouteToStopInfoColumnMapping, startStop, daysPartition);
+        HourInfos = GetHourInfos(trips, RouteToStopInfoColumnMapping, startStop, daysPartition, allLines);
         MaximumColumns = daysPartition.Select((_, index) => index).Select(index =>
             HourInfos.Select(info => info.Value.Departures.ElementAt(index).Count).Max()).ToArray();
     }
@@ -187,7 +275,8 @@ public class StopTimetableView
                 // Re-order routes such that the most-used ones are first.
                 {
                     var previousRoutes = Enumerable.Range(0, currentRouteCount)
-                        .Select(routeIndex => stopInfos.Select(stopInfo => stopInfo.Times[routeIndex]).ToList()).ToList();
+                        .Select(routeIndex => stopInfos.Select(stopInfo => stopInfo.Times[routeIndex]).ToList())
+                        .ToList();
                     var previousToOrderedMapping = Enumerable.Range(0, currentRouteCount).Select(routeIndex => new
                     {
                         PreviousIndex = routeIndex,
@@ -275,12 +364,23 @@ public class StopTimetableView
         }
     }
 
+    private void CollectManualAnnotations(IReadOnlyCollection<Line.Trip> trips)
+    {
+        foreach (var manualAnnotation in trips.SelectMany(trip => trip.Annotations).Distinct())
+        {
+            _tripAnnotations.Add(manualAnnotation);
+        }
+    }
+
     private Dictionary<int, HourInfo> GetHourInfos(IReadOnlyCollection<Line.Trip> trips,
-        Dictionary<Line.Route, int> routeMapping, Stop startStop, IReadOnlyCollection<DaysOfOperation> daysPartition) => Enumerable.Range(0, 24)
-        .Select(hour => (hour, GetHourInfo(hour, trips, routeMapping, startStop, daysPartition))).ToDictionary();
+        Dictionary<Line.Route, int> routeMapping, Stop startStop, IReadOnlyCollection<DaysOfOperation> daysPartition,
+        IReadOnlyDictionary<string, Line> allLines) => Enumerable.Range(0, 24)
+        .Select(hour => (hour, GetHourInfo(hour, trips, routeMapping, startStop, daysPartition, allLines)))
+        .ToDictionary();
 
     private HourInfo GetHourInfo(int hour, IReadOnlyCollection<Line.Trip> trips,
-        Dictionary<Line.Route, int> routeMapping, Stop startStop, IReadOnlyCollection<DaysOfOperation> daysPartition)
+        Dictionary<Line.Route, int> routeMapping, Stop startStop, IReadOnlyCollection<DaysOfOperation> daysPartition,
+        IReadOnlyDictionary<string, Line> allLines)
     {
         var departureGroups = daysPartition.Select(ForDays);
 
@@ -302,26 +402,72 @@ public class StopTimetableView
                 if (time.Hour != hour) continue;
                 var minute = time.Minute;
                 var routeIndex = routeMapping[route];
+                List<Line.Trip.AnnotationDefinition> annotations = [..trip.Annotations];
+                Line.Trip.OnlyToAnnotation? targetStopAnnotation = null;
+                var targetStopAnnotationCreated = false;
                 if (routeIndex > 0 || LastStopOfRoute(routeIndex) != route.StopPositions.Last().Stop)
                 {
-                    GetOrCreateTargetStopAnnotation((route.StopPositions.Last().Stop, routeIndex));
+                    (targetStopAnnotation, targetStopAnnotationCreated) = GetOrCreateTargetStopAnnotation((route.StopPositions.Last().Stop, routeIndex));
                 }
 
-                var annotations = trip.Annotations;
-                foreach (var annotation in annotations)
+                var connection = trip.GetConnections(allLines)
+                    .Where(connection => connection.Type is Line.Trip.ConnectionType.ContinuesAs)
+                    // There should be at most one trip this trip is connecting *to*.
+                    .SingleOrDefault((Line.Trip.Connection?)null);
+
+                if (connection is not null && ConnectionIsRelevant(connection, startStop))
                 {
-                    if (_tripAnnotations.ContainsKey(annotation.Symbol)) continue;
-                    _tripAnnotations.Add(annotation.Symbol, annotation.Text);
+                    var (annotation, annotationCreated) = GetOrCreateContinuesToAnnotation((
+                        connection.Trip.Route.StopPositions.Last().Stop, connection.Trip.Line, connection.Trip.Route,
+                        connection.Trip.StartTime - trip.TimeAtLastStop(), connection.NotableViaStop));
+                    if (targetStopAnnotation is not null)
+                    {
+                        // This trip does not continue as normal to the final stop of this line.
+                        // Remove ContinuesTo annotation from the line annotations.
+                        if (targetStopAnnotationCreated)
+                            _tripAnnotations.RemoveAt(_tripAnnotations.Count - 1);
+                        // Remove target stop annotation from the line annotations.
+                        if (annotationCreated)
+                            _tripAnnotations.RemoveAt(_tripAnnotations.Count - 1);
+                        // Add combined annotation.
+                        var (combinedAnnotation, _) = GetOrCreateContinuesFromToAnnotation(
+                            (targetStopAnnotation.To, targetStopAnnotation.DisplayRouteIndex),
+                            (annotation.To, annotation.As, annotation.Via, annotation.Delay,
+                                annotation.NotableViaStop));
+                        annotations.Add(combinedAnnotation);
+                    }
+                    else
+                    {
+                        annotations.Add(annotation);
+                    }
+                }
+                else if (targetStopAnnotation is not null)
+                {
+                    // This should only be added if there is no continuation as otherwise a combined annotation will be produced above.
+                    annotations.Add(targetStopAnnotation);
                 }
 
                 departures.Add(new HourInfo.Departure
                 {
-                    Annotations = annotations,
+                    Annotations = [..annotations],
                     Days = trip.DaysOfOperation,
                     Minute = minute,
                     RouteIndex = routeIndex,
                     TargetStop = trip.Route.StopPositions.Last().Stop,
                 });
+                continue;
+
+                static bool ConnectionIsRelevant(Line.Trip.Connection connection, Stop currentStop)
+                {
+                    // Never disregard manually specified via stops.
+                    if (connection.NotableViaStop is not null) return true;
+                    // If we are at a stop that the connecting trip also calls at we assume it to NOT be interesting
+                    // since a passenger would choose to later board this trip.
+                    if (connection.Trip.Route.StopPositions.Select(pos => pos.Stop).Any(stop => stop == currentStop))
+                        return false;
+                    // Default to a relevant connection.
+                    return true;
+                }
             }
 
             return departures;
@@ -331,7 +477,7 @@ public class StopTimetableView
 
 file static class DepartureEnumerableExtension
 {
-    private class ValueEqualityListWrapper<T> : IEquatable<ValueEqualityListWrapper<T>>
+    private class ValueEqualityListWrapper<T> : IEquatable<ValueEqualityListWrapper<T>> where T : notnull
     {
         private readonly List<T> _list = null! /* will be set by required property below */;
 
@@ -344,7 +490,35 @@ file static class DepartureEnumerableExtension
         public bool Equals(ValueEqualityListWrapper<T>? other)
         {
             if (other is null) return false;
-            return ReferenceEquals(this, other) || _list.Order().SequenceEqual(other._list.Order());
+            return ReferenceEquals(this, other) || ScrambledEquals(_list, other._list);
+        }
+
+        // Source: https://stackoverflow.com/a/3670089/13849454
+        private static bool ScrambledEquals(List<T> list1, List<T> list2)
+        {
+            var cnt = new Dictionary<T, int>();
+            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var s in list1)
+            {
+                if (!cnt.TryAdd(s, 1))
+                {
+                    cnt[s]++;
+                }
+            }
+
+            foreach (var s in list2)
+            {
+                if (cnt.TryGetValue(s, out var value))
+                {
+                    cnt[s] = --value;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return cnt.Values.All(c => c == 0);
         }
 
         public override bool Equals(object? obj)
@@ -390,7 +564,8 @@ file static class DepartureEnumerableExtension
         Collapse(this IEnumerable<StopTimetableView.HourInfo.Departure> departures) => departures
         .GroupBy(
             departure => (departure.Minute, departure.RouteIndex,
-                Annotations: departure.Annotations.ToValueEqualityList(), departure.TargetStop), new KeyComparer())
+                Annotations: departure.Annotations.ToValueEqualityList(), departure.TargetStop),
+            new KeyComparer())
         .Select(group =>
             new StopTimetableView.HourInfo.Departure
             {

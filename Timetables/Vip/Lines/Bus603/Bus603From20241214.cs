@@ -13,11 +13,6 @@ public class Bus603From20241214 : ILineInstance
         TransportationType = TransportationType.Bus,
         MainRouteIndices = [0, 1],
         OverviewRouteIndices = [0, 1],
-        Annotations = new Dictionary<string, string>
-        {
-            { "G", "weiter als N16 nach Glienicker Brücke" },
-            { "B", "kommt als N16 von Glienicker Brücke" },
-        },
         Routes =
         [
             new Line.Route
@@ -139,7 +134,16 @@ public class Bus603From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(20, 52),
-                AnnotationSymbol = "G",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingLineIdentifier = "busN16",
+                        ConnectingRouteIndex = 1,
+                        Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M60, 3),
             ..new Line.TripCreate
             {
@@ -196,7 +200,16 @@ public class Bus603From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(21, 36),
-                AnnotationSymbol = "B",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs,
+                        ConnectingLineIdentifier = "busN16",
+                        ConnectingRouteIndex = 5,
+                        Delay = M2,
+                    },
+                ],
             }.AlsoEvery(M60, 2),
             ..new Line.TripCreate
             {

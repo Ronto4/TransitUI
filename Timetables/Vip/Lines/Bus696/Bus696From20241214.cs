@@ -13,10 +13,6 @@ public class Bus696From20241214 : ILineInstance
         TransportationType = TransportationType.Bus,
         MainRouteIndices = [0, 3],
         OverviewRouteIndices = [0, 3],
-        Annotations = new Dictionary<string, string>
-        {
-            { "S", "weiter via Stern-Center/Gerlachstr. zurück nach S Griebnitzsee" },
-        },
         Routes =
         [
             new Line.Route
@@ -94,8 +90,15 @@ public class Bus696From20241214 : ILineInstance
                 RouteIndex = 0,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
-                AnnotationSymbols = ["S"],
                 StartTime = new TimeOnly(6, 4),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus696",
+                        ConnectingRouteIndex = 3, Delay = M0, NotableViaStop = Stops.SternCenterGerlachstr,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(20, 44)),
             ..new Line.TripCreate
             {
@@ -109,7 +112,14 @@ public class Bus696From20241214 : ILineInstance
                 RouteIndex = 2,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
-                AnnotationSymbols = ["S"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus696",
+                        ConnectingRouteIndex = 3, Delay = M0, NotableViaStop = Stops.SternCenterGerlachstr,
+                    },
+                ],
                 StartTime = new TimeOnly(5, 30),
             }.AlsoEvery(M20, new TimeOnly(5, 50)),
             ..new Line.TripCreate
@@ -118,6 +128,29 @@ public class Bus696From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(5, 35),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus696",
+                        ConnectingRouteIndex = 2, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, 2),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 3,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekday,
+                StartTime = new TimeOnly(6, 15),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus696",
+                        ConnectingRouteIndex = 0, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(20, 55)),
         ],
     };

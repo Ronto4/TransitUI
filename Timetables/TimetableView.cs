@@ -127,10 +127,10 @@ public class TimetableView
     public required DaysOfOperation DaysOfOperation { get; init; }
     public required bool DoCollapseTrips { get; init; }
 
-    private Dictionary<string, string> _annotations = new();
+    private readonly Dictionary<string, string> _manualAnnotations = new();
 
-    public IReadOnlyCollection<Line.Trip.AnnotationDefinition> Annotations => _annotations
-        .Select(kvp => new Line.Trip.AnnotationDefinition(kvp.Key, kvp.Value)).ToArray();
+    public IReadOnlyCollection<Line.Trip.ManualAnnotation> ManualAnnotations => _manualAnnotations
+        .Select(kvp => new Line.Trip.ManualAnnotation { Symbol = kvp.Key, Text = kvp.Value }).ToArray();
 
     public Comparer<Stop.Position> PositionEqualityProvider { private get; init; } =
         (a, b) => a.Stop.DisplayName == b.Stop.DisplayName;
@@ -261,9 +261,9 @@ public class TimetableView
             DaysOfOperation = trip.DaysOfOperation,
             AnnotationSymbols = trip.Annotations.Select(annotation =>
             {
-                if (!_annotations.ContainsKey(annotation.Symbol))
+                if (!_manualAnnotations.ContainsKey(annotation.Symbol))
                 {
-                    _annotations.Add(annotation.Symbol, annotation.Text);
+                    _manualAnnotations.Add(annotation.Symbol, annotation.Text);
                 }
                 return annotation.Symbol;
             }).ToList(),

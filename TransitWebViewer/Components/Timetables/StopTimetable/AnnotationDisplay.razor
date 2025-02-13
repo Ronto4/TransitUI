@@ -1,3 +1,4 @@
+@using System.Diagnostics.SymbolStore
 @using global::Timetables
 @using global::Timetables.Models
 
@@ -9,32 +10,60 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var (symbol, (stop, routeIndex)) in StopTimetableView.AllTargetStopAnnotations)
+    @foreach (var annotation in StopTimetableView.TripAnnotations)
     {
         <tr>
-            <th scope="row" class="align-content-center"><span class="p-0 fw-normal">@symbol</span></th>
-            <!-- <th scope="row" class="align-content-center"><span class="border border-dark p-0 rounded-circle fw-normal">@symbol</span></th> -->
-            <td class="text-start align-content-center">
-                @if (routeIndex == 0)
+            @switch (annotation)
+            {
+                case Line.Trip.ManualAnnotation manualAnnotation:
+                    <th scope="row" class="align-content-center"><span
+                            class="border border-dark p-0 fw-normal">@manualAnnotation.Symbol</span></th>
+                    <td class="text-start align-content-center">@manualAnnotation.Text</td>
+                    break;
+                case Line.Trip.ContinuesAnnotation continuesAnnotation:
+                    <th scope="row" class="align-content-center"><span
+                            class="p-0 fw-normal">@continuesAnnotation.Symbol</span></th>
+                    <td class="text-start align-content-center">
+                        <span>@ContinuesToAnnotationText(continuesAnnotation)</span>
+                    </td>
+                    break;
+                case Line.Trip.OnlyToAnnotation onlyToAnnotation:
                 {
-                    <span>nur bis @stop.DisplayName</span>
+                    <th scope="row" class="align-content-center"><span
+                            class="p-0 fw-normal">@onlyToAnnotation.Symbol</span></th>
+                    <td class="text-start align-content-center">
+                        @if (onlyToAnnotation.DisplayRouteIndex == 0)
+                        {
+                            <span>nur bis @onlyToAnnotation.To.DisplayName</span>
+                        }
+                        else if (StopTimetableView.LastStopOfRoute(onlyToAnnotation.DisplayRouteIndex) == onlyToAnnotation.To)
+                        {
+                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nach @onlyToAnnotation.To.DisplayName</span>
+                        }
+                        else
+                        {
+                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nur bis @onlyToAnnotation.To.DisplayName</span>
+                        }
+                    </td>
+                    break;
                 }
-                else if (StopTimetableView.LastStopOfRoute(routeIndex) == stop)
-                {
-                    <span>über Route [@(routeIndex + 1)] nach @stop.DisplayName</span>
-                }
-                else
-                {
-                    <span>über Route [@(routeIndex + 1)] nur bis @stop.DisplayName</span>
-                }
-            </td>
+                case Line.Trip.ContinuesFromToAnnotation continuesFromToAnnotation:
+                    <th scope="row" class="align-content-center"><span
+                            class="p-0 fw-normal">@continuesFromToAnnotation.Symbol</span></th>
+                    <td class="text-start align-content-center">
+                        @if (continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex == 0)
+                        {
+                            <span>ab @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
+                        }
+                        else
+                        {
+                            <span>über Route [@(continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex + 1)] bis @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName und dann @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
+                        }
+                    </td>
+                    break;
+                default: throw new Exception($"Unknown annotation: {annotation}");
+            }
         </tr>
-    }
-    @foreach (var (symbol, text) in StopTimetableView.TripAnnotations)
-    {
-        <tr>
-            <th scope="row" class="align-content-center"><span class="border border-dark p-0 fw-normal">@symbol</span></th>
-            <td class="text-start align-content-center">@text</td></tr>
     }
     <tr>
         <th scope="row" class="align-content-center"></th>
@@ -68,4 +97,6 @@
 
     private const string DaytimeOnlyTimeAnnotation = "Fahrten bis 2 Uhr morgens sind dem vorherigen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Samstag um 1 Uhr).";
     private const string NotDaytimeOnlyTimeAnnotation = "Fahrten sind immer dem tatsächlichen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Freitag um 1 Uhr).";
+
+    private string ContinuesToAnnotationText(Line.Trip.ContinuesAnnotation annotation) => $"{(annotation.Delay > TimeSpan.Zero ? $"nach {annotation.Delay.TotalMinutes} Minuten " : "")}weiter als Linie {annotation.As.Name}{(annotation.NotableViaStop is { } stop ? $" über {stop.DisplayName}" : "")} nach {annotation.To.DisplayName}{(annotation.Via.ManualAnnotation is { } manualAnnotation ? $" {manualAnnotation}" : "")}";
 }

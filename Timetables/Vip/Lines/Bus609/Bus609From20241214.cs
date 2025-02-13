@@ -47,7 +47,6 @@ public class Bus609From20241214 : Bus609Base<Bus609From20241214>, IBus609Base<Bu
         ],
         OverviewRouteIndices =
             [RouteIndex(Routes.MarquardtKartzowJungfernsee), RouteIndex(Routes.JungfernseeKartzowMarquardt)],
-        Annotations = [],
         Routes = InstanceRoutes,
         TripsCreate =
         [
