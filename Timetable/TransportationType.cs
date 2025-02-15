@@ -1,5 +1,5 @@
 // ReSharper disable InconsistentNaming
-namespace Timetable.Models;
+namespace Timetable;
 
 // The exact numeric values are used for natural sorting of lines. Change with care!
 public enum TransportationType

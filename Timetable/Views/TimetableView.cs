@@ -1,8 +1,7 @@
 using System.Globalization;
 using System.Numerics;
-using Timetable.Models;
 
-namespace Timetable;
+namespace Timetable.Views;
 
 public delegate bool Comparer<in T>(T x, T y);
 
