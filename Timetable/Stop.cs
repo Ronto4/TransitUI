@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Timetable.Models;
+namespace Timetable;
 
 public record Stop
 {

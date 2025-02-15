@@ -1,7 +1,6 @@
 using System.Diagnostics.Contracts;
-using Timetable.Models;
 
-namespace Timetable;
+namespace Timetable.Views;
 
 public class StopTimetableView
 {

@@ -1,5 +1,5 @@
 using System.Collections.Frozen;
-using Timetable.Models;
+using Timetable;
 
 namespace VipTimetable;
 

@@ -1,4 +1,4 @@
-namespace Timetable.Models;
+namespace Timetable;
 
 [Flags]
 public enum LineOperationTime

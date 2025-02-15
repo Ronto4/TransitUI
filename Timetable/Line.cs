@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Timetable.Models;
+namespace Timetable;
 
 public record Line
 {

@@ -1,4 +1,4 @@
-using Timetable.Models;
+using Timetable;
 
 namespace VipTimetable.Lines.BusX5;
 

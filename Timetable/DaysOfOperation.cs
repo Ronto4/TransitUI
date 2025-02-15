@@ -1,5 +1,5 @@
 // ReSharper disable InconsistentNaming
-namespace Timetable.Models;
+namespace Timetable;
 
 [Flags]
 public enum DaysOfOperation

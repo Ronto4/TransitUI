@@ -1,4 +1,4 @@
-using Timetable.Models;
+using Timetable;
 using static VipTimetable.Minutes;
 
 namespace VipTimetable.Lines.BusN14;

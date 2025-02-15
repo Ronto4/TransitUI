@@ -1,5 +1,4 @@
-@using global::Timetable.Models
-
+@using Timetable
 @Route.StopPositions.First().Stop.DisplayName
 @(Route.InterpretAsBidirectional ? "–" : ">")
 @Route.StopPositions.Last().Stop.DisplayName
