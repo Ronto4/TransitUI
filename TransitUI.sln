@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransitWebViewer", "Transit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMatrixDisplay", "DotMatrixDisplay\DotMatrixDisplay.csproj", "{21D36994-381B-49F5-B900-9277F19A693C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timetables", "Timetables\Timetables.csproj", "{157EC221-D03D-4349-9988-97138E2C9D54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timetable", "Timetable\Timetable.csproj", "{157EC221-D03D-4349-9988-97138E2C9D54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
