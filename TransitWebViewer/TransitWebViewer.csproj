@@ -17,7 +17,8 @@
     <ItemGroup>
       <ProjectReference Include="..\DotMatrixDisplay\DotMatrixDisplay.csproj" />
       <ProjectReference Include="..\RealTimeToDotMatrix\RealTimeToDotMatrix.csproj" />
-      <ProjectReference Include="..\Timetables\Timetables.csproj" />
+      <ProjectReference Include="..\Timetable\Timetable.csproj" />
+      <ProjectReference Include="..\VipTimetable\VipTimetable.csproj" />
     </ItemGroup>
 
 </Project>

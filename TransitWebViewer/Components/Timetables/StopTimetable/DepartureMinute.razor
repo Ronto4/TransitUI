@@ -1,5 +1,5 @@
-@using global::Timetables
-@using global::Timetables.Models
+@using Timetable
+@using Timetable.Views
 @Departure.Minute.ToString("00")<sub>@AnnotateDays(Departure.Days, DayMask)</sub>
 @foreach (var annotation in Departure.Annotations)
 {

@@ -1,4 +1,4 @@
-using Timetables.Models;
+using Timetable;
 
 namespace TransitWebViewer.Utils;
 
