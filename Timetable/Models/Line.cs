@@ -348,7 +348,7 @@ public record Line
     public IEnumerable<Trip> TripsOfRouteIndex(Index routeIndex) =>
         Trips.Where(trip => trip.Route == Routes[routeIndex]);
 
-    public required ICollection<TripCreate> TripsCreate { internal get; init; }
+    public required ICollection<TripCreate> TripsCreate { get; init; }
 
     public required TransportationType TransportationType { get; init; }
 

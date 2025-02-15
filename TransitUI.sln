@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotMatrixDisplay", "DotMatr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timetable", "Timetable\Timetable.csproj", "{157EC221-D03D-4349-9988-97138E2C9D54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VipTimetable", "VipTimetable\VipTimetable.csproj", "{980D1CB3-74A8-41C0-98B9-BBF543D707EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +39,9 @@ Global
 		{157EC221-D03D-4349-9988-97138E2C9D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{157EC221-D03D-4349-9988-97138E2C9D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{157EC221-D03D-4349-9988-97138E2C9D54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
