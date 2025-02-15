@@ -15,8 +15,7 @@ public class Bus639From20241214 : ILineInstance
         OverviewRouteIndices = [0, 1],
         Annotations = new Dictionary<string, string>
         {
-            { "KB", "Einsatz eines Kleinbusses" },
-            { "G", "nach kurzem Aufenthalt weiter über Landesumweltamt zurück nach Am Park" }
+            { "KB", "Einsatz eines Kleinbusses" }
         },
         Routes =
         [
@@ -32,7 +31,8 @@ public class Bus639From20241214 : ILineInstance
             },
             new Line.Route
             {
-                StopPositions = [
+                StopPositions =
+                [
                     Stops.WaldsiedlungGroßGlienicke,
                     Stops.Landesumweltamt,
                     Stops.AmPark,
@@ -44,12 +44,13 @@ public class Bus639From20241214 : ILineInstance
             },
             new Line.Route
             {
-                StopPositions = [
+                StopPositions =
+                [
                     Stops.WaldsiedlungGroßGlienicke,
                     Stops.Landesumweltamt,
                     Stops.AmPark,
                 ],
-                TimeProfiles = [new Line.Route.TimeProfile{StopDistances = [M1, M2,],},],
+                TimeProfiles = [new Line.Route.TimeProfile { StopDistances = [M1, M2,], },],
                 CommonStopIndex = 0,
             },
         ],
@@ -61,7 +62,15 @@ public class Bus639From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(7, 25),
-                AnnotationSymbols = ["KB", "G"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus639",
+                        ConnectingRouteIndex = 1, Delay = M1, NotableViaStop = Stops.Landesumweltamt
+                    },
+                ],
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -69,7 +78,15 @@ public class Bus639From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(7, 44),
-                AnnotationSymbols = ["KB", "G"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus639",
+                        ConnectingRouteIndex = 2, Delay = M1, NotableViaStop = Stops.Landesumweltamt
+                    },
+                ],
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -85,6 +102,14 @@ public class Bus639From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(7, 29),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus639",
+                        ConnectingRouteIndex = 0, Delay = M1,
+                    },
+                ],
                 AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
@@ -93,6 +118,14 @@ public class Bus639From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(7, 48),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus639",
+                        ConnectingRouteIndex = 0, Delay = M1,
+                    },
+                ],
                 AnnotationSymbols = ["KB"],
             },
         ],

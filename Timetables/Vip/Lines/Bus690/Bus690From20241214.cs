@@ -13,10 +13,6 @@ public class Bus690From20241214 : ILineInstance
         TransportationType = TransportationType.Bus,
         MainRouteIndices = [0, 1],
         OverviewRouteIndices = [0, 1],
-        Annotations = new Dictionary<string, string>
-        {
-            { "A", "nach kurzem Aufenthalt zurück nach S Hauptbahnhof" }
-        },
         Routes =
         [
             new Line.Route
@@ -95,7 +91,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(4, 58),
-                AnnotationSymbol = "A",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 1, Delay = M3,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(20, 18)),
             ..new Line.TripCreate
             {
@@ -103,7 +106,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(5, 38),
-                AnnotationSymbol = "A",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 1, Delay = M3,
+                    },
+                ],
             }.AlsoEvery(M60, 2),
             ..new Line.TripCreate
             {
@@ -111,7 +121,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(5, 58),
-                AnnotationSymbol = "A",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 1, Delay = M3,
+                    },
+                ],
             }.AlsoEvery(M60, 2),
             ..new Line.TripCreate
             {
@@ -119,7 +136,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(7, 38),
-                AnnotationSymbol = "A",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 1, Delay = M3,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(20, 18)),
             ..new Line.TripCreate
             {
@@ -127,7 +151,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(20, 43),
-                AnnotationSymbol = "A",
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 1, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(0, 23)),
             ..new Line.TripCreate
             {
@@ -143,26 +174,64 @@ public class Bus690From20241214 : ILineInstance
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(4, 25),
             },
-            ..new Line.TripCreate
+            new Line.TripCreate
             {
                 RouteIndex = 1,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(5, 5),
-            }.AlsoEvery(M20, new TimeOnly(20, 45)),
+            },
             ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekday,
+                StartTime = new TimeOnly(5, 25),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 0, Delay = M3, NotableViaStop = Stops.SternCenterNuthestr,
+                    },
+                ],
+            }.AlsoEvery(M20, new TimeOnly(20, 45)),
+            new Line.TripCreate
             {
                 RouteIndex = 1,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(5, 25),
-            }.AlsoEvery(M60, 3),
+            },
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekend,
+                StartTime = new TimeOnly(6, 25),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 0, Delay = M3, NotableViaStop = Stops.SternCenterNuthestr,
+                    },
+                ],
+            }.AlsoEvery(M60, 2),
             ..new Line.TripCreate
             {
                 RouteIndex = 1,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(6, 5),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 0, Delay = M3, NotableViaStop = Stops.SternCenterNuthestr,
+                    },
+                ],
             }.AlsoEvery(M60, 2),
             ..new Line.TripCreate
             {
@@ -170,6 +239,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(8, 5),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 0, Delay = M3, NotableViaStop = Stops.SternCenterNuthestr,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(20, 45)),
             ..new Line.TripCreate
             {
@@ -177,6 +254,14 @@ public class Bus690From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(21, 4),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus690",
+                        ConnectingRouteIndex = 0, Delay = M0, NotableViaStop = Stops.SternCenterNuthestr,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(0, 44)),
         ],
     };

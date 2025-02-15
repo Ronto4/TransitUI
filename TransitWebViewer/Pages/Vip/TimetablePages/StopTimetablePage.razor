@@ -11,7 +11,7 @@
 
     private static IReadOnlyCollection<Line.Trip> Trips { get; set; } = [];
 
-    private static IReadOnlyCollection<Line> GetAllLines() => HistoryEntry?.OrderedLinesById.Select(element => element.Value).ToList() ?? [];
+    private static IReadOnlyDictionary<string, Line> GetAllLinesMapping() => HistoryEntry?.OrderedLinesById.ToDictionary() ?? new Dictionary<string, Line>();
 
     private static Stop? StartStopForStopView { get; set; } = null;
 
@@ -19,9 +19,10 @@
 }
 
 <div class="button-group">
-    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }" />
-    <StopSelector SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops" OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" />
-    <DaysPartitionSelector OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }" />
+    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }"/>
+    <StopSelector SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops"
+                  OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }"/>
+    <DaysPartitionSelector OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }"/>
 </div>
 
 @if (HistoryEntry is not null)
@@ -35,7 +36,8 @@
 
 @if (StartStopForStopView is { } startStop)
 {
-    <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLines()" DaysPartition="DaysPartition"/>
+    <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLinesMapping()"
+                   DaysPartition="DaysPartition"/>
 }
 else
 {

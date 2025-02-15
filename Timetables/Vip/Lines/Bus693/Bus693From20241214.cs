@@ -13,11 +13,6 @@ public class Bus693From20241214 : ILineInstance
         TransportationType = TransportationType.Bus,
         MainRouteIndices = [0, 1, 2, 3],
         OverviewRouteIndices = [0, 2],
-        Annotations = new Dictionary<string, string>
-        {
-            { "H", "weiter als 694 Richtung S Hauptbahnhof" },
-            { "B", "kommt als 694 aus Richtung S Hauptbahnhof" },
-        },
         Routes =
         [
             new Line.Route
@@ -176,8 +171,30 @@ public class Bus693From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Saturday,
                 StartTime = new TimeOnly(5, 54),
-                AnnotationSymbols = ["B"],
-            }.AlsoEvery(M20, new TimeOnly(6, 54)),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 10, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M60, new TimeOnly(6, 54)),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 1,
+                DaysOfOperation = DaysOfOperation.Saturday,
+                StartTime = new TimeOnly(6, 14),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 11, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, new TimeOnly(6, 34)),
             ..new Line.TripCreate
             {
                 RouteIndex = 0,
@@ -185,13 +202,50 @@ public class Bus693From20241214 : ILineInstance
                 DaysOfOperation = DaysOfOperation.Saturday,
                 StartTime = new TimeOnly(7, 13),
             }.AlsoEvery(M20, new TimeOnly(20, 13)),
-            ..new Line.TripCreate
+            new Line.TripCreate
             {
                 RouteIndex = 1,
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Sunday,
                 StartTime = new TimeOnly(7, 14),
-                AnnotationSymbols = ["B"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 10, Delay = M0,
+                    },
+                ],
+            },
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 1,
+                DaysOfOperation = DaysOfOperation.Sunday,
+                StartTime = new TimeOnly(7, 34),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 11, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, new TimeOnly(7, 54)),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 1,
+                DaysOfOperation = DaysOfOperation.Sunday,
+                StartTime = new TimeOnly(8, 14),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 10, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(9, 14)),
             ..new Line.TripCreate
             {
@@ -213,7 +267,59 @@ public class Bus693From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(22, 3),
-                AnnotationSymbols = ["B"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 11, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, new TimeOnly(22, 23)),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Daily,
+                StartTime = new TimeOnly(22, 43),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 10, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M60, new TimeOnly(23, 43)),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Daily,
+                StartTime = new TimeOnly(23, 3),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 11, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, new TimeOnly(23, 23)),
+            ..new Line.TripCreate
+            {
+                RouteIndex = 1,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Daily,
+                StartTime = new TimeOnly(0, 3),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 11, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(1, 3)),
             // --- Other direction ---
             ..new Line.TripCreate
@@ -223,13 +329,35 @@ public class Bus693From20241214 : ILineInstance
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(4, 34),
             }.AlsoEvery(M20, new TimeOnly(6, 54)),
-            ..new Line.TripCreate
+            new Line.TripCreate
             {
                 RouteIndex = 3,
                 TimeProfileIndex = 4,
                 DaysOfOperation = DaysOfOperation.Saturday,
                 StartTime = new TimeOnly(5, 14),
-                AnnotationSymbols = ["H"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 19, Delay = M0,
+                    },
+                ],
+            },
+            ..new Line.TripCreate
+            {
+                RouteIndex = 3,
+                TimeProfileIndex = 4,
+                DaysOfOperation = DaysOfOperation.Saturday,
+                StartTime = new TimeOnly(5, 34),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 20, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(6, 54)),
             ..new Line.TripCreate
             {
@@ -244,7 +372,14 @@ public class Bus693From20241214 : ILineInstance
                 TimeProfileIndex = 4,
                 DaysOfOperation = DaysOfOperation.Sunday,
                 StartTime = new TimeOnly(6, 54),
-                AnnotationSymbols = ["H"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 20, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(9, 14)),
             ..new Line.TripCreate
             {
@@ -259,7 +394,14 @@ public class Bus693From20241214 : ILineInstance
                 TimeProfileIndex = 3,
                 DaysOfOperation = DaysOfOperation.School,
                 StartTime = new TimeOnly(6, 49),
-                AnnotationSymbols = ["H"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 16, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, 2),
             ..new Line.TripCreate
             {
@@ -302,7 +444,44 @@ public class Bus693From20241214 : ILineInstance
                 TimeProfileIndex = 2,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(21, 48),
-                AnnotationSymbols = ["H"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 19, Delay = M0,
+                    },
+                ],
+            }.AlsoEvery(M20, 2),
+            new Line.TripCreate
+            {
+                RouteIndex = 3,
+                TimeProfileIndex = 2,
+                DaysOfOperation = DaysOfOperation.Daily,
+                StartTime = new TimeOnly(22, 28),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 20, Delay = M0,
+                    },
+                ],
+            },
+            ..new Line.TripCreate
+            {
+                RouteIndex = 3,
+                TimeProfileIndex = 2,
+                DaysOfOperation = DaysOfOperation.Daily,
+                StartTime = new TimeOnly(22, 48),
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs, ConnectingLineIdentifier = "bus694",
+                        ConnectingRouteIndex = 19, Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M20, new TimeOnly(0, 28)),
         ],
     };

@@ -46,10 +46,10 @@ else
     </table>
 
     <ul class="list-group">
-        @foreach (var (symbol, text) in TimetableView.Annotations)
+        @foreach (var annotation in TimetableView.ManualAnnotations)
         {
             <li class="list-group-item">
-                @symbol: @text
+                @annotation.Symbol: @annotation.Text
             </li>
         }
     </ul>

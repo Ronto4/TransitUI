@@ -13,7 +13,6 @@ public class Bus692From20241214 : ILineInstance
         TransportationType = TransportationType.Bus,
         MainRouteIndices = [0, 1, 2, 3, 4, 5, 6, 7],
         OverviewRouteIndices = [0, 6],
-        Annotations = [],
         Routes =
         [
             new Line.Route

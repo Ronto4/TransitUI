@@ -16,8 +16,6 @@ public class BusN16From20241214 : ILineInstance
         OverviewRouteIndices = [2, 6],
         Annotations = new Dictionary<string, string>
         {
-            { "H", "weiter als 603 nach Höhenstr." },
-            { "Ö", "kommt als 603 von Höhenstr." },
             { "Z", "S Nikolassee besteht Anschluss zur Linie N18 Richtung Zehlendorf Eiche" }
         },
         Routes =
@@ -271,7 +269,16 @@ public class BusN16From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(21, 5),
-                AnnotationSymbols = ["Ö"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ComesAs,
+                        ConnectingLineIdentifier = "bus603",
+                        ConnectingRouteIndex = 0,
+                        Delay = M0,
+                    },
+                ],
             }.AlsoEvery(M60, new TimeOnly(23, 5)),
             ..new Line.TripCreate
             {
@@ -317,7 +324,16 @@ public class BusN16From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Daily,
                 StartTime = new TimeOnly(21, 28),
-                AnnotationSymbols = ["H"],
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingLineIdentifier = "bus603",
+                        ConnectingRouteIndex = 2,
+                        Delay = M2,
+                    },
+                ],
             }.AlsoEvery(M60, new TimeOnly(22, 28)),
             ..new Line.TripCreate
             {

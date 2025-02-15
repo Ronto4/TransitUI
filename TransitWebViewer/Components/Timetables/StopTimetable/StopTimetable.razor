@@ -39,8 +39,8 @@ else
     /// All lines, used e.g. for generating connections.
     /// </summary>
     [Parameter]
-    public required IReadOnlyCollection<Line> AllLines { get; init; }
-    
+    public required IReadOnlyDictionary<string, Line> AllLines { get; init; }
+
     [Parameter] public required IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
 
     public override async Task SetParametersAsync(ParameterView parameters)

@@ -24,7 +24,7 @@ public record Line
         internal Line? Line { get; set; }
         public required Stop.Position[] StopPositions { get; init; }
         public required TimeProfile[] TimeProfiles { get; init; }
-        
+
         public string? ManualAnnotation { get; init; }
 
         /// <summary>
@@ -32,7 +32,7 @@ public record Line
         /// It is advised that the departure time does not vary due to time adjustments at this stop.
         /// </summary>
         public required int CommonStopIndex { get; init; }
-        
+
         /// <summary>
         /// Get the minimum and maximum time it takes to travel from stop index <see cref="fromIndex"/> to <see cref="toIndex"/>
         /// depending on the time profiles.
@@ -59,7 +59,7 @@ public record Line
                     $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
                     nameof(stop));
         }
-        
+
         public int GetIndexOfStopFirst(Stop stop)
         {
             var exists = TryGetIndexOfStopFirst(stop, out var index);
@@ -76,7 +76,7 @@ public record Line
                 .SingleOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
             return index != -1;
         }
-        
+
         public bool TryGetIndexOfStopFirst(Stop stop, out int index)
         {
             index = StopPositions.Select((position, index) => (position.Stop, index))
@@ -134,13 +134,80 @@ public record Line
 
     public record Trip
     {
-        public record AnnotationDefinition(string Symbol, string Text);
+        public record Connection
+        {
+            public required ConnectionType Type { get; init; }
+            public required Trip Trip { get; init; }
+            /// <summary>
+            /// Used for stops along the way of the connecting route that are noteworthy to be mentioned in timetables
+            /// regardless of the fact they appear as normal on the route.
+            /// </summary>
+            public required Stop? NotableViaStop { get; init; }
+        }
+
+        public enum ConnectionType
+        {
+            ContinuesAs,
+            ComesAs,
+        }
+
+        public abstract record AnnotationDefinition
+        {
+            public required string Symbol { get; init; }
+        }
+
+        public record ManualAnnotation : AnnotationDefinition
+        {
+            public required string Text { get; init; }
+        }
+
+        public record ContinuesAnnotation : AnnotationDefinition
+        {
+            public required Stop To { get; init; }
+            public required Line As { get; init; }
+            public required Route Via { get; init; }
+            public required TimeSpan Delay { get; init; }
+            /// <summary>
+            /// Used for stops along the way of the connecting route that are noteworthy to be mentioned in timetables
+            /// regardless of the fact they appear as normal on the route.
+            /// </summary>
+            public required Stop? NotableViaStop { get; init; }
+        }
+
+        public record OnlyToAnnotation : AnnotationDefinition
+        {
+            public required Stop To { get; init; }
+            public required int DisplayRouteIndex { get; init; }
+        }
+
+        public record ContinuesFromToAnnotation : AnnotationDefinition
+        {
+            public required ContinuesAnnotation ContinuesAnnotation { get; init; }
+            public required OnlyToAnnotation OnlyToAnnotation { get; init; }
+        }
+
         public required Line Line { get; init; }
         public required Route Route { get; init; }
         public required Route.TimeProfile TimeProfile { get; init; }
         public required TimeOnly StartTime { get; init; }
         public required DaysOfOperation DaysOfOperation { get; init; }
-        public required List<AnnotationDefinition> Annotations { get; init; }
+        public required List<ManualAnnotation> Annotations { get; init; }
+        public required List<TripCreate.Connection> Connections { private get; init; }
+
+        // Consider adding more validation steps if it becomes a problem.
+        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) => Connections.Select(
+            connection => new Connection
+            {
+                Type = connection.Type,
+                NotableViaStop = connection.NotableViaStop,
+                Trip = connection.Type is ConnectionType.ContinuesAs
+                    ? allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                        .Single(trip =>
+                            trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) && trip.DaysOfOperation == DaysOfOperation)
+                    : allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                        .Single(trip =>
+                            StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay) && trip.DaysOfOperation == DaysOfOperation),
+            });
 
         public TimeOnly TimeAtCommonStop() => TimeAtStop(Route.CommonStopIndex);
 
@@ -154,10 +221,25 @@ public record Line
 
             return time;
         }
+
+        public TimeOnly TimeAtLastStop() => TimeAtStop(Route.StopPositions.Length - 1);
     }
 
     public readonly record struct TripCreate
     {
+        public record Connection
+        {
+            public required Trip.ConnectionType Type { get; init; }
+            public required string ConnectingLineIdentifier { get; init; }
+            public required Index ConnectingRouteIndex { get; init; }
+            public required TimeSpan Delay { get; init; }
+            /// <summary>
+            /// Used for stops along the way of the connecting route that are noteworthy to be mentioned in timetables
+            /// regardless of the fact they appear as normal on the route.
+            /// </summary>
+            public Stop? NotableViaStop { get; init; } = null;
+        }
+
         public TripCreate()
         {
         }
@@ -174,6 +256,7 @@ public record Line
         }
 
         public List<string> AnnotationSymbols { get; init; } = [];
+        public List<Connection> Connections { get; init; } = [];
 
         public IEnumerable<TripCreate> AlsoEvery(TimeSpan interval, TimeOnly until)
         {
@@ -210,6 +293,7 @@ public record Line
 
     public required string Name { get; init; }
     private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+
     public required Route[] Routes
     {
         get => _routes;
@@ -242,9 +326,9 @@ public record Line
             currentMinimum = Min(currentMinimum, min);
             currentMaximum = Max(currentMaximum, max);
         }
-        
+
         return (currentMinimum, currentMaximum);
-        
+
         static TimeSpan Min(TimeSpan a, TimeSpan b) => a < b ? a : b;
         static TimeSpan Max(TimeSpan a, TimeSpan b) => a > b ? a : b;
     }
@@ -256,9 +340,13 @@ public record Line
         StartTime = trip.StartTime,
         TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
         DaysOfOperation = trip.DaysOfOperation,
-        Annotations = trip.AnnotationSymbols.Select(symbol => new Trip.AnnotationDefinition(symbol, Annotations[symbol])).ToList(),
-        // Annotations = trip.AnnotationSymbol is { } symbol ? new Trip.AnnotationDefinition(symbol, Annotations[symbol]) : null,
+        Annotations = trip.AnnotationSymbols
+            .Select(symbol => new Trip.ManualAnnotation { Symbol = symbol, Text = Annotations[symbol] }).ToList(),
+        Connections = trip.Connections,
     });
+
+    public IEnumerable<Trip> TripsOfRouteIndex(Index routeIndex) =>
+        Trips.Where(trip => trip.Route == Routes[routeIndex]);
 
     public required ICollection<TripCreate> TripsCreate { internal get; init; }
 
