@@ -238,7 +238,7 @@
                 var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
                 return frequencies.Where(frequency =>
                 {
-                  var value = previousFrequencies.Where(previous => frequency.Key.LooslyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
+                  var value = previousFrequencies.Where(previous => frequency.Key.LooselyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
                   var ret = value.Count == 0;
                   // Console.Error.WriteLine(frequency.Key);
                   // Console.Error.WriteLine(string.Join(" | ", value.Select(val => $"{val.Key}: {string.Join(", ", val.Value)}")));
@@ -255,7 +255,7 @@
                   frequenciesList[i].Key.InterpretAsBidirectional = false;
                   for (var j = i + 1; j < frequenciesList.Count; ++j)
                   {
-                    if (!frequenciesList[i].Key.LooslyIsReverse(frequenciesList[j].Key)) continue;
+                    if (!frequenciesList[i].Key.LooselyIsReverse(frequenciesList[j].Key)) continue;
                     if (!frequenciesList[i].Value.SequenceEqual(frequenciesList[j].Value)) continue;
                     // Check how this fails when multiple routes between the same stations exist.
                     // j is a duplicate of i, remove & mark as bidirectional.
@@ -276,7 +276,7 @@
 
               private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
               {
-                var school = line.GetFrequencies([
+                var school = LineHelper.GetFrequencies(line, [
                   (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(9, 0)),
@@ -285,7 +285,7 @@
                   (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.School);
-                var holiday = line.GetFrequencies([
+                var holiday = LineHelper.GetFrequencies(line,[
                   (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(9, 0)),
@@ -294,13 +294,13 @@
                   (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.Holiday);
-                var saturday = line.GetFrequencies([
+                var saturday = LineHelper.GetFrequencies(line,[
                   (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                   (new TimeOnly(4, 0), new TimeOnly(7, 0)),
                   (new TimeOnly(7, 0), new TimeOnly(20, 0)),
                   (new TimeOnly(20, 0), new TimeOnly(1, 0))
                 ], DaysOfOperation.Saturday);
-                var sunday = line.GetFrequencies([
+                var sunday = LineHelper.GetFrequencies(line,[
                   (new TimeOnly(1, 0), new TimeOnly(6, 0)),
                   (new TimeOnly(6, 0), new TimeOnly(10, 0)),
                   (new TimeOnly(10, 0), new TimeOnly(20, 0)),
@@ -331,7 +331,7 @@
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
                   <td>@line.Name</td>
-                  <td><RouteName Route="route" /></td>
+                  <td><RouteName Route="route"/></td>
                   @foreach (var frequency in frequencies)
                   {
                     <td>@frequency</td>
@@ -348,3 +348,167 @@
   }
   </tbody>
 </table>
+
+@code {
+
+  private static class LineHelper
+  {
+    public static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, List<(TimeOnly startTime, TimeOnly endTime)> timeLimits,
+      DaysOfOperation daysOfOperation)
+    {
+      const string none = "—";
+      const string singleTrips = "EF";
+      // Reset all bidirectional annotations.
+      foreach (var route in line.Routes)
+      {
+        route.InterpretAsBidirectional = false;
+      }
+
+      var result = line.Trips
+        .Where(trip => (trip.DaysOfOperation & daysOfOperation) == daysOfOperation)
+        .GroupBy(trip => trip.Route)
+        .Select(tripGroups => new KeyValuePair<Line.Route, List<string>>(tripGroups.Key, timeLimits.Select(timeLimit =>
+        {
+          var (startTime, endTime) = timeLimit;
+          var trips = startTime < endTime
+            ? tripGroups.OrderBy(trip => trip.TimeAtCommonStop()).ToList()
+            : tripGroups.ToList(); // When the time wraps around, we cannot sort.
+          Func<Line.Trip, bool> condition = startTime < endTime
+            ? trip => trip.TimeAtCommonStop() >= startTime && trip.TimeAtCommonStop() < endTime
+            : trip => trip.TimeAtCommonStop() >= startTime || trip.TimeAtCommonStop() < endTime;
+          var tripsInTime = trips
+            .Where(condition)
+            .ToList();
+          // Console.WriteLine($"{tripGroups.Key} in {timeLimit}: {string.Join(", ", tripsInTime.Select(trip => trip.TimeAtCommonStop()))}");
+          if (tripsInTime.Count == 0)
+          {
+            return none;
+          }
+
+          var intervals = new List<TimeSpan>();
+          for (var i = 1; i < tripsInTime.Count; ++i)
+          {
+            intervals.Add(tripsInTime[i].TimeAtCommonStop() - tripsInTime[i - 1].TimeAtCommonStop());
+          }
+
+          if (intervals.Count == 0)
+          {
+            return singleTrips;
+          }
+
+          // Check histogram (only if there is more than one different interval).
+          var frequencies = intervals
+            .GroupBy(self => self)
+            .Select(group => (Interval: group.Key, Frequency: group.Count()))
+            .OrderBy(group => group.Frequency)
+            .ToList();
+          if (frequencies.Count > 1)
+          {
+            var rarestFrequency = frequencies.First();
+            var secondRarestFrequency = frequencies.Skip(1).First();
+            if (rarestFrequency.Frequency == 1 &&
+                secondRarestFrequency.Frequency > rarestFrequency.Frequency)
+            {
+              var mostCommonFrequency = frequencies.Last();
+              const int requiredFrequency = 3;
+              if (mostCommonFrequency.Frequency >= requiredFrequency)
+              {
+                // There is a unique rarest interval that occurs once, and the most common interval occurs quite often.
+                // This indicates that the rarest interval is not an interval change but rather a change in departure minutes, so remove it.
+                intervals = intervals.Where(interval => interval != rarestFrequency.Interval).ToList();
+              }
+            }
+          }
+
+          // Check if there are enough trips to cover the time.
+          {
+            // // Ignore largest interval.
+            // var intervalSum = intervals.Sum(interval => interval.Ticks);
+            // // intervalSum -= intervals.MinBy(interval => interval.Ticks).Ticks;
+            // intervalSum -= intervals.MaxBy(interval => interval.Ticks).Ticks;
+            // var averageInterval = intervals.Count - 1 > 0
+            //     ? TimeSpan.FromTicks((long)(intervalSum / (double)(intervals.Count - 1)))
+            //     // If there is just one interval, use that instead.
+            //     : intervals.Single();
+            //     // If there is only one or two intervals, use their average instead.
+            //     // : TimeSpan.FromTicks((long)intervals.Average(interval => interval.Ticks));
+            var averageInterval = TimeSpan.FromTicks((long)intervals.Average(interval => interval.Ticks));
+            // var medianInterval = TimeSpan.FromTicks((long)intervals.Median(interval => interval.Ticks));
+            var totalTime = endTime - startTime;
+            var tripsRequiredForFullCover = totalTime / averageInterval;
+            const double requiredRatio = 0.54;
+            if (tripsInTime.Count / tripsRequiredForFullCover < requiredRatio)
+            {
+              // There are not enough trips.
+              // Maybe there is a sensible interval, but it is too infrequent to be worth reporting.
+              // Console.Error.WriteLine($"{timeLimit} failed ratio check with {tripsInTime.Count / tripsRequiredForFullCover}, required was {requiredRatio}.");
+              return singleTrips;
+            }
+          }
+
+          // Check if all are identical.
+          if (intervals.All(o => o == intervals[0]))
+          {
+            return $"{intervals[0].TotalMinutes}";
+          }
+
+          // Check for patterns like 20/40.
+          {
+            var firstInterval = intervals[0];
+            var secondInterval = intervals[1];
+            if (firstInterval == secondInterval)
+            {
+              // No pattern, use default handling.
+              goto DEFAULT;
+            }
+
+            for (var i = 2; i < intervals.Count; ++i)
+            {
+              var compareInterval = i % 2 == 0 ? firstInterval : secondInterval;
+              if (intervals[i] != compareInterval)
+              {
+                goto DEFAULT;
+              }
+            }
+
+            var smaller = TimeSpan.FromTicks(Math.Min(firstInterval.Ticks, secondInterval.Ticks));
+            var larger = TimeSpan.FromTicks(Math.Max(firstInterval.Ticks, secondInterval.Ticks));
+            return $"{smaller.TotalMinutes}/{larger.TotalMinutes}";
+          }
+          DEFAULT:
+          // // Check histogram
+          // var frequencies = intervals
+          //     .GroupBy(self => self)
+          //     .Select(group => (Interval: group.Key, Frequency: group.Count()))
+          //     .OrderBy(group => group.Frequency)
+          //     .ToList();
+          // var rarestFrequency = frequencies.First();
+          // var secondRarestFrequency = frequencies.Skip(1).First();
+          // if (rarestFrequency.Frequency == 1 && secondRarestFrequency.Frequency > rarestFrequency.Frequency)
+          // {
+          //     var mostCommonFrequency = frequencies.Last();
+          //     const int requiredFrequency = 3;
+          //     if (mostCommonFrequency.Frequency >= requiredFrequency)
+          //     {
+          //         // There is a unique rarest interval that occurs once, and the most common interval occurs quite often.
+          //         // This indicates that the rarest interval is not an interval change but rather a change in departure minutes, so remove it.
+          //         intervals = intervals.Where(interval => interval != rarestFrequency.Interval).ToList();
+          //     }
+          // }
+          var minimumInterval = intervals.Min();
+          var maximumInterval = intervals.Max();
+          return minimumInterval == maximumInterval
+            ? $"{minimumInterval.TotalMinutes}"
+            : $"{minimumInterval.TotalMinutes}–{maximumInterval.TotalMinutes}";
+        }).ToList())).ToDictionary();
+      foreach (var route in line.Routes)
+      {
+        if (result.ContainsKey(route)) continue;
+        result.Add(route, Enumerable.Range(0, timeLimits.Count).Select(_ => none).ToList());
+      }
+
+      return result;
+    }
+  }
+
+}

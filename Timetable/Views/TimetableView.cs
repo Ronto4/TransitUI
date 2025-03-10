@@ -3,6 +3,9 @@ using System.Numerics;
 
 namespace Timetable.Views;
 
+/// <summary>
+/// A function to compare two instances of <typeparamref name="T"/> for some definition of equality.
+/// </summary>
 public delegate bool Comparer<in T>(T x, T y);
 
 file static class EnumerableExtensions
@@ -13,8 +16,9 @@ file static class EnumerableExtensions
         _ => throw new NotImplementedException(),
     };
 
-    public static int IndexOf<TSource>(this IEnumerable<TSource> collection, TSource element, int startIndex, Comparer<TSource> comparer)
-    where TSource : IEqualityOperators<TSource, TSource, bool>
+    public static int IndexOf<TSource>(this IEnumerable<TSource> collection, TSource element, int startIndex,
+        Comparer<TSource> comparer)
+        where TSource : IEqualityOperators<TSource, TSource, bool>
     {
         (TSource, int) defaultValueTuple = default;
         var firstOrDefault = collection
@@ -25,15 +29,36 @@ file static class EnumerableExtensions
     }
 }
 
+/// <summary>
+/// A wrapper around a line timetable.
+/// </summary>
 public class TimetableView
 {
+    /// <summary>
+    /// One column in a line timetable.
+    /// </summary>
     public interface ITimetableColumn
     {
+        /// <summary>
+        /// The days that should be printed as the operating days of this <see cref="ITimetableColumn"/>.
+        /// <c>null</c> to be used for columns not requiring this information.
+        /// </summary>
         public DaysOfOperation? DaysOfOperation { get; }
+
+        /// <summary>
+        /// All annotation symbols that need to be displayed for this <see cref="ITimetableColumn"/>.
+        /// </summary>
         public List<string> AnnotationSymbols { get; }
+
+        /// <summary>
+        /// What to print at position <paramref name="index"/> of this <see cref="ITimetableColumn"/>.
+        /// </summary>
         public string? ElementAt(int index);
     }
 
+    /// <summary>
+    /// An <see cref="ITimetableColumn"/> used to display that the neighbouring <see cref="ITimetableColumn"/> are separated by a fixed <see cref="Interval"/>.
+    /// </summary>
     public record FrequencyColumn : ITimetableColumn
     {
         /// <summary>
@@ -59,10 +84,19 @@ public class TimetableView
             index == 0 ? $@"{Interval.TotalMinutes.ToString(CultureInfo.CurrentCulture)} \/" : null;
     }
 
+    /// <summary>
+    /// An <see cref="ITimetableColumn"/> used to display one or more <see cref="Timetable.Line.Trip"/>s.
+    /// </summary>
     public record TripView : ITimetableColumn
     {
+        /// <summary>
+        /// One cell in this <see cref="ITimetableColumn"/>.
+        /// </summary>
         public record TimeEntry
         {
+            /// <summary>
+            /// The kind of <see cref="TimeEntry"/>.
+            /// </summary>
             public enum Variant
             {
                 /// <summary>
@@ -82,27 +116,45 @@ public class TimetableView
                 BeforeOrAfter,
             }
 
+            /// <summary>
+            /// The kind of <see cref="TimeEntry"/>.
+            /// </summary>
             public Variant Type { get; private init; }
+
+            /// <summary>
+            /// The time to display in the timetable in this cell.
+            /// <c>null</c> if and only if the <see cref="Type"/> is not <see cref="Variant.Time"/>.
+            /// </summary>
             public TimeOnly? Time { get; private init; }
 
+            /// <summary>
+            /// Create a new <see cref="TimeEntry"/> with <see cref="Type"/> <see cref="Variant.Time"/> at <paramref name="time"/>.
+            /// </summary>
             public static TimeEntry FromTime(TimeOnly time) => new()
             {
                 Type = Variant.Time,
                 Time = time,
             };
 
+            /// <summary>
+            /// Create a new <see cref="TimeEntry"/> with <see cref="Type"/> <see cref="Variant.BeforeOrAfter"/>.
+            /// </summary>
             public static TimeEntry BeforeOrAfter() => new()
             {
                 Type = Variant.BeforeOrAfter,
                 Time = null,
             };
 
+            /// <summary>
+            /// Create a new <see cref="TimeEntry"/> with <see cref="Type"/> <see cref="Variant.Skip"/>.
+            /// </summary>
             public static TimeEntry Skip() => new()
             {
                 Type = Variant.Skip,
                 Time = null,
             };
 
+            /// <inheritdoc />
             public override string ToString() => Type switch
             {
                 Variant.Time => Time!.Value.ToString(),
@@ -110,33 +162,65 @@ public class TimetableView
                 Variant.BeforeOrAfter => "·",
                 _ => throw new ArgumentOutOfRangeException(nameof(Type), Type, "Enumerable was outside range."),
             };
-
-            public TimeOnly? TimeOrNull() => Time;
         }
 
+        /// <summary>
+        /// The days on which the <see cref="Timetable.Line.Trip"/>s operate that form this <see cref="TripView"/>.
+        /// </summary>
         public required DaysOfOperation DaysOfOperation { get; init; }
+
         DaysOfOperation? ITimetableColumn.DaysOfOperation => DaysOfOperation;
         // public required string? AnnotationSymbol { get; init; }
+
+        /// <summary>
+        /// All annotation symbols to be displayed for this <see cref="TripView"/>.
+        /// </summary>
         public required List<string> AnnotationSymbols { get; init; }
+
+        /// <summary>
+        /// The row-wise time entries of this <see cref="TripView"/>.
+        /// </summary>
         public required ICollection<TimeEntry> Times { get; init; }
+
         string ITimetableColumn.ElementAt(int index) => Times.ElementAt(index).ToString();
     }
 
+    /// <summary>
+    /// All <see cref="Timetable.Line.Trip"/>s that should be displayed in this <see cref="TimetableView"/>.
+    /// </summary>
     public required IReadOnlyCollection<Line.Trip> SourceTrips { private get; init; }
+
+    /// <summary>
+    /// The days that should be considered when creating this <see cref="TimetableView"/>.
+    /// </summary>
     public required DaysOfOperation DaysOfOperation { get; init; }
+
+    /// <summary>
+    /// Whether to collapse neighbouring <see cref="TripView"/>s when they form a fixed interval.
+    /// </summary>
     public required bool DoCollapseTrips { get; init; }
 
     private readonly Dictionary<string, string> _manualAnnotations = new();
 
+    /// <summary>
+    /// All <see cref="Timetable.Line.Trip.ManualAnnotation"/>s used in this <see cref="TimetableView"/>.
+    /// </summary>
     public IReadOnlyCollection<Line.Trip.ManualAnnotation> ManualAnnotations => _manualAnnotations
         .Select(kvp => new Line.Trip.ManualAnnotation { Symbol = kvp.Key, Text = kvp.Value }).ToArray();
 
+    /// <summary>
+    /// How two <see cref="Timetable.Stop.Position"/>s should be compared for equality when looking to collapse identical <see cref="Timetable.Stop.Position"/>s from different <see cref="Timetable.Line.Route"/>s.
+    /// Defaults to an equality check of their respective <see cref="Timetable.Stop"/>'s <see cref="Timetable.Stop.DisplayName"/>s.
+    /// </summary>
     public Comparer<Stop.Position> PositionEqualityProvider { private get; init; } =
         (a, b) => a.Stop.DisplayName == b.Stop.DisplayName;
 
     private ICollection<Stop>? _stops = null;
     private ICollection<ITimetableColumn>? _trips = null;
 
+    /// <summary>
+    /// All <see cref="Timetable.Stop"/>s in the order they should be displayed in (as they appear in the used <see cref="Timetable.Line.Route"/>s).
+    /// </summary>
     public ICollection<Stop> Stops
     {
         get
@@ -150,6 +234,9 @@ public class TimetableView
         }
     }
 
+    /// <summary>
+    /// All <see cref="ITimetableColumn"/>s in the order they should be displayed in (chronologically).
+    /// </summary>
     public ICollection<ITimetableColumn> Trips
     {
         get
@@ -264,6 +351,7 @@ public class TimetableView
                 {
                     _manualAnnotations.Add(annotation.Symbol, annotation.Text);
                 }
+
                 return annotation.Symbol;
             }).ToList(),
             Times = allPositions
@@ -285,7 +373,7 @@ public class TimetableView
         {
             tripViews = tripViews
                 .OrderBy(
-                    tripView => tripView.Times.ElementAt(positionIndex).TimeOrNull(),
+                    tripView => tripView.Times.ElementAt(positionIndex).Time,
                     new NullableTimeOnlyComparer(new TimeOnly(3, 0))
                 )
                 .ToList();
@@ -305,9 +393,9 @@ public class TimetableView
                 yield return tmp;
             yield break;
         }
-        
+
         var intervals = GetIntervals(trips, tripDays);
-        
+
         var intervalsIndices = intervals.Select((interval, index) => (interval, index)).ToList();
         List<int> indicesToYield =
         [
@@ -334,7 +422,7 @@ public class TimetableView
             yield return trips[index];
             lastYieldedIndex = index;
         }
-        
+
         yield break;
 
         static TimeSpan?[] GetIntervals(List<TripView> trips, DaysOfOperation tripDays)
@@ -356,6 +444,7 @@ public class TimetableView
                             previousTimeEntry.Time?.Add(interval) != currentTimeEntry.Time).Any(b => b)) continue;
                 intervals[i - 1] = interval;
             }
+
             return intervals;
         }
 

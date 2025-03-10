@@ -2,31 +2,85 @@ using System.Diagnostics.Contracts;
 
 namespace Timetable.Views;
 
+/// <summary>
+/// A wrapper around a timetable providing a stop timetable template.
+/// </summary>
 public class StopTimetableView
 {
     private readonly List<Line.Trip.AnnotationDefinition> _tripAnnotations = [];
 
+    /// <summary>
+    /// Information about a <see cref="Timetable.Stop"/> as represented in the <see cref="StopTimetableView"/>.
+    /// </summary>
     public record StopInfo
     {
+        /// <summary>
+        /// All <see cref="Timetable.Line"/>s one can change to at <see cref="Stop"/>.
+        /// </summary>
         public required List<Line> ConnectionLines { get; init; }
+
+        /// <summary>
+        /// The minimum and maximum time it takes to reach <see cref="Stop"/> from the initial <see cref="Timetable.Stop"/>
+        /// of the <see cref="StopTimetableView"/>, per display route.
+        /// </summary>
         public required List<(TimeSpan minimumTime, TimeSpan maximumTime)?> Times { get; init; }
+
+        /// <summary>
+        /// The <see cref="Timetable.Stop"/> represented by this <see cref="StopInfo"/>.
+        /// </summary>
         public required Stop Stop { get; init; }
+
+        /// <summary>
+        /// Whether <see cref="Stop"/> is relevant for the <see cref="StopTimetableView"/>.
+        /// This is true only for <see cref="Timetable.Stop"/> where a <see cref="Timetable.Line.Route"/> ends.
+        /// </summary>
         public bool IsRelevantStop { get; internal set; } = false;
     }
 
+    /// <summary>
+    /// One hour of departures.
+    /// </summary>
     public record HourInfo
     {
+        /// <summary>
+        /// Data about a certain departure.
+        /// </summary>
         public record Departure
         {
-            public record Continuation(Stop Target, Line Line);
+            /// <summary>
+            /// The minute of departure.
+            /// </summary>
             public required int Minute { get; init; }
+
+            /// <summary>
+            /// The days on which this departure occurrs.
+            /// </summary>
             public required DaysOfOperation Days { get; init; }
+
+            /// <summary>
+            /// All <see cref="Timetable.Line.Trip.AnnotationDefinition"/>s applying to this departure.
+            /// </summary>
             public required List<Line.Trip.AnnotationDefinition> Annotations { get; init; }
+
+            /// <summary>
+            /// The index of the display route this departure uses.
+            /// </summary>
             public required int RouteIndex { get; init; }
+
+            /// <summary>
+            /// The final <see cref="Timetable.Stop"/> of all <see cref="Timetable.Line.Trip"/>s forming this <see cref="Departure"/>.
+            /// </summary>
             public required Stop TargetStop { get; init; }
         }
 
+        /// <summary>
+        /// The hour for which this instance defines the <see cref="Departures"/>.
+        /// </summary>
         public required int Hour { get; init; }
+
+        /// <summary>
+        /// All <see cref="Departure"/>s in the <see cref="Hour"/>.
+        /// </summary>
         public required IReadOnlyCollection<IReadOnlyCollection<Departure>> Departures { get; init; }
     }
 
@@ -47,6 +101,10 @@ public class StopTimetableView
 
     private Dictionary<Line.Route, int> RouteToStopInfoColumnMapping { get; }
 
+    /// <summary>
+    /// The elements of this <see cref="IReadOnlyCollection{T}"/> define how the <see cref="StopTimetableView"/>
+    /// should be separated, e.g. Monday to Friday, Saturday, and Sunday.
+    /// </summary>
     public IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
 
     /// <summary>
@@ -54,13 +112,26 @@ public class StopTimetableView
     /// </summary>
     public List<StopInfo> StopInfos { get; }
 
+    /// <summary>
+    /// The <see cref="HourInfo.Departure"/> information, index by the <see cref="HourInfo.Hour"/>.
+    /// </summary>
     public Dictionary<int, HourInfo> HourInfos { get; }
 
+    /// <summary>
+    /// The maximum number of columns of each <see cref="DaysPartition"/> element,
+    /// e.g. <c>5</c> if there is an hour with five departures.
+    /// </summary>
     public IReadOnlyCollection<int> MaximumColumns { get; }
 
+    /// <summary>
+    /// The last <see cref="Timetable.Stop"/> served by <see cref="Timetable.Line.Route"/>s in the <paramref name="routeIndex"/>'s display route.
+    /// </summary>
     public Stop LastStopOfRoute(int routeIndex) =>
         StopInfos.Last(stopInfo => stopInfo.Times[routeIndex] is not null).Stop;
 
+    /// <summary>
+    /// All <see cref="Timetable.Line.Trip.AnnotationDefinition"/> used in this <see cref="StopTimetableView"/>.
+    /// </summary>
     public IReadOnlyCollection<Line.Trip.AnnotationDefinition> TripAnnotations => _tripAnnotations;
 
     private char NextAnnotationCharacter(IEnumerable<char> candidates)
@@ -176,9 +247,26 @@ public class StopTimetableView
         return (created, true);
     }
 
+    /// <summary>
+    /// The number of display routes in this <see cref="StopTimetableView"/>.
+    /// </summary>
     public int RouteCount => StopInfos.First().Times.Count;
+
+    /// <summary>
+    /// Whether there are more than one display routes.
+    /// </summary>
     public bool MultipleRoutes => RouteCount > 1;
 
+    /// <summary>
+    /// Create a new instance of a <see cref="StopTimetableView"/>.
+    /// </summary>
+    /// <param name="allLines">All <see cref="Timetable.Line"/>s of the network, indexed by their id.</param>
+    /// <param name="trips">All <see cref="Timetable.Line.Trip"/> that should be included as <see cref="HourInfo.Departure"/> in this <see cref="StopTimetableView"/>.</param>
+    /// <param name="daysPartition">
+    /// How to segment the <see cref="StopTimetableView"/> with regards to days,
+    /// e.g. Monday to Friday, Saturday, and Sunday.
+    /// </param>
+    /// <param name="startStop">The <see cref="Timetable.Stop"/> where this <see cref="StopTimetableView"/> is positioned at.</param>
     public StopTimetableView(IReadOnlyDictionary<string, Line> allLines, IReadOnlyCollection<Line.Trip> trips,
         IReadOnlyCollection<DaysOfOperation> daysPartition,
         Stop startStop)
@@ -406,7 +494,8 @@ public class StopTimetableView
                 var targetStopAnnotationCreated = false;
                 if (routeIndex > 0 || LastStopOfRoute(routeIndex) != route.StopPositions.Last().Stop)
                 {
-                    (targetStopAnnotation, targetStopAnnotationCreated) = GetOrCreateTargetStopAnnotation((route.StopPositions.Last().Stop, routeIndex));
+                    (targetStopAnnotation, targetStopAnnotationCreated) =
+                        GetOrCreateTargetStopAnnotation((route.StopPositions.Last().Stop, routeIndex));
                 }
 
                 var connection = trip.GetConnections(allLines)
@@ -533,10 +622,11 @@ file static class DepartureEnumerableExtension
         }
     }
 
-    private static ValueEqualityListWrapper<T> ToValueEqualityList<T>(this IEnumerable<T> source) => new()
-    {
-        List = source as List<T> ?? source.ToList(),
-    };
+    private static ValueEqualityListWrapper<T> ToValueEqualityList<T>(this IEnumerable<T> source) where T : notnull =>
+        new()
+        {
+            List = source as List<T> ?? source.ToList(),
+        };
 
     private class KeyComparer : IEqualityComparer<(int Minute, int RouteIndex,
         ValueEqualityListWrapper<Line.Trip.AnnotationDefinition> Annotations, Stop TargetStop)>
