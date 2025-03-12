@@ -19,7 +19,7 @@
             <div class="form-check-inline">
                 <input class="form-check-input" type="checkbox" checked="@Routes.Contains(route)" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
                 <label class="form-check-label" for="@route.GetHashCode()">
-                    <RouteName Route="route" />
+                    <RouteName Route="route" ReferenceDate="HistoryEntry.EffectiveDate" ReferenceCity="ReferenceCity" />
                 </label>
             </div>
         }
@@ -27,9 +27,13 @@
 }
 
 @code {
-    [Parameter] public required IHistoryEntry HistoryEntry { get; init; }
+    /// <summary>
+    /// When this is <c>null</c>, the city name will always be printed.
+    /// </summary>
+    [Parameter, EditorRequired] public required City? ReferenceCity { get; init; }
+    [Parameter, EditorRequired] public required IHistoryEntry HistoryEntry { get; init; }
     private IHistoryEntry? _historyEntry = null;
-    [Parameter] public required Action<IReadOnlyCollection<Line.Trip>> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required Action<IReadOnlyCollection<Line.Trip>> OnUpdate { get; init; }
     private Line? Line { get; set; } = null;
     private List<Line.Route> Routes { get; } = [];
     private static DaysOfOperation Days => DaysOfOperation.Daily;

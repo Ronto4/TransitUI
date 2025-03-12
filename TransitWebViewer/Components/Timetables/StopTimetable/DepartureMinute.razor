@@ -14,13 +14,13 @@
 }
 
 @code {
-    [Parameter] public required StopTimetableView.HourInfo.Departure Departure { get; init; }
-    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView.HourInfo.Departure Departure { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView StopTimetableView { get; init; }
 
     /// <summary>
     /// Determines which days of operation are considered normal and will thus not create an annotation.
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public required DaysOfOperation DayMask { get; init; }
 
     private static string AnnotateDays(DaysOfOperation days, DaysOfOperation mask) => (days & mask) == mask

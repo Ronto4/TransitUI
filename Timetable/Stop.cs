@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Timetable;
 
 /// <summary>
@@ -7,19 +5,6 @@ namespace Timetable;
 /// </summary>
 public partial record Stop
 {
-    // This is currently the default. In the long run this should be configurable in some way.
-    private const string Potsdam = "Potsdam";
-
-    /// <summary>
-    /// The default <see cref="City"/> assigned to a <see cref="Stop"/>.
-    /// </summary>
-    public const string DefaultCity = Potsdam;
-
-    /// <summary>
-    /// Allow creation of a <see cref="Stop"/> from its <see cref="Name"/> alone.
-    /// </summary>
-    public static implicit operator Stop(string name) => new() { Name = name };
-
     /// <summary>
     /// Create a new <see cref="Stop"/> instance.
     /// </summary>
@@ -32,19 +17,37 @@ public partial record Stop
     /// <summary>
     /// The name of this <see cref="Stop"/>, without any city names.
     /// </summary>
-    public required string Name { get; init; }
+    public required string InitialName { private get; init; }
 
     /// <summary>
-    /// The city of this <see cref="Stop"/>. Defaults to <see cref="DefaultCity"/>.
+    /// Maps the <see cref="DateOnly"/> of a change of name of this <see cref="Stop"/> to its new name.
     /// </summary>
-    /// <remarks>"City" here refers to settlement names found in station names, not necessarily cities in the legal definition.</remarks>
-    public string City { get; init; } = DefaultCity;
+    public List<(DateOnly Date, string Name)> NameChanges { get; init; } = [];
 
     /// <summary>
-    /// The name of this <see cref="Stop"/> as it should be shown to users.
+    /// The <see cref="City"/> of this <see cref="Stop"/>.
     /// </summary>
-    /// <remarks>Includes the <see cref="City"/> if and only if it is not the <see cref="DefaultCity"/>.</remarks>
-    public string DisplayName => City is DefaultCity ? Name : $"{City}, {Name}";
+    public required City City { get; init; }
+
+    /// <summary>
+    /// Get the non-<see cref="City"/>-prepended name of this <see cref="Stop"/> at day <paramref name="date"/>.
+    /// </summary>
+    public string NameAt(DateOnly date) => NameChanges.Count == 0 || NameChanges[0].Date > date
+        ? InitialName
+        : NameChanges.Last(change => change.Date <= date).Name;
+
+    /// <summary>
+    /// The name of this <see cref="Stop"/> including its <see cref="City"/>, as it was on <paramref name="date"/>.
+    /// </summary>
+    public string FullName(DateOnly date) => $"{City.Name}, {NameAt(date)}";
+
+    /// <summary>
+    /// The name of this <see cref="Stop"/> as it should be shown to users on <paramref name="date"/> in city <paramref name="referenceCity"/>.
+    /// </summary>
+    public string DisplayName(DateOnly date, City referenceCity) => DisplayNameFor(NameAt(date), referenceCity);
+
+    private string DisplayNameFor(string name, City referenceCity) =>
+        referenceCity == City ? name : $"{City.Name}, {name}";
 
     private readonly Position[] _positions = null!; // Will be set below.
 

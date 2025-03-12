@@ -164,12 +164,12 @@
             {
               <tr>
                 <th scope="row">@line.Name</th>
-                <td>@overviewRoute.StopPositions.First().Stop.DisplayName</td>
+                <td>@overviewRoute.StopPositions.First().Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
                 <td>
                   <span>
                     @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
                     {
-                      @overviewRoute.StopPositions[i].Stop.DisplayName
+                      @overviewRoute.StopPositions[i].Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)
                       @if (i < overviewRoute.StopPositions.Length - 2)
                       {
                         @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
@@ -181,13 +181,43 @@
                     <span class="fst-italic @(overviewRoute.StopPositions.Length == 3 ? "ps-1" : "")">(@(overviewRoute.InterpretAsBidirectional ? "in beiden Richtungen" : "nur in Richtung"))</span>
                   }
                 </td>
-                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName</td>
+                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
                 @* <td>ViP</td> *@
               </tr>
             }
           }
           </tbody>
         </table>
+        <span>
+          @* Stop name changes *@
+          @code {
+
+            private static IEnumerable<Stop> AllStops(IEnumerable<Line> lines) => lines.SelectMany(line => line.Routes).SelectMany(route => route.StopPositions).Select(position => position.Stop).Distinct();
+            private static IEnumerable<Stop> ChangedStopNames(IHistoryEntry entry) => AllStops(entry.LinesById.Values).Where(stop => stop.FullName(entry.EffectiveDate.AddDays(-1)) != stop.FullName(entry.EffectiveDate)).OrderBy(stop => stop.FullName(entry.EffectiveDate.AddDays(-1)));
+
+          }
+          @if (ChangedStopNames(entry).Any())
+          {
+            @("Haltestellenumbenennungen:")
+            <table class="table table-striped table-hover">
+              <thead>
+              <tr>
+                <th scope="col">Bisheriger Name</th>
+                <th scope="col">Neuer Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              @foreach (var stop in ChangedStopNames(entry))
+              {
+                <tr>
+                  <td>@stop.DisplayName(entry.EffectiveDate.AddDays(-1), Cities.Potsdam)</td>
+                  <td>@stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
+                </tr>
+              }
+              </tbody>
+            </table>
+          }
+        </span>
       </td>
       <td>
         <table class="table table-striped table-hover frequency-table">
@@ -331,7 +361,7 @@
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
                   <td>@line.Name</td>
-                  <td><RouteName Route="route"/></td>
+                  <td><RouteName Route="route" ReferenceDate="entry.EffectiveDate" ReferenceCity="Cities.Potsdam"/></td>
                   @foreach (var frequency in frequencies)
                   {
                     <td>@frequency</td>

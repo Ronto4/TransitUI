@@ -23,25 +23,27 @@ else
 
 @code {
 
+    [Parameter, EditorRequired] public required DateOnly DayOfTimetable { get; init; }
+
     /// <summary>
     /// The stop which is used as the position of this timetable.
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public required Stop TimetableOriginStop { get; init; }
 
     /// <summary>
     /// The trips to include in the timetable.
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public required IReadOnlyCollection<Line.Trip> SourceTripsForTimetable { get; init; }
 
     /// <summary>
     /// All lines, used e.g. for generating connections.
     /// </summary>
-    [Parameter]
+    [Parameter, EditorRequired]
     public required IReadOnlyDictionary<string, Line> AllLines { get; init; }
 
-    [Parameter] public required IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
+    [Parameter, EditorRequired] public required IReadOnlyCollection<DaysOfOperation> DaysPartition { get; init; }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -53,6 +55,6 @@ else
     }
 
     private StopTimetableView? _stopTimetableView = null;
-    private StopTimetableView StopTimetableView => _stopTimetableView ??= new StopTimetableView(AllLines, SourceTripsForTimetable, DaysPartition, TimetableOriginStop);
+    private StopTimetableView StopTimetableView => _stopTimetableView ??= new StopTimetableView(AllLines, SourceTripsForTimetable, DaysPartition, TimetableOriginStop, DayOfTimetable);
 
 }

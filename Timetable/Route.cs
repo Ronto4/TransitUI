@@ -10,8 +10,8 @@ public partial record Line
     public partial record Route
     {
         /// <inheritdoc />
-        public override string ToString() =>
-            $"{StopPositions.First().Stop.Name} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop.Name}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
+        public override string ToString() => throw new NotImplementedException();
+            // $"{StopPositions.First().Stop.InitialName} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop.InitialName}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         internal Line? Line { get; set; }
 
@@ -58,7 +58,7 @@ public partial record Line
             return exists
                 ? index
                 : throw new ArgumentException(
-                    $"The provided stop {stop.DisplayName} is not part of the route from {StopPositions.First().Stop.DisplayName} to {StopPositions.Last().Stop.DisplayName}.",
+                    $"The provided stop {stop.NameAt(new DateOnly())} is not part of the route from {StopPositions.First().Stop.NameAt(new DateOnly())} to {StopPositions.Last().Stop.NameAt(new DateOnly())}.",
                     nameof(stop));
         }
 

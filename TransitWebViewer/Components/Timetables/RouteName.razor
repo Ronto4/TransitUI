@@ -1,7 +1,7 @@
 @using Timetable
-@Route.StopPositions.First().Stop.DisplayName
+@GetStopName(Route.StopPositions.First().Stop)
 @(Route.InterpretAsBidirectional ? "–" : ">")
-@Route.StopPositions.Last().Stop.DisplayName
+@GetStopName(Route.StopPositions.Last().Stop)
 
 @if (Route.ManualAnnotation is { } manualAnnotation)
 {
@@ -17,5 +17,12 @@
 }
 
 @code {
-    [Parameter] public required Line.Route Route { get; init; }
+    /// <summary>
+    /// When this is <c>null</c>, the city name will always be printed.
+    /// </summary>
+    [Parameter, EditorRequired] public required City? ReferenceCity { get; init; }
+    [Parameter, EditorRequired] public required DateOnly ReferenceDate { get; init; }
+    [Parameter, EditorRequired] public required Line.Route Route { get; init; }
+
+    private string GetStopName(Stop stop) => ReferenceCity is null ? stop.FullName(ReferenceDate) : stop.DisplayName(ReferenceDate, ReferenceCity);
 }

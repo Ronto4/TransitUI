@@ -2,6 +2,7 @@
 @using Timetable
 @using TransitWebViewer.Components.Timetables.StopTimetable
 @using TransitWebViewer.Components.Timetables.Selectors
+@using VipTimetable
 
 <h3>ViP - Haltestellenfahrpläne</h3>
 
@@ -21,14 +22,14 @@
 <div class="button-group">
     <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }"/>
     <StopSelector SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops"
-                  OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }"/>
+                  OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" ReferenceDate="HistoryEntry?.EffectiveDate ?? new DateOnly()"/>
     <DaysPartitionSelector OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }"/>
 </div>
 
 @if (HistoryEntry is not null)
 {
     <div class="button-group pt-1">
-        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }"/>
+        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
     </div>
 }
 
@@ -37,7 +38,7 @@
 @if (StartStopForStopView is { } startStop)
 {
     <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLinesMapping()"
-                   DaysPartition="DaysPartition"/>
+                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveDate ?? new DateOnly()"/>
 }
 else
 {
