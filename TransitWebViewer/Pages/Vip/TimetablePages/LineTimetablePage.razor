@@ -2,6 +2,7 @@
 @using Timetable
 @using TransitWebViewer.Components.Timetables.LineTimetable
 @using TransitWebViewer.Components.Timetables.Selectors
+@using VipTimetable
 
 <h3>ViP - Linienfahrpläne</h3>
 
@@ -26,10 +27,10 @@
 @if (HistoryEntry is not null)
 {
     <div class="button-group pt-1">
-        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }"/>
+        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
     </div>
 }
 
 <hr/>
 
-<LineTimetable Trips="Trips" Days="Days" CollapseTrips="CollapseTrips" />
+<LineTimetable Trips="Trips" Days="Days" CollapseTrips="CollapseTrips" DayOfTimetable="HistoryEntry?.EffectiveDate ?? new DateOnly()" ReferenceCity="Cities.Potsdam" />

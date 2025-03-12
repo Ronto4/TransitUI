@@ -13,7 +13,7 @@
 </ul>
 
 @code {
-    [Parameter] public required Action<IReadOnlyCollection<DaysOfOperation>> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required Action<IReadOnlyCollection<DaysOfOperation>> OnUpdate { get; init; }
 
     public static IReadOnlyCollection<DaysOfOperation> Initial => [DaysOfOperation.Weekday, DaysOfOperation.Weekend];
 

@@ -166,7 +166,7 @@ public class StopTimetableView
 
         var created = new Func<Line.Trip.AnnotationDefinition>(() =>
         {
-            var annotationCharacter = NextAnnotationCharacter(index.stop.Name);
+            var annotationCharacter = NextAnnotationCharacter(index.stop.NameAt(DayOfTimetable));
             var annotation = new Line.Trip.OnlyToAnnotation
                 { Symbol = annotationCharacter.ToString(), To = index.stop, DisplayRouteIndex = index.routeIndex, };
             _tripAnnotations.Add(annotation);
@@ -191,7 +191,7 @@ public class StopTimetableView
 
         var created = new Func<Line.Trip.AnnotationDefinition>(() =>
         {
-            var annotationCharacter = NextAnnotationCharacter(index.stop.Name);
+            var annotationCharacter = NextAnnotationCharacter(index.stop.NameAt(DayOfTimetable));
             var annotation = new Line.Trip.ContinuesAnnotation
             {
                 Symbol = annotationCharacter.ToString(), To = index.stop, As = index.line, Via = index.route,
@@ -226,7 +226,7 @@ public class StopTimetableView
 
         var created = new Func<Line.Trip.AnnotationDefinition>(() =>
         {
-            var annotationCharacter = NextAnnotationCharacter(continues.stop.Name);
+            var annotationCharacter = NextAnnotationCharacter(continues.stop.NameAt(DayOfTimetable));
             var continuesToAnnotation = new Line.Trip.ContinuesAnnotation
             {
                 Symbol = annotationCharacter.ToString(), To = continues.stop, As = continues.line,
@@ -258,6 +258,11 @@ public class StopTimetableView
     public bool MultipleRoutes => RouteCount > 1;
 
     /// <summary>
+    /// The first day on which this timetable is valid.
+    /// </summary>
+    public DateOnly DayOfTimetable { get; }
+
+    /// <summary>
     /// Create a new instance of a <see cref="StopTimetableView"/>.
     /// </summary>
     /// <param name="allLines">All <see cref="Timetable.Line"/>s of the network, indexed by their id.</param>
@@ -267,10 +272,12 @@ public class StopTimetableView
     /// e.g. Monday to Friday, Saturday, and Sunday.
     /// </param>
     /// <param name="startStop">The <see cref="Timetable.Stop"/> where this <see cref="StopTimetableView"/> is positioned at.</param>
+    /// <param name="dateOfTimetable">The first day on which this timetable is valid.</param>
     public StopTimetableView(IReadOnlyDictionary<string, Line> allLines, IReadOnlyCollection<Line.Trip> trips,
         IReadOnlyCollection<DaysOfOperation> daysPartition,
-        Stop startStop)
+        Stop startStop, DateOnly dateOfTimetable)
     {
+        DayOfTimetable = dateOfTimetable;
         StartStop = startStop;
         DaysPartition = daysPartition;
 

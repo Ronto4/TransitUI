@@ -18,7 +18,7 @@
 </tr>
 
 @code {
-    [Parameter] public required int Hour { get; init; }
-    [Parameter] public required StopTimetableView.HourInfo HourInfo { get; init; }
-    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    [Parameter, EditorRequired] public required int Hour { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView.HourInfo HourInfo { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView StopTimetableView { get; init; }
 }

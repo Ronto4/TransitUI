@@ -200,6 +200,11 @@ public class TimetableView
     /// </summary>
     public required bool DoCollapseTrips { get; init; }
 
+    /// <summary>
+    /// The first day on which this timetable is valid.
+    /// </summary>
+    public required DateOnly DayOfTimetable { get; init; }
+
     private readonly Dictionary<string, string> _manualAnnotations = new();
 
     /// <summary>
@@ -210,10 +215,11 @@ public class TimetableView
 
     /// <summary>
     /// How two <see cref="Timetable.Stop.Position"/>s should be compared for equality when looking to collapse identical <see cref="Timetable.Stop.Position"/>s from different <see cref="Timetable.Line.Route"/>s.
-    /// Defaults to an equality check of their respective <see cref="Timetable.Stop"/>'s <see cref="Timetable.Stop.DisplayName"/>s.
+    /// Defaults to an equality check of their respective <see cref="Timetable.Stop"/>'s <see cref="Timetable.Stop.FullName"/>s.
     /// </summary>
-    public Comparer<Stop.Position> PositionEqualityProvider { private get; init; } =
-        (a, b) => a.Stop.DisplayName == b.Stop.DisplayName;
+    public Func<TimetableView, Comparer<Stop.Position>> GetPositionEqualityProvider { private get; init; } =
+        timetableView => (a, b) =>
+            a.Stop.FullName(timetableView.DayOfTimetable) == b.Stop.FullName(timetableView.DayOfTimetable);
 
     private ICollection<Stop>? _stops = null;
     private ICollection<ITimetableColumn>? _trips = null;
@@ -303,7 +309,7 @@ public class TimetableView
                     var currentStartPosition = 0;
                     int index;
                     while ((index = routes.ElementAt(k)
-                               .IndexOf(position, currentStartPosition, PositionEqualityProvider)) >= 0)
+                               .IndexOf(position, currentStartPosition, GetPositionEqualityProvider(this))) >= 0)
                     {
                         if (mapping[k][index] >= 0)
                         {

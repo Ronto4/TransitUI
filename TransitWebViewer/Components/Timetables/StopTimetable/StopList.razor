@@ -56,14 +56,14 @@
             @DisplayMinMaxTimeSpan(minutes, rowIndex < StopTimetableView.StopInfos.Select((info, infoIndex) => (info, infoIndex)).Last(tuple => tuple.info.Times[columnIndex] is not null).infoIndex)
         </td>
         }
-        <td class="text-start align-content-center">@stopInfo.Stop.DisplayName</td>
+        <td class="text-start align-content-center">@stopInfo.Stop.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)</td>
     </tr>
     }
     </tbody>
 </table>
 
 @code {
-    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView StopTimetableView { get; init; }
     
     private static string DisplayMinMaxTimeSpan((TimeSpan min, TimeSpan max)? maybeInterval, bool anotherStopComesAfterwards) =>
         maybeInterval is { } interval

@@ -33,15 +33,15 @@
                     <td class="text-start align-content-center">
                         @if (onlyToAnnotation.DisplayRouteIndex == 0)
                         {
-                            <span>nur bis @onlyToAnnotation.To.DisplayName</span>
+                            <span>nur bis @onlyToAnnotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)</span>
                         }
                         else if (StopTimetableView.LastStopOfRoute(onlyToAnnotation.DisplayRouteIndex) == onlyToAnnotation.To)
                         {
-                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nach @onlyToAnnotation.To.DisplayName</span>
+                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nach @onlyToAnnotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)</span>
                         }
                         else
                         {
-                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nur bis @onlyToAnnotation.To.DisplayName</span>
+                            <span>über Route [@(onlyToAnnotation.DisplayRouteIndex + 1)] nur bis @onlyToAnnotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)</span>
                         }
                     </td>
                     break;
@@ -52,11 +52,11 @@
                     <td class="text-start align-content-center">
                         @if (continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex == 0)
                         {
-                            <span>ab @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
+                            <span>ab @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City) @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
                         }
                         else
                         {
-                            <span>über Route [@(continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex + 1)] bis @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName und dann @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
+                            <span>über Route [@(continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex + 1)] bis @continuesFromToAnnotation.OnlyToAnnotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City) und dann @ContinuesToAnnotationText(continuesFromToAnnotation.ContinuesAnnotation)</span>
                         }
                     </td>
                     break;
@@ -90,12 +90,12 @@
 </table>
 
 @code {
-    [Parameter] public required StopTimetableView StopTimetableView { get; init; }
+    [Parameter, EditorRequired] public required StopTimetableView StopTimetableView { get; init; }
     private bool? _daytimeOnly = null;
     private bool DaytimeOnly => _daytimeOnly ??= StopTimetableView.Lines.Select(line => line.OperationTime).Distinct().Single() /* mixing different lines is currently unsupported */ == LineOperationTime.Daytime;
 
     private const string DaytimeOnlyTimeAnnotation = "Fahrten bis 2 Uhr morgens sind dem vorherigen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Samstag um 1 Uhr).";
     private const string NotDaytimeOnlyTimeAnnotation = "Fahrten sind immer dem tatsächlichen Kalendertag zugeordnet (z.\u00A0B. eine Fahrt um 1 Uhr nur freitags verkehrt am Freitag um 1 Uhr).";
 
-    private string ContinuesToAnnotationText(Line.Trip.ContinuesAnnotation annotation) => $"{(annotation.Delay > TimeSpan.Zero ? $"nach {annotation.Delay.TotalMinutes} Minuten " : "")}weiter als Linie {annotation.As.Name}{(annotation.NotableViaStop is { } stop ? $" über {stop.DisplayName}" : "")} nach {annotation.To.DisplayName}{(annotation.Via.ManualAnnotation is { } manualAnnotation ? $" {manualAnnotation}" : "")}";
+    private string ContinuesToAnnotationText(Line.Trip.ContinuesAnnotation annotation) => $"{(annotation.Delay > TimeSpan.Zero ? $"nach {annotation.Delay.TotalMinutes} Minuten " : "")}weiter als Linie {annotation.As.Name}{(annotation.NotableViaStop is { } stop ? $" über {stop.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)}" : "")} nach {annotation.To.DisplayName(StopTimetableView.DayOfTimetable, StopTimetableView.StartStop.City)}{(annotation.Via.ManualAnnotation is { } manualAnnotation ? $" {manualAnnotation}" : "")}";
 }

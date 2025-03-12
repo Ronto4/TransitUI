@@ -13,7 +13,7 @@
 </ul>
 
 @code {
-    [Parameter] public required Action<IHistoryEntry?> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required Action<IHistoryEntry?> OnUpdate { get; init; }
 
     private IHistoryEntry? HistoryEntry { get; set; } = null;
 

@@ -32,5 +32,5 @@
         DaysOfOperation.Daily,
     ]).Contains(days);
 
-    [Parameter] public required Action<DaysOfOperation> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required Action<DaysOfOperation> OnUpdate { get; init; }
 }

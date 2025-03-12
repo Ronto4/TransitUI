@@ -35,7 +35,7 @@ else
         @for (var i = 0; i < TimetableView.Stops.Count; ++i)
         {
             <tr>
-                <th scope="row" class="align-content-center">@TimetableView.Stops.ElementAt(i).DisplayName</th>
+                <th scope="row" class="align-content-center">@GetStopName(TimetableView.Stops.ElementAt(i))</th>
                 @foreach (var trip in TimetableView.Trips)
                 {
                     <td class="text-center align-content-center">@trip.ElementAt(i)</td>
@@ -56,10 +56,20 @@ else
 }
 
 @code {
-    [Parameter] public required IReadOnlyCollection<Line.Trip> Trips { get; init; }
-    [Parameter] public required DaysOfOperation Days { get; init; }
-    [Parameter] public required bool CollapseTrips { get; init; }
-    
+
+    /// <summary>
+    /// When this is <c>null</c>, the city name will always be printed.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public required City? ReferenceCity { get; init; }
+
+    [Parameter, EditorRequired] public required DateOnly DayOfTimetable { get; init; }
+    [Parameter, EditorRequired] public required IReadOnlyCollection<Line.Trip> Trips { get; init; }
+    [Parameter, EditorRequired] public required DaysOfOperation Days { get; init; }
+    [Parameter, EditorRequired] public required bool CollapseTrips { get; init; }
+
+    private string GetStopName(Stop stop) => ReferenceCity is null ? stop.FullName(DayOfTimetable) : stop.DisplayName(DayOfTimetable, ReferenceCity);
+
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         // We need to reset the timetable view as it would not update automatically.
@@ -76,6 +86,7 @@ else
         SourceTrips = Trips,
         DaysOfOperation = Days,
         DoCollapseTrips = CollapseTrips,
+        DayOfTimetable = DayOfTimetable,
     };
 
 }

@@ -3,18 +3,20 @@
 @implements ISelector<Stop?>
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    @(SelectedStop is not null ? SelectedStop.DisplayName : "Haltestelle")
+    @(SelectedStop is not null ? SelectedStop.FullName(ReferenceDate) : "Haltestelle")
 </button>
 <ul class="dropdown-menu">
     @foreach (var stop in PossibleStops)
     {
-    <li><a class="dropdown-item" @onclick="_ => { SelectedStop = stop; OnUpdate(stop); }">@stop.DisplayName</a></li>
+    <li><a class="dropdown-item" @onclick="_ => { SelectedStop = stop; OnUpdate(stop); }">@stop.FullName(ReferenceDate)</a></li>
     }
 </ul>
 
 @code {
 
-    [Parameter]
+    [Parameter, EditorRequired] public required DateOnly ReferenceDate { get; init; }
+
+    [Parameter, EditorRequired]
     public required IReadOnlyCollection<Line.Trip> SourceTrips
     {
         init => PossibleStops = GetPossibleStops(value);
@@ -24,19 +26,20 @@
     {
         /// Only consider stops that occur in all routes.
         IntersectRouteStops,
+
         /// Consider all stop that appear in any route.
         UnionRouteStops,
     }
-    
-    [Parameter] public required Mode SelectionMode { get; init; }
+
+    [Parameter, EditorRequired] public required Mode SelectionMode { get; init; }
 
     private IReadOnlyCollection<Stop> GetPossibleStops(IReadOnlyCollection<Line.Trip> trips)
         => SelectionMode is Mode.UnionRouteStops
-            ? trips.SelectMany(trip => trip.Route.StopPositions.Select(pos => pos.Stop)).OrderBy(stop => stop.DisplayName).Distinct().ToArray()
-            : trips.Select(trip => trip.Route).Distinct().Select(route => route.StopPositions.Select(pos => pos.Stop).ToList()).Intersect().OrderBy(stop => stop.DisplayName).ToArray();
+            ? trips.SelectMany(trip => trip.Route.StopPositions.Select(pos => pos.Stop)).OrderBy(stop => stop.FullName(ReferenceDate)).Distinct().ToArray()
+            : trips.Select(trip => trip.Route).Distinct().Select(route => route.StopPositions.Select(pos => pos.Stop).ToList()).Intersect().OrderBy(stop => stop.FullName(ReferenceDate)).ToArray();
 
     private IReadOnlyCollection<Stop> PossibleStops { get; set; } = null!; // Will be initialized above. */
-    [Parameter] public required Action<Stop?> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required Action<Stop?> OnUpdate { get; init; }
 
     private Stop? SelectedStop { get; set; } = null;
 
@@ -52,8 +55,10 @@
                 // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
                 OnUpdate?.Invoke(SelectedStop);
             }
+
             StateHasChanged();
         }
+
         return base.SetParametersAsync(parameters);
     }
 
