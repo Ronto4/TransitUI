@@ -133,6 +133,13 @@ public class VipHistory : IHistory
                                                      Dabei werden zunächst nur langfristige Fahrplanänderungen berücksichtigt.
                                                      Dabei sind aktuelle baubedingte Änderungen direkt eingearbeitet.
                                                      """),
+        new HistoryEntry(new DateOnly(2024, 12, 15), """
+                                                     Zum Fahrplanwechsel kommt es hauptsächlich zu Verschlechterungen im Ferienverkehr.
+                                                     Die Line 92 verkehrt nur noch alle 20 Minuten, die Linie 99 entfällt tagsüber ersatzlos.
+                                                     Außerdem werden neue Haltestellen in Fahrland in Betrieb genommen, die die Linie 609 auf dem Expressweg nach Bhf Marquardt bedient.
+                                                     Zudem ist die Baustelle in der Friedrich-Ebert-Str. beendet und alle Linien kehren auf ihren ursprünglichen Weg zurück.
+                                                     Abschließend kommt es zu einigen Verschiebungen im Minutenbereich.
+                                                     """),
         new HistoryEntry(new DateOnly(2024, 12, 23),
             "Wie üblich verkehrt während der Akademischen Weihnachtsferien die Linie X5 nicht."),
         new HistoryEntry(new DateOnly(2025, 1, 6),

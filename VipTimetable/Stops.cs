@@ -432,7 +432,7 @@ internal static class Stops
     public static Stop ZumTelegrafenberg { get; } = new() { City = Potsdam, InitialName = "Zum Telegrafenberg" };
     public static Stop TöplitzZurAltenFähre { get; } = new() { InitialName = "Zur alten Fähre", City = Töplitz };
     public static Stop Moosgarten { get; } = new() { City = Potsdam, InitialName = "Moosgarten" };
-    public static Stop DorfstrKönigsweg { get; } = new() { City = Potsdam, InitialName = "Dorfstr./Königsweg" };
+    public static Stop DorfstrKönigsweg { get; } = new() { City = Potsdam, InitialName = "Dorfstr./Königsweg", NameChanges = [(new DateOnly(2024, 12, 15), "Satzkorn/Dorfstr.")]};
     public static Stop TemplinerStr { get; } = new() { City = Potsdam, InitialName = "Templiner Str." };
     public static Stop Tierheim { get; } = new() { City = Potsdam, InitialName = "Tierheim" };
     public static Stop BerlinSteinstücken { get; } = new() { InitialName = "Steinstücken", City = Berlin };
@@ -546,4 +546,6 @@ internal static class Stops
     public static Stop BerlinBadeweg { get; } = new() { City = Berlin, InitialName = "Badeweg" };
     public static Stop BerlinWannseebadweg { get; } = new() { City = Berlin, InitialName = "Wannseebadweg" };
     public static Stop BerlinSNikolassee { get; } = new() { City = Berlin, InitialName = "S Nikolassee" };
+    public static Stop KietzerStr { get; } = new() { City = Potsdam, InitialName = "Kietzer Str." };
+    public static Stop MarquardterStr { get; } = new() { City = Potsdam, InitialName = "Marquardter Str." };
 }
