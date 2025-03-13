@@ -74,6 +74,7 @@ internal static class Stops
     public static Stop AmPfingstberg { get; } = new() { City = Potsdam, InitialName = "Am Pfingstberg" };
     public static Stop AmSchlahn { get; } = new() { City = Potsdam, InitialName = "Am Schlahn" };
     public static Stop AmSchragen { get; } = new() { City = Potsdam, InitialName = "Am Schragen" };
+    public static Stop AmSchragenRussischeKolonie { get; } = new() { City = Potsdam, InitialName = "Am Schragen/Russische Kolonie" };
     public static Stop AmUpstall { get; } = new() { City = Potsdam, InitialName = "Am Upstall" };
     public static Stop AmUrnenfeld { get; } = new() { City = Potsdam, InitialName = "Am Urnenfeld" };
     public static Stop AmWald { get; } = new() { City = Potsdam, InitialName = "Am Wald" };
