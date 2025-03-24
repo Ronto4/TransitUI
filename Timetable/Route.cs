@@ -157,6 +157,39 @@ public partial record Line
             : this;
 
         /// <summary>
+        /// Return this same <see cref="Line.Route"/>, with <paramref name="inserted"/>
+        /// between <paramref name="before"/> and <paramref name="after"/>,
+        /// if those two stations exist and are next to each other.
+        /// </summary>
+        /// <returns></returns>
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime)
+        {
+            var beforeIndex = StopPositions.Select((pos, index) => (pos, index))
+                .Where(tuple => tuple.pos.Stop == before).Select(tuple => tuple.index).SingleOrDefault(-1);
+            if (beforeIndex == -1) return this;
+            var afterIndex = StopPositions.Select((pos, index) => (pos, index))
+                .Where(tuple => tuple.pos.Stop == after).Select(tuple => tuple.index).SingleOrDefault(-1);
+            if (afterIndex == -1) return this;
+            if (afterIndex != beforeIndex + 1) return this;
+            Stop.Position[] insertedPositions =
+                [..StopPositions[..(beforeIndex + 1)], inserted, ..StopPositions[afterIndex..]];
+            var timeProfiles = TimeProfiles.Select(timeProfile => new TimeProfile
+            {
+                StopDistances =
+                [
+                    ..timeProfile.StopDistances[..beforeIndex], firstTime, secondTime,
+                    ..timeProfile.StopDistances[afterIndex..]
+                ]
+            }).ToArray();
+            return this with
+            {
+                StopPositions = insertedPositions,
+                TimeProfiles = timeProfiles,
+                CommonStopIndex = CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
+            };
+        }
+
+        /// <summary>
         /// The number of trips of this route on the selected days.
         /// <br/><br/>
         /// Note: School days and Holiday days count separately,
