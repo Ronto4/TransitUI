@@ -135,7 +135,7 @@ public class VipHistory : IHistory
                                                      """),
         new HistoryEntry(new DateOnly(2024, 12, 15), """
                                                      Zum Fahrplanwechsel kommt es hauptsächlich zu Verschlechterungen im Ferienverkehr.
-                                                     Die Line 92 verkehrt nur noch alle 20 Minuten, die Linie 99 entfällt tagsüber ersatzlos.
+                                                     Die Linen 92 und 605 verkehren nur noch alle 20 Minuten, die Linie 99 entfällt tagsüber ersatzlos.
                                                      Außerdem werden neue Haltestellen in Fahrland in Betrieb genommen, die die Linie 609 auf dem Expressweg nach Bhf Marquardt bedient.
                                                      Zudem ist die Baustelle in der Friedrich-Ebert-Str. beendet und alle Linien kehren auf ihren ursprünglichen Weg zurück.
                                                      Abschließend kommt es zu einigen Verschiebungen im Minutenbereich.
