@@ -10,8 +10,8 @@ public partial record Line
     public partial record Route
     {
         /// <inheritdoc />
-        public override string ToString() => throw new NotImplementedException();
-            // $"{StopPositions.First().Stop.InitialName} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop.InitialName}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
+        public override string ToString() => //throw new NotImplementedException();
+            $"{StopPositions.First().Stop} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         internal Line? Line { get; set; }
 
@@ -132,6 +132,12 @@ public partial record Line
         public bool InterpretAsBidirectional { get; set; } = false;
 
         /// <summary>
+        /// Get the same route as this but omitting all <paramref name="stopsToExclude"/>.
+        /// </summary>
+        public Route WithoutStops(IEnumerable<Stop> stopsToExclude) =>
+            stopsToExclude.Aggregate(this, (route, stopToExclude) => route.WithoutStop(stopToExclude));
+
+        /// <summary>
         /// Get the same route as this but omitting <paramref name="stopToExclude"/>, if it is present.
         /// </summary>
         public Route WithoutStop(Stop stopToExclude) => StopPositions.Any(pos => pos.Stop == stopToExclude)
@@ -155,6 +161,37 @@ public partial record Line
                 }).ToArray(),
             }
             : this;
+
+        /// <summary>
+        /// Return this same <see cref="Line.Route"/>, with <paramref name="inserted"/>
+        /// between <paramref name="before"/> and <paramref name="after"/>,
+        /// if those two stations exist and are next to each other.
+        /// </summary>
+        /// <returns></returns>
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime)
+        {
+            var beforeIndex = Array.IndexOf(StopPositions, before);
+            if (beforeIndex == -1) return this;
+            var afterIndex = Array.IndexOf(StopPositions, after);
+            if (afterIndex == -1) return this;
+            if (afterIndex != beforeIndex + 1) return this;
+            Stop.Position[] insertedPositions =
+                [..StopPositions[..(beforeIndex + 1)], inserted, ..StopPositions[afterIndex..]];
+            var timeProfiles = TimeProfiles.Select(timeProfile => new TimeProfile
+            {
+                StopDistances =
+                [
+                    ..timeProfile.StopDistances[..beforeIndex], firstTime, secondTime,
+                    ..timeProfile.StopDistances[afterIndex..]
+                ]
+            }).ToArray();
+            return this with
+            {
+                StopPositions = insertedPositions,
+                TimeProfiles = timeProfiles,
+                CommonStopIndex = CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
+            };
+        }
 
         /// <summary>
         /// The number of trips of this route on the selected days.

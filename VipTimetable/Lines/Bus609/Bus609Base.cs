@@ -1,3 +1,4 @@
+using System.Numerics;
 using Timetable;
 using static VipTimetable.Minutes;
 
@@ -10,8 +11,19 @@ public interface IBus609Base<TSelf> where TSelf : IBus609Base<TSelf>
 
 public class Bus609Base<TSelf> : Bus609Base where TSelf : IBus609Base<TSelf>
 {
-    protected static int RouteIndex(Line.Route route) => TSelf.InstanceRoutes.Select((r, i) => (route: r, index: i))
-        .Single(tuple => tuple.route == route).index;
+    protected static Index RouteIndex(Line.Route route) => Array.IndexOf(TSelf.InstanceRoutes, route).RunIf(-1,
+        () => throw new ArgumentException(
+            $"Route {route} not found in instance routes{Environment.NewLine}{string.Join(Environment.NewLine, TSelf.InstanceRoutes.Select(instanceRoute => instanceRoute.ToString()))}",
+            nameof(route)));
+}
+
+file static class DebugExtension
+{
+    public static T RunIf<T>(this T value, T checkValue, Action action) where T : IEqualityOperators<T, T, bool>
+    {
+        if (value == checkValue) action();
+        return value;
+    }
 }
 
 public class Bus609Base
@@ -191,6 +203,8 @@ public class Bus609Base
             ],
             CommonStopIndex = 0,
         };
+
+        public static Line.Route UpstallHbf { get; } = UpstallHbfViaLuisenplatz.RemoveLuisenplatzDetour();
 
         public static Line.Route KartzowHbfViaLuisenplatz { get; } = new()
         {
@@ -457,6 +471,8 @@ public class Bus609Base
             StopPositions =
             [
                 Stops.BahnhofMarquardt,
+                Stops.Kienhorststr,
+                Stops.Eisbergstücke,
                 Stops.AmUpstall,
                 Stops.Eisbergstücke,
                 Stops.FahrländerSee,
@@ -471,7 +487,7 @@ public class Bus609Base
             [
                 new Line.Route.TimeProfile
                 {
-                    StopDistances = [M5, M2, M3, M1, M1, M2, M1, M1, M2],
+                    StopDistances = [M5, M1, M4, M2, M3, M1, M1, M2, M1, M1, M2,],
                 },
             ],
             CommonStopIndex = 0,
@@ -811,4 +827,33 @@ public class Bus609Base
             CommonStopIndex = 0,
         };
     }
+
+    /// <summary>
+    /// Remove the Luisenplatz and Bassinplatz detours from the given <see cref="Line.Route"/> used until 2024-12-14.
+    /// </summary>
+    protected static Line.Route RemoveDetours(Line.Route route) => route.RemoveLuisenplatzDetour();
+
+    /// <summary>
+    /// Add the <see cref="Stop"/>s Marquardter Str. and Kietzer Str. to the fast routes between Fahrland and Marquardt.
+    /// </summary>
+    /// <param name="route"></param>
+    /// <returns></returns>
+    protected static Line.Route AddStopsMarquardterStr(Line.Route route) => route
+        .WithStopBetween(Stops.BahnhofMarquardt, Stops.MarquardterStr, Stops.Kienhorststr, M2, M0)
+        .WithStopBetween(Stops.MarquardterStr, Stops.KietzerStr, Stops.Kienhorststr, M2, M1)
+        .WithStopBetween(Stops.Kienhorststr, Stops.KietzerStr, Stops.BahnhofMarquardt, M1, M0)
+        .WithStopBetween(Stops.KietzerStr, Stops.MarquardterStr, Stops.BahnhofMarquardt, M1, M3);
+}
+
+file static class Bus609RouteExtensions
+{
+    public static Line.Route RemoveLuisenplatzDetour(this Line.Route route) => route
+        .WithoutStops([
+            Stops.ReiterwegJägerallee, Stops.JägertorJustizzentrum, Stops.Mauerstr, Stops.LuisenplatzNordParkSanssouci,
+            Stops.LuisenplatzOstParkSanssouci, Stops.Dortustr
+        ]).WithStopBetween(Stops.AmPfingstberg, Stops.AmSchragenRussischeKolonie, Stops.PlatzDerEinheitWest, M4, M0)
+        .WithStopBetween(Stops.AmSchragenRussischeKolonie, Stops.ReiterwegAlleestr, Stops.PlatzDerEinheitWest, M2, M0)
+        .WithStopBetween(Stops.ReiterwegAlleestr, Stops.Rathaus, Stops.PlatzDerEinheitWest, M1, M0)
+        .WithStopBetween(Stops.Rathaus, Stops.NauenerTor, Stops.PlatzDerEinheitWest, M1, M0)
+        .WithStopBetween(Stops.NauenerTor, Stops.BrandenburgerStr, Stops.PlatzDerEinheitWest, M1, M1);
 }
