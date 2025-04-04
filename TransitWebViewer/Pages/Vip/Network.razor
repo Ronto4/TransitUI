@@ -1,0 +1,144 @@
+@page "/vip/network"
+@using Timetable
+@using TransitWebViewer.Utils
+@using VipTimetable
+<h3>Network</h3>
+
+@code {
+
+    private static readonly IHistoryEntry Entry = VipHistory.History.Last();
+
+    // private static readonly DaysOfOperation[] DaysPartition =
+    // [
+    //     DaysOfOperation.SchoolMonday,
+    //     DaysOfOperation.SchoolTuesday,
+    //     DaysOfOperation.SchoolWednesday,
+    //     DaysOfOperation.SchoolThursday,
+    //     DaysOfOperation.SchoolFriday,
+    //     DaysOfOperation.HolidayMonday,
+    //     DaysOfOperation.HolidayTuesday,
+    //     DaysOfOperation.HolidayWednesday,
+    //     DaysOfOperation.HolidayThursday,
+    //     DaysOfOperation.HolidayFriday,
+    //     DaysOfOperation.Saturday,
+    //     DaysOfOperation.Sunday
+    // ];
+    //
+    // private readonly record struct StopStatistic
+    // {
+    //     public required Stop Stop { get; init; }
+    //     public required int[] Departures { get; init; }
+    //     public int TotalDepartures => Departures.Sum();
+    //
+    //     public static StopStatistic GetFromTrips(Stop stop, (Line.Route Route, int[] TripCount)[] routes)
+    //     {
+    //         Console.WriteLine($"Stop: {stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)}");
+    //         Console.Out.Flush();
+    //         var relevantRoutes = routes.Where(route => route.Route.DoesStopAt(stop, true));
+    //         return new StopStatistic
+    //         {
+    //             Stop = stop,
+    //             Departures = DaysPartition.Select((_, daysIndex) => relevantRoutes.Aggregate(0, (previous, route) => previous + route.TripCount[daysIndex])).ToArray(),
+    //         };
+    //     }
+    // }
+    //
+    // private readonly record struct ConnectionStatistic
+    // {
+    //     public required Stop StartStop { get; init; }
+    //     public required Stop NeighbouringStop { get; init; }
+    //     public required int TotalTrips { get; init; }
+    // }
+    //
+    // private static IOrderedEnumerable<StopStatistic> GetStopStatistics(IHistoryEntry historyEntry)
+    // {
+    //     var lines = historyEntry.LinesById.Select(kvp => kvp.Value).ToArray();
+    //     var routes = lines.SelectMany(line => line.Routes).Select(route => (route, DaysPartition.Select(days => route.TripCount(days) ?? 0).ToArray())).ToArray();
+    //     var stops = lines.SelectMany(line => line.Routes).SelectMany(route => route.StopPositions).Select(position => position.Stop).Distinct();
+    //     var stats = stops.Select(stop => StopStatistic.GetFromTrips(stop, routes)).OrderByDescending(stat => stat.TotalDepartures);
+    //     return stats;
+    // }
+    //
+    // private static IEnumerable<(Stop Stop, IOrderedEnumerable<ConnectionStatistic> ConnectionStats)> GetAllConnectionStatistics(IHistoryEntry historyEntry)
+    // {
+    //     var stopStats = GetStopStatistics(historyEntry);
+    //     return stopStats.Select(stopStat => (stopStat.Stop, GetConnectionStatistics(historyEntry, stopStat.Stop)));
+    // }
+    //
+    // private static IOrderedEnumerable<ConnectionStatistic> GetConnectionStatistics(IHistoryEntry historyEntry, Stop startStop)
+    // {
+    //     var lines = historyEntry.LinesById.Select(kvp => kvp.Value);
+    //     var relevantRoutes = lines.SelectMany(line => line.Routes).Where(route => route.DoesStopAt(startStop, true));
+    //     var neighbouringStops = relevantRoutes.Select(route => (TripCount: route.TripCount(DaysOfOperation.Daily), NeighbouringStop: route.StopPositions[route.GetIndexOfStopFirst(startStop) + 1].Stop));
+    //     return neighbouringStops
+    //         .GroupBy(tuple => tuple.NeighbouringStop)
+    //         .Select(group => (NeighbouringStop: group.Key, TotalTrips: group.Aggregate(0, (previous, g) => previous + g.TripCount ?? 0)))
+    //         .Select(tuple => new ConnectionStatistic { StartStop = startStop, NeighbouringStop = tuple.NeighbouringStop, TotalTrips = tuple.TotalTrips })
+    //         .OrderByDescending(stat => stat.TotalTrips);
+    // }
+
+}
+
+<ol>
+    @foreach (var stop in new NetworkGraph(Entry).TraverseDepthFirstViaMostUsed())
+    {
+        <li>
+            @(stop?.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam) ?? "Kein Eintrag")
+        </li>
+    }
+</ol>
+
+@* @foreach (var (stop, statGroup) in GetAllConnectionStatistics(Entry)) *@
+@* { *@
+@* *@
+@*     <h5>Für Starthaltestelle @stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam):</h5> *@
+@* *@
+@*     <table class="table table-hover table-striped"> *@
+@*         <thead > *@
+@*         <tr > *@
+@*             <th scope="col"> Position </th > *@
+@*             <th scope="col"> Name </th > *@
+@*             <th scope="col"> Gesamte Fahrten </th > *@
+@*         </tr > *@
+@*         </thead > *@
+@*         <tbody > *@
+@*         @foreach (var (stat, rank) in statGroup.Select((stat, index) => (stat, index))) *@
+@*         { *@
+@*             <tr> *@
+@*                 <td>@(rank + 1)</td> *@
+@*                 <th scope="row">@stat.NeighbouringStop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)</th> *@
+@*                 <td>@stat.TotalTrips</td> *@
+@*             </tr> *@
+@*         } *@
+@*         </tbody> *@
+@*     </table> *@
+@* *@
+@* } *@
+
+@* <table class="table table-hover table-striped"> *@
+@*     <thead> *@
+@*     <tr> *@
+@*         <th scope="col">Position</th> *@
+@*         <th scope="col">Name</th> *@
+@*         <th scope="col">Gesamte Fahrten</th> *@
+@*         @foreach (var days in DaysPartition) *@
+@*         { *@
+@*             <th scope="col">@days.Display()</th> *@
+@*         } *@
+@*     </tr> *@
+@*     </thead> *@
+@*     <tbody> *@
+@*     @foreach (var (stat, rank) in GetStopStatistics(Entry).Select((stat, index) => (stat, index))) *@
+@*     { *@
+@*         <tr> *@
+@*             <td>@(rank + 1)</td> *@
+@*             <th scope="row">@stat.Stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)</th> *@
+@*             <td>@stat.TotalDepartures</td> *@
+@*             @foreach (var departures in stat.Departures) *@
+@*             { *@
+@*                 <td>@departures</td> *@
+@*             } *@
+@*         </tr> *@
+@*     } *@
+@*     </tbody> *@
+@* </table> *@
