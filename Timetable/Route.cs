@@ -49,6 +49,12 @@ public partial record Line
         }
 
         /// <summary>
+        /// Get all indices of all occurrences of <paramref name="stop"/> in this route.
+        /// </summary>
+        public IEnumerable<int> GetIndicesOfStop(Stop stop) => StopPositions.Select((pos, index) => (pos, index))
+            .Where(tuple => tuple.pos.Stop == stop).Select(tuple => tuple.index);
+
+        /// <summary>
         /// A throwing wrapper around <see cref="TryGetIndexOfStopFirst"/>.
         /// </summary>
         /// <exception cref="ArgumentException">The <paramref name="stop" /> is not part of this route.</exception>
@@ -82,8 +88,7 @@ public partial record Line
         /// <returns><c>true</c> if and only if the <paramref name="stop"/> exists in this route, <c>false</c> otherwise.</returns>
         public bool TryGetIndexOfStopFirst(Stop stop, out int index)
         {
-            index = StopPositions.Select((position, index) => (position.Stop, index))
-                .FirstOrDefault(tuple => stop == tuple.Stop, (Stop: stop, index: -1)).index;
+            index = Array.IndexOf(StopPositions, stop);
             return index != -1;
         }
 

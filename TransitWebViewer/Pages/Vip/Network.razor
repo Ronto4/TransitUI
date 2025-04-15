@@ -1,4 +1,5 @@
 @page "/vip/network"
+@using System.Text
 @using Timetable
 @using TransitWebViewer.Utils
 @using VipTimetable
@@ -7,6 +8,8 @@
 @code {
 
     private static readonly IHistoryEntry Entry = VipHistory.History.Last();
+
+    private static readonly NetworkGraph NetworkGraph = new(Entry);
 
     // private static readonly DaysOfOperation[] DaysPartition =
     // [
@@ -77,43 +80,207 @@
     //         .OrderByDescending(stat => stat.TotalTrips);
     // }
 
+    private record Node
+    {
+        public required Stop Stop { get; init; }
+        public required (int X, int Y) Position { get; init; }
+
+        private int UsedNeighbourPositions { get; set; } = 0;
+        // /// <summary>
+        // /// Indicates which #child this node is from its parent.
+        // /// </summary>
+        // private int? IncomingPositionIndex { get; init; } = null;
+        private int Depth { get; init; } = 0;
+        public Node MakeNext(Stop stop)
+        {
+            var (position, angle) = (NextPosition(), 0);
+            UsedNeighbourPositions++;
+            return new Node
+            {
+                Stop = stop,
+                Position = position,
+                // IncomingPositionIndex = UsedNeighbourPositions,
+                Depth = Depth + 1,
+            };
+        }
+
+        private (int X, int Y) NextPosition() => Positions().Skip(UsedNeighbourPositions).First();
+
+        private const int LevelDistance = 10;
+        private const int LevelMultiplier = 10;
+        private IEnumerable<(int X, int Y)> Positions()
+        {
+            var multiplier = Math.Max(LevelMultiplier - Depth, 1);
+            yield return (Position.X, Position.Y + LevelDistance);
+            for (var i = 1; i < LevelDistance; ++i)
+            {
+                yield return (Position.X + (LevelDistance - i) * multiplier, Position.Y + i * multiplier);
+                yield return (Position.X + (-LevelDistance + i) * multiplier, Position.Y + i * multiplier);
+            }
+
+            throw new Exception($"Too many neighbours");
+        }
+
+        public int Id => GetHashCode();
+    }
+
+    private readonly record struct Connection
+    {
+        public required Node From { get; init; }
+        public required Node To { get; init; }
+        public required NetworkGraph.LineSegment Source { get; init; }
+    }
+
+    private static (IReadOnlyCollection<Node> nodes, IReadOnlyCollection<Connection> connections) GetGraph()
+    {
+        var lineSegments = NetworkGraph.TraverseLineWise().ToArray();
+        var nodeMap = new Dictionary<Stop, Node>();
+        var connections = new List<Connection>(lineSegments.Length);
+        var nodes = new List<Node>();
+        nodes.Add(new Node
+        {
+            Stop = lineSegments[0].From,
+            Position = (0, 0),
+        });
+        nodeMap.Add(lineSegments[0].From, nodes[0]);
+        foreach (var lineSegment in lineSegments)
+        {
+            // This must exist already.
+            var fromNode = nodeMap[lineSegment.From];
+            if (nodeMap.TryGetValue(lineSegment.To, out var toNode))
+            {
+                connections.Add(new Connection
+                {
+                    From = fromNode,
+                    To = toNode,
+                    Source = lineSegment,
+                });
+                continue;
+            }
+
+            var newToNode = fromNode.MakeNext(lineSegment.To);
+            nodes.Add(newToNode);
+            nodeMap.Add(lineSegment.To, newToNode);
+            connections.Add(new Connection
+            {
+                From = fromNode,
+                To = newToNode,
+                Source = lineSegment,
+            });
+        }
+        return (nodes, connections);
+    }
+
+    private static readonly (IReadOnlyCollection<Node> nodes, IReadOnlyCollection<Connection> connections) Graph = GetGraph();
+
+    private static string PrintTikZ()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("\\begin{tikzpicture}");
+        // Node styles
+        sb.AppendLine("\\tikzstyle{stop} = [rectangle, minimum width=7em, minimum height=7em,text centered, draw=black]");
+        // Connection styles
+        // sb.AppendLine("\\tikzstyle{connection} = [draw = red,thick,{Latex[length=0.75em]}-{Latex[length=0.75em]}]");
+        sb.AppendLine("\\tikzstyle{connection} = [draw = red,thick]");
+        // Nodes = Stops
+        foreach (var node in Graph.nodes)
+        {
+            sb.AppendLine($"\t\\node ({node.Id}) [stop] at ({node.Position.X}em, {node.Position.Y}em) {{{node.Stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)}}};");
+        }
+        // Connections
+        foreach (var connection in Graph.connections)
+        {
+            // sb.AppendLine($"\\draw [connection] ({connection.From.Id}) -- ({connection.To.Id});");
+        }
+        sb.AppendLine("\\end{tikzpicture}");
+        return sb.ToString();
+    }
+
 }
 
-<ol>
-    @foreach (var stop in new NetworkGraph(Entry).TraverseDepthFirstViaMostUsed())
-    {
-        <li>
-            @(stop?.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam) ?? "Kein Eintrag")
-        </li>
-    }
-</ol>
+@* <ol> *@
+@*     @foreach (var node in Graph.nodes) *@
+@*     { *@
+@*         <li> *@
+@*             @node *@
+@*         </li> *@
+@*     } *@
+@* </ol> *@
+@* *@
+@* <ol> *@
+@*     @foreach (var connection in Graph.connections) *@
+@*     { *@
+@*         <li> *@
+@*             @connection *@
+@*         </li> *@
+@*     } *@
+@* </ol> *@
 
-@* @foreach (var (stop, statGroup) in GetAllConnectionStatistics(Entry)) *@
-@* { *@
+@* @PrintTikZ() *@
+
+@* <ol> *@
+@*     @foreach (var connection in NetworkGraph.TraverseLineWise()) *@
+@*     { *@
+@*         <li> *@
+@*             @connection.Line.Name: @connection.From.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam) *@
+@*             &rarr; *@
+@*             @connection.To.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam) *@
+@*             (@connection.TripCount Fahrten) *@
+@*         </li> *@
+@*     } *@
+@* </ol> *@
 @* *@
-@*     <h5>Für Starthaltestelle @stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam):</h5> *@
-@* *@
-@*     <table class="table table-hover table-striped"> *@
-@*         <thead > *@
-@*         <tr > *@
-@*             <th scope="col"> Position </th > *@
-@*             <th scope="col"> Name </th > *@
-@*             <th scope="col"> Gesamte Fahrten </th > *@
-@*         </tr > *@
-@*         </thead > *@
-@*         <tbody > *@
-@*         @foreach (var (stat, rank) in statGroup.Select((stat, index) => (stat, index))) *@
-@*         { *@
-@*             <tr> *@
-@*                 <td>@(rank + 1)</td> *@
-@*                 <th scope="row">@stat.NeighbouringStop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)</th> *@
-@*                 <td>@stat.TotalTrips</td> *@
-@*             </tr> *@
-@*         } *@
-@*         </tbody> *@
-@*     </table> *@
-@* *@
-@* } *@
+@foreach (var ((stop, stopStatistic), index) in NetworkGraph.TraverseMostUsedStops().Select((value, index) => (value, index)))
+{
+
+    <h5>@(index + 1). Für Starthaltestelle @stop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam) (@stopStatistic.TotalDepartures Abfahrten):</h5>
+
+    <table class="table table-hover table-striped">
+        <thead >
+        <tr >
+            <th scope="col"> Position </th >
+            <th scope="col"> Linie </th >
+            <th scope="col"> Gesamte Fahrten </th >
+        </tr >
+        </thead >
+        <tbody >
+        @foreach (var ((line, trips), rank) in stopStatistic.DeparturesByLine.OrderByDescending(tuple => tuple.Value).Select((value, index) => (value, index)))
+        {
+            <tr>
+                <td>@(rank + 1)</td>
+                <th scope="row">@line.Name</th>
+                <td>@trips</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <table class="table table-hover table-striped">
+        <thead >
+        <tr >
+            <th scope="col"> Position </th >
+            <th scope="col"> Name </th >
+            <th scope="col"> Gesamte Fahrten </th >
+            <th scope="col"> Fahrzeiten </th>
+        </tr >
+        </thead >
+        <tbody >
+        @foreach (var (stat, rank) in stopStatistic.Connections.OrderBy(stat => stat.TripTime.maximumTime).ThenBy(stat => stat.TripTime.minimumTime).ThenByDescending(stat => stat.TotalTrips).Select((stat, index) => (stat, index)))
+        {
+            <tr>
+                <td>@(rank + 1)</td>
+                <th scope="row">@stat.NeighbouringStop.DisplayName(DateOnly.FromDateTime(DateTime.Now), Cities.Potsdam)</th>
+                <td>
+                    @stat.TotalTrips
+                    (@string.Join(", ", stat.TripsByLine.OrderByDescending(trips => trips.Value).Select(trips => $"{trips.Key.Name}: {trips.Value}")))
+                </td>
+                <td>@stat.TripTime.minimumTime bis @stat.TripTime.maximumTime</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+}
 
 @* <table class="table table-hover table-striped"> *@
 @*     <thead> *@
