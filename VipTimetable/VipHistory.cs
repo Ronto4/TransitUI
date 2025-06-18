@@ -142,6 +142,14 @@ public class VipHistory : IHistory
                                                      """),
         new HistoryEntry(new DateOnly(2024, 12, 23),
             "Wie üblich verkehrt während der Akademischen Weihnachtsferien die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2024, 12, 31),
+            """
+            Zum Jahreswechsel gab es wieder einen Sonderfahrplan.
+            Erstmals gab es dabei keinen durchgehenden Nachtverkehr; zwischen 23:30 Uhr und 0:30 Uhr wurde eine Betriebspause eingelegt.
+            Aus technischen Gründen stehen die Fahrpläne zur Zeit nicht zur Verfügung.
+            """),
+        new HistoryEntry(new DateOnly(2025, 1, 1),
+            "Der durchgehende Nachtverkehr gilt nicht mehr."),
         new HistoryEntry(new DateOnly(2025, 1, 6),
             "Zum Start in die Vorlesungszeit verkehrt auch die Linie X5 wieder."),
     ];
