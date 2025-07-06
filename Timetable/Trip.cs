@@ -42,28 +42,49 @@ public partial record Line
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public required List<TripCreate.Connection> Connections { private get; init; }
+        /// <remarks>Prefer accessing through <see cref="GetConnections"/>, this property does not contain all relevant details.</remarks>
+        public required List<TripCreate.Connection> Connections { internal get; init; }
 
         /// <summary>
         /// Translate the trip-create <see cref="Timetable.Line.TripCreate.Connection"/>s present on this <see cref="Trip"/> into trip <see cref="Connection"/>s.
         /// </summary>
         /// <param name="allLines">All <see cref="Line"/>s present in the current network, indexed by their id.</param>
         // Consider adding more validation steps if it becomes a problem.
-        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) => Connections.Select(
-            connection => new Connection
+        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines)
+        {
+            try
             {
-                Type = connection.Type,
-                NotableViaStop = connection.NotableViaStop,
-                Trip = connection.Type is ConnectionType.ContinuesAs
-                    ? allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
-                        .Single(trip =>
-                            trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
-                            trip.DaysOfOperation == DaysOfOperation)
-                    : allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
-                        .Single(trip =>
-                            StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay) &&
-                            trip.DaysOfOperation == DaysOfOperation),
-            });
+                return Connections.Select(
+                    connection => new Connection
+                    {
+                        Type = connection.Type,
+                        NotableViaStop = connection.NotableViaStop,
+                        Trip = connection.Type is ConnectionType.ContinuesAs
+                            ? allLines[connection.ConnectingLineIdentifier].GetTrip(connection.ConnectingRouteIndex, TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay), DaysOfOperation)
+                                // .TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                                // .Single(trip =>
+                                //     trip.StartTime ==
+                                //     TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
+                                //     trip.DaysOfOperation == DaysOfOperation)
+                            : allLines[connection.ConnectingLineIdentifier].GetTrip(connection.ConnectingRouteIndex, trip => trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay), StartTime, DaysOfOperation),
+                                // .TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                                // .Single(trip =>
+                                //     StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1)
+                                //         .Add(connection.Delay) &&
+                                //     trip.DaysOfOperation == DaysOfOperation),
+                    }).ToArray();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.Error.WriteLine($"Error getting connections for trip {this} for connections {string.Join(", ", Connections)}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Unknown error: {ex}");
+                throw;
+            }
+        }
 
         /// <summary>
         /// The time at which this <see cref="Trip"/> departs the <see cref="Stop"/> specified by the <see cref="Route"/>'s <see cref="Line.Route.CommonStopIndex"/>.

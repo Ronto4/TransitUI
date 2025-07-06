@@ -197,7 +197,32 @@ public class Tram99From20250110Until20250112 : ILineInstance
                 }
 
                 return returnTrips ?? [trip];
-            }).Where(trip => trip.DaysOfOperation != DaysOfOperation.None),
+            }).Where(trip => trip.DaysOfOperation != DaysOfOperation.None).Select(trip =>
+            {
+                if (trip.RouteIndex.Equals(7) && trip.StartTime.IsBetween(new TimeOnly(20, 0), new TimeOnly(2, 0)))
+                {
+                    return trip with
+                    {
+                        Connections =
+                        [
+                            new Line.TripCreate.Connection
+                            {
+                                Delay = trip.StartTime switch
+                                {
+                                    _ when trip.StartTime == new TimeOnly(20, 5) => M0,
+                                    _ when trip.StartTime == new TimeOnly(20, 25) => M5,
+                                    _ => M2,
+                                },
+                                Type = Line.Trip.ConnectionType.ComesAs,
+                                ConnectingLineIdentifier = "tram92",
+                                ConnectingRouteIndex = 11,
+                            }
+                        ],
+                    };
+                }
+
+                return trip;
+            }),
             ..new Line.TripCreate
             {
                 RouteIndex = Original.Line.Routes.Length,

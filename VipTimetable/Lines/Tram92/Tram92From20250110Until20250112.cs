@@ -5,17 +5,28 @@ namespace VipTimetable.Lines.Tram92;
 
 public class Tram92From20250110Until20250112 : ILineInstance
 {
+    private static Line.TripCreate.Connection ContinuesAs99(TimeSpan delay) => new Line.TripCreate.Connection
+    {
+        Delay = delay,
+        Type = Line.Trip.ConnectionType.ContinuesAs,
+        ConnectingLineIdentifier = "tram99",
+        ConnectingRouteIndex = 7,
+    };
+
+    private static Line.TripCreate.Connection ContinuesAs93(TimeSpan delay) => new Line.TripCreate.Connection
+    {
+        Delay = delay,
+        Type = Line.Trip.ConnectionType.ContinuesAs,
+        ConnectingLineIdentifier = "tram93",
+        ConnectingRouteIndex = 11,
+    };
+
     public DateOnly ValidFrom { get; } = new(2025, 1, 10);
     public DateOnly? ValidUntilInclusive() => new(2025, 1, 12);
     private static Tram92From20241215 Original { get; } = new();
 
     public Line Line { get; } = Original.Line with
     {
-        Annotations = new Dictionary<string, string>
-        {
-            { "A", "weiter als 99 nach Fontanestr." },
-            { "B", "weiter als 93 nach Glienicker Brücke." },
-        },
         MainRouteIndices = [..Original.Line.MainRouteIndices, Original.Line.Routes.Length],
         Routes =
         [
@@ -96,7 +107,7 @@ public class Tram92From20250110Until20250112 : ILineInstance
                         RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                         TimeProfileIndex = 0,
                         DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                        AnnotationSymbols = ["A"],
+                        Connections = [ContinuesAs99(M2),],
                     },
                 ];
             }
@@ -120,7 +131,17 @@ public class Tram92From20250110Until20250112 : ILineInstance
                             RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                            AnnotationSymbols = [trip.StartTime < new TimeOnly(19, 50) ? "B" : "A"],
+                            Connections =
+                            [
+                                trip.StartTime < new TimeOnly(19, 50)
+                                    ? ContinuesAs93(M4)
+                                    : ContinuesAs99(trip.StartTime switch
+                                    {
+                                        _ when trip.StartTime == new TimeOnly(20, 5).AddMinutes(-12) => M0,
+                                        _ when trip.StartTime == new TimeOnly(20, 25).AddMinutes(-12) => M5,
+                                        _ => M2,
+                                    })
+                            ],
                         }
                     ];
                 }
@@ -132,17 +153,21 @@ public class Tram92From20250110Until20250112 : ILineInstance
                         {
                             RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                             TimeProfileIndex = 0,
-                            DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Sunday,
-                            AnnotationSymbols =
-                            trip.StartTime > new TimeOnly(23, 30) || trip.StartTime < new TimeOnly(2, 0) ? [] : ["A"],
+                            DaysOfOperation = trip.DaysOfOperation & ~(DaysOfOperation.Friday | DaysOfOperation.Saturday),
+                            Connections =
+                            trip.StartTime > new TimeOnly(23, 30) || trip.StartTime < new TimeOnly(2, 0)
+                                ? []
+                                : [ContinuesAs99(M2)],
                         },
                         trip with
                         {
                             RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                             TimeProfileIndex = 0,
-                            DaysOfOperation = trip.DaysOfOperation & ~DaysOfOperation.Sunday,
-                            AnnotationSymbols =
-                            trip.StartTime == new TimeOnly(0, 51) || trip.StartTime == new TimeOnly(1, 11) ? [] : ["A"],
+                            DaysOfOperation = trip.DaysOfOperation & (DaysOfOperation.Friday | DaysOfOperation.Saturday),
+                            Connections =
+                            trip.StartTime == new TimeOnly(0, 51) || trip.StartTime == new TimeOnly(1, 11)
+                                ? []
+                                : [ContinuesAs99(M2)],
                         },
                     ];
                 }

@@ -65,16 +65,28 @@ public partial record Line
     /// Iterator over all <see cref="Line.Trip"/>s included in this <see cref="Line"/>.
     /// </summary>
     public IEnumerable<Trip> Trips => TripsCreate.Select(trip => new Trip
-    {
-        Line = this,
-        Route = Routes[trip.RouteIndex],
-        StartTime = trip.StartTime,
-        TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
-        DaysOfOperation = trip.DaysOfOperation,
-        Annotations = trip.AnnotationSymbols
-            .Select(symbol => new Trip.ManualAnnotation { Symbol = symbol, Text = Annotations[symbol] }).ToList(),
-        Connections = trip.Connections,
-    });
+        {
+            Line = this,
+            Route = Routes[trip.RouteIndex],
+            StartTime = trip.StartTime,
+            TimeProfile = Routes[trip.RouteIndex].TimeProfiles[trip.TimeProfileIndex],
+            DaysOfOperation = trip.DaysOfOperation,
+            Annotations = trip.AnnotationSymbols
+                .Select(symbol => new Trip.ManualAnnotation { Symbol = symbol, Text = Annotations[symbol] }).ToList(),
+            Connections = trip.Connections,
+        }).GroupBy(
+            trip => (trip.Line, trip.Route, trip.StartTime, trip.TimeProfile, trip.Annotations, trip.Connections))
+        .Select(group => new Trip
+        {
+            Line = group.Key.Line,
+            Route = group.Key.Route,
+            StartTime = group.Key.StartTime,
+            TimeProfile = group.Key.TimeProfile,
+            DaysOfOperation = group.Select(trip => trip.DaysOfOperation)
+                .Aggregate(DaysOfOperation.None, (prev, next) => prev | next),
+            Annotations = group.Key.Annotations,
+            Connections = group.Key.Connections,
+        });
 
     /// <summary>
     /// Iterate over all <see cref="Line.Trip"/>s included in the <see cref="Line.Route"/> at index <c>routeIndex</c> in this <see cref="Line"/>.
@@ -82,6 +94,38 @@ public partial record Line
     public IEnumerable<Trip> TripsOfRouteIndex(Index routeIndex) =>
         Trips.Where(trip => trip.Route == Routes[routeIndex]);
 
+    /// <summary>
+    /// Determine whether there exists a trip of the given route, starting at the provided time, on all and only those days as specified.
+    /// </summary>
+    public bool HasTrip(Index ofRoute, TimeOnly startingAt, DaysOfOperation onDays) => TripsOfRouteIndex(ofRoute)
+        .Where(trip => trip.StartTime == startingAt).Select(trip => trip.DaysOfOperation)
+        .Aggregate(DaysOfOperation.None, (prev, next) => prev | next) == onDays;
+
+    /// <summary>
+    /// Determine whether there exists a trip of the given route, starting at the provided time, on all and only those days as specified.
+    /// </summary>
+    public bool HasTrip(Index ofRoute, Func<Trip, TimeOnly> startingAt, TimeOnly startTimeComparer, DaysOfOperation onDays) => TripsOfRouteIndex(ofRoute)
+        .Where(trip => startTimeComparer == startingAt(trip)).Select(trip => trip.DaysOfOperation)
+        .Aggregate(DaysOfOperation.None, (prev, next) => prev | next) == onDays;
+
+    /// <summary>
+    /// Get an arbitrary trip of the given route, starting at the provided time, if <see cref="HasTrip(System.Index,System.TimeOnly,Timetable.DaysOfOperation)"/> matches for the parameters.
+    /// </summary>
+    public Trip GetTrip(Index ofRoute, TimeOnly startingAt, DaysOfOperation onDays) =>
+        HasTrip(ofRoute, startingAt, onDays)
+            ? TripsOfRouteIndex(ofRoute).First(trip => trip.StartTime == startingAt)
+            : throw new InvalidOperationException(
+                $"There is no matching trip in line {Name} for route index {ofRoute} and start time {startingAt}.");
+
+    /// <summary>
+    /// Get an arbitrary trip of the given route, starting at the provided time, if <see cref="HasTrip(System.Index,System.TimeOnly,Timetable.DaysOfOperation)"/> matches for the parameters.
+    /// </summary>
+    public Trip GetTrip(Index ofRoute, Func<Trip, TimeOnly> startingAt, TimeOnly startTimeComparer, DaysOfOperation onDays) =>
+        HasTrip(ofRoute, startingAt, startTimeComparer, onDays)
+            ? TripsOfRouteIndex(ofRoute).First(trip => startTimeComparer == startingAt(trip))
+            : throw new InvalidOperationException(
+                $"There is no matching trip in line {Name} for route index {ofRoute} and start time comparer {startTimeComparer}.");
+ 
     /// <summary>
     /// All <see cref="TripCreate"/>s used to specify which <see cref="Line.Trip"/>s exist for this <see cref="Line"/>.
     /// </summary>

@@ -183,6 +183,13 @@ public class Tram93From20250110Until20250112 : ILineInstance
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
                             StartTime = trip.StartTime.AddMinutes(14),
+                            Connections = [new Line.TripCreate.Connection
+                            {
+                                Delay = M4,
+                                Type = Line.Trip.ConnectionType.ComesAs,
+                                ConnectingLineIdentifier = "tram92",
+                                ConnectingRouteIndex = 11,
+                            }]
                         },
                     ];
                 }
