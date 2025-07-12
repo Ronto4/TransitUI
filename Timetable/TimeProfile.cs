@@ -1,3 +1,5 @@
+using R4Utils.ValueEqualityCollections;
+
 namespace Timetable;
 
 public partial record Line
@@ -11,10 +13,17 @@ public partial record Line
         /// </summary>
         public record TimeProfile
         {
+            private readonly ValueEqualityCollection<TimeSpan, TimeSpan[]>
+                _stopDistances = null!; // Will be set by *required* init-er below.
+
             /// <summary>
             /// At index <c>i</c> there is the time it takes to travel from stop position <c>i</c> to <c>i+1</c>.
             /// </summary>
-            public required TimeSpan[] StopDistances { get; init; }
+            public required TimeSpan[] StopDistances
+            {
+                get => _stopDistances.Underlying;
+                init => _stopDistances = value.AsGenericOrderedValueEqualityCollection<TimeSpan, TimeSpan[]>();
+            }
 
             /// <summary>
             /// Get the time it takes to travel from stop index <paramref name="fromIndex"/> to <paramref name="toIndex"/>.

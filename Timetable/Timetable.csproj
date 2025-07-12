@@ -15,4 +15,8 @@
       <DocumentationFile>bin\Release\net8.0\Timetable.xml</DocumentationFile>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="R4Utils" Version="1.2.1" />
+    </ItemGroup>
+
 </Project>

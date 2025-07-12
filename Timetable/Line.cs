@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using R4Utils.ValueEqualityCollections;
 
 namespace Timetable;
 
@@ -14,17 +15,18 @@ public partial record Line
     /// </summary>
     public required string Name { get; init; }
 
-    private readonly Route[] _routes = null!; // Will be set by *required* init-er below.
+    private readonly ValueEqualityCollection<Route, Route[]>
+        _routes = null!; // Will be set by *required* init-er below.
 
     /// <summary>
     /// All <see cref="Line.Route"/>s assigned to this <see cref="Line"/>.
     /// </summary>
     public required Route[] Routes
     {
-        get => _routes;
+        get => _routes.Underlying;
         init
         {
-            _routes = value;
+            _routes = value.AsGenericOrderedValueEqualityCollection<Route, Route[]>();
             foreach (var route in Routes)
             {
                 route.Line = this;
@@ -82,10 +84,17 @@ public partial record Line
     public IEnumerable<Trip> TripsOfRouteIndex(Index routeIndex) =>
         Trips.Where(trip => trip.Route == Routes[routeIndex]);
 
+    private readonly ValueEqualityCollection<TripCreate, ICollection<TripCreate>>
+        _tripsCreate = null!; // Will be set by *required* init-er below.
+
     /// <summary>
     /// All <see cref="TripCreate"/>s used to specify which <see cref="Line.Trip"/>s exist for this <see cref="Line"/>.
     /// </summary>
-    public required ICollection<TripCreate> TripsCreate { get; init; }
+    public required ICollection<TripCreate> TripsCreate
+    {
+        get => _tripsCreate.Underlying;
+        init => _tripsCreate = value.AsGenericValueEqualityCollection<TripCreate, ICollection<TripCreate>>();
+    }
 
     /// <summary>
     /// Which medium of transportation is the one used by this <see cref="Line"/>.
@@ -102,10 +111,17 @@ public partial record Line
     /// </summary>
     public IEnumerable<Route> MainRoutes => MainRouteIndices.Select(index => Routes[index]);
 
+    private readonly ValueEqualityCollection<Index, Index[]>
+        _mainRouteIndices = null!; // Will be set by *required* init-er below.
+
     /// <summary>
-    /// Specifies the indices of the <see cref="Line.Route"/>s that are considers <see cref="MainRoutes"/>.
+    /// Specifies the indices of the <see cref="Line.Route"/>s that are considered <see cref="MainRoutes"/>.
     /// </summary>
-    public required Index[] MainRouteIndices { get; init; }
+    public required Index[] MainRouteIndices
+    {
+        get => _mainRouteIndices.Underlying;
+        init => _mainRouteIndices = value.AsGenericOrderedValueEqualityCollection<Index, Index[]>();
+    }
 
     /// <summary>
     /// <see cref="Line.Route"/>s that are considered to be representative <see cref="Line.Route"/>s for this <see cref="Line"/>.
@@ -115,15 +131,33 @@ public partial record Line
     /// </summary>
     public IEnumerable<Route> OverviewRoutes => OverviewRouteIndices.Select(index => Routes[index]);
 
+    private readonly ValueEqualityCollection<Index, Index[]>
+        _overviewRouteIndices = null!; // Will be set by *required* init-er below.
+
     /// <summary>
     /// Specifies the indices of the <see cref="Line.Route"/>s that are considers <see cref="OverviewRoutes"/>.
     /// </summary>
-    public required Index[] OverviewRouteIndices { get; init; }
+    public required Index[] OverviewRouteIndices
+    {
+        get => _overviewRouteIndices.Underlying;
+        init => _overviewRouteIndices = value.AsGenericOrderedValueEqualityCollection<Index, Index[]>();
+    }
+
+    private readonly ValueEqualityCollection<(string, string), (string, string)[]> _annotations =
+        Array.Empty<(string, string)>()
+            .AsGenericOrderedValueEqualityCollection<(string, string), (string, string)
+                []>(); // Will be set by *required* init-er below.
 
     /// <summary>
     /// Manual annotations, indexed by their symbol, mapping to their text.
     /// </summary>
-    public Dictionary<string, string> Annotations { get; init; } = new();
+    // TODO: Find a better way here, potentially with a native value equality dictionary.
+    public Dictionary<string, string> Annotations
+    {
+        get => _annotations.Underlying.ToDictionary();
+        init => _annotations = value.Select(kvp => (kvp.Key, kvp.Value)).ToArray()
+            .AsGenericOrderedValueEqualityCollection<(string, string), (string, string)[]>();
+    }
 
     /// <summary>
     /// The typical time of day where this <see cref="Line"/> operates.

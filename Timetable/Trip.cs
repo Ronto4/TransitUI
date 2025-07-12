@@ -1,3 +1,5 @@
+using R4Utils.ValueEqualityCollections;
+
 namespace Timetable;
 
 public partial record Line
@@ -32,25 +34,41 @@ public partial record Line
         /// </summary>
         public required DaysOfOperation DaysOfOperation { get; init; }
 
+        private readonly ValueEqualityCollection<ManualAnnotation, List<ManualAnnotation>>
+            _annotations = null!; // Will be set by *required* init-er below.
+
         /// <summary>
         /// All manually (in the timetable) specified <see cref="ManualAnnotation"/> for this <see cref="Trip"/>.
         /// </summary>
-        public required List<ManualAnnotation> Annotations { get; init; }
+        public required List<ManualAnnotation> Annotations
+        {
+            get => _annotations.Underlying;
+            init => _annotations =
+                value.AsGenericOrderedValueEqualityCollection<ManualAnnotation, List<ManualAnnotation>>();
+        }
+
+        private readonly ValueEqualityCollection<TripCreate.Connection, List<TripCreate.Connection>>
+            _connections = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// All through services this <see cref="Trip"/> participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public required List<TripCreate.Connection> Connections { private get; init; }
+        public required List<TripCreate.Connection> Connections
+        {
+            private get => _connections.Underlying;
+            init => _connections =
+                value.AsGenericOrderedValueEqualityCollection<TripCreate.Connection, List<TripCreate.Connection>>();
+        }
 
         /// <summary>
         /// Translate the trip-create <see cref="Timetable.Line.TripCreate.Connection"/>s present on this <see cref="Trip"/> into trip <see cref="Connection"/>s.
         /// </summary>
         /// <param name="allLines">All <see cref="Line"/>s present in the current network, indexed by their id.</param>
         // Consider adding more validation steps if it becomes a problem.
-        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) => Connections.Select(
-            connection => new Connection
+        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) =>
+            Connections.Select(connection => new Connection
             {
                 Type = connection.Type,
                 NotableViaStop = connection.NotableViaStop,

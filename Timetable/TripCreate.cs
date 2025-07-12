@@ -1,3 +1,5 @@
+using R4Utils.ValueEqualityCollections;
+
 namespace Timetable;
 
 public partial record Line
@@ -45,17 +47,31 @@ public partial record Line
             init => AnnotationSymbols.Add(value);
         }
 
+        private readonly ValueEqualityCollection<string, List<string>>
+            _annotationSymbols = new List<string>().AsGenericOrderedValueEqualityCollection<string, List<string>>();
+
         /// <summary>
         /// The symbols (defined as the keys of <see cref="Line.Annotations"/>) of the annotations this trip has.
         /// </summary>
-        public List<string> AnnotationSymbols { get; init; } = [];
+        public List<string> AnnotationSymbols
+        {
+            get => _annotationSymbols.Underlying;
+            init => _annotationSymbols = value.AsGenericOrderedValueEqualityCollection<string, List<string>>();
+        }
+
+        private readonly ValueEqualityCollection<Connection, List<Connection>> _connections =
+            new List<Connection>().AsGenericOrderedValueEqualityCollection<Connection, List<Connection>>();
 
         /// <summary>
         /// All through services this trip participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public List<Connection> Connections { get; init; } = [];
+        public List<Connection> Connections
+        {
+            get => _connections.Underlying;
+            init => _connections = value.AsGenericValueEqualityCollection<Connection, List<Connection>>();
+        }
 
         /// <summary>
         /// Repeat this <see cref="TripCreate"/> instance for every <paramref name="interval"/>.

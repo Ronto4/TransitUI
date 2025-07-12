@@ -1,3 +1,5 @@
+using R4Utils.ValueEqualityCollections;
+
 namespace Timetable;
 
 public partial record Line
@@ -15,15 +17,29 @@ public partial record Line
 
         internal Line? Line { get; set; }
 
+        private readonly ValueEqualityCollection<Stop.Position, Stop.Position[]>
+            _stopPositions = null!; // Will be set by *required* init-er below.
+
         /// <summary>
         /// The <see cref="Stop.Position"/>s where this route calls at.
         /// </summary>
-        public required Stop.Position[] StopPositions { get; init; }
+        public required Stop.Position[] StopPositions
+        {
+            get => _stopPositions.Underlying;
+            init => _stopPositions = value.AsGenericOrderedValueEqualityCollection<Stop.Position, Stop.Position[]>();
+        }
+
+        private readonly ValueEqualityCollection<TimeProfile, TimeProfile[]>
+            _timeProfiles = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// All the existing timing patterns for this route.
         /// </summary>
-        public required TimeProfile[] TimeProfiles { get; init; }
+        public required TimeProfile[] TimeProfiles
+        {
+            get => _timeProfiles.Underlying;
+            init => _timeProfiles = value.AsGenericOrderedValueEqualityCollection<TimeProfile, TimeProfile[]>();
+        }
 
         /// <summary>
         /// A text to be displayed alongside this route.
@@ -168,7 +184,8 @@ public partial record Line
         /// if those two stations exist and are next to each other.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime)
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime,
+            TimeSpan secondTime)
         {
             var beforeIndex = Array.IndexOf(StopPositions, before);
             if (beforeIndex == -1) return this;
