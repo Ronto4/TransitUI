@@ -1,4 +1,4 @@
-using R4Utils.ValueEqualityCollections;
+using LanguageExt;
 
 namespace Timetable;
 
@@ -44,33 +44,31 @@ public partial record Line
         [Obsolete($"Use {nameof(AnnotationSymbols)} instead.", false)]
         public string AnnotationSymbol
         {
-            init => AnnotationSymbols.Add(value);
+            init => _annotationSymbols = Arr.create(value);
         }
 
-        private readonly ValueEqualityCollection<string, List<string>>
-            _annotationSymbols = new List<string>().AsGenericOrderedValueEqualityCollection<string, List<string>>();
+        private readonly Arr<string> _annotationSymbols = Arr.empty<string>();
 
         /// <summary>
         /// The symbols (defined as the keys of <see cref="Line.Annotations"/>) of the annotations this trip has.
         /// </summary>
-        public List<string> AnnotationSymbols
+        public IReadOnlyList<string> AnnotationSymbols
         {
-            get => _annotationSymbols.Underlying;
-            init => _annotationSymbols = value.AsGenericOrderedValueEqualityCollection<string, List<string>>();
+            get => _annotationSymbols;
+            init => _annotationSymbols = Arr.createRange(value);
         }
 
-        private readonly ValueEqualityCollection<Connection, List<Connection>> _connections =
-            new List<Connection>().AsGenericOrderedValueEqualityCollection<Connection, List<Connection>>();
+        private readonly Arr<Connection> _connections = Arr.empty<Connection>();
 
         /// <summary>
         /// All through services this trip participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public List<Connection> Connections
+        public IReadOnlyList<Connection> Connections
         {
-            get => _connections.Underlying;
-            init => _connections = value.AsGenericValueEqualityCollection<Connection, List<Connection>>();
+            get => _connections;
+            init => _connections = Arr.createRange(value);
         }
 
         /// <summary>

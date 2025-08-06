@@ -1,4 +1,4 @@
-using R4Utils.ValueEqualityCollections;
+using LanguageExt;
 
 namespace Timetable;
 
@@ -34,32 +34,28 @@ public partial record Line
         /// </summary>
         public required DaysOfOperation DaysOfOperation { get; init; }
 
-        private readonly ValueEqualityCollection<ManualAnnotation, List<ManualAnnotation>>
-            _annotations = null!; // Will be set by *required* init-er below.
+        private readonly Arr<ManualAnnotation> _annotations = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// All manually (in the timetable) specified <see cref="ManualAnnotation"/> for this <see cref="Trip"/>.
         /// </summary>
-        public required List<ManualAnnotation> Annotations
+        public required IReadOnlyList<ManualAnnotation> Annotations
         {
-            get => _annotations.Underlying;
-            init => _annotations =
-                value.AsGenericOrderedValueEqualityCollection<ManualAnnotation, List<ManualAnnotation>>();
+            get => _annotations;
+            init => _annotations = Arr.createRange(value);
         }
 
-        private readonly ValueEqualityCollection<TripCreate.Connection, List<TripCreate.Connection>>
-            _connections = null!; // Will be set by *required* init-er below.
+        private readonly Arr<TripCreate.Connection> _connections = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// All through services this <see cref="Trip"/> participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public required List<TripCreate.Connection> Connections
+        public required IReadOnlyList<TripCreate.Connection> Connections
         {
-            private get => _connections.Underlying;
-            init => _connections =
-                value.AsGenericOrderedValueEqualityCollection<TripCreate.Connection, List<TripCreate.Connection>>();
+            private get => _connections;
+            init => _connections = Arr.createRange(value);
         }
 
         /// <summary>

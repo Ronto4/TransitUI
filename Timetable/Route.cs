@@ -1,4 +1,7 @@
-using R4Utils.ValueEqualityCollections;
+using System.Diagnostics.Contracts;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using LanguageExt;
 
 namespace Timetable;
 
@@ -17,28 +20,26 @@ public partial record Line
 
         internal Line? Line { get; set; }
 
-        private readonly ValueEqualityCollection<Stop.Position, Stop.Position[]>
-            _stopPositions = null!; // Will be set by *required* init-er below.
+        private readonly Arr<Stop.Position> _stopPositions = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// The <see cref="Stop.Position"/>s where this route calls at.
         /// </summary>
-        public required Stop.Position[] StopPositions
+        public required IReadOnlyList<Stop.Position> StopPositions
         {
-            get => _stopPositions.Underlying;
-            init => _stopPositions = value.AsGenericOrderedValueEqualityCollection<Stop.Position, Stop.Position[]>();
+            get => _stopPositions;
+            init => _stopPositions = Arr.createRange(value);
         }
 
-        private readonly ValueEqualityCollection<TimeProfile, TimeProfile[]>
-            _timeProfiles = null!; // Will be set by *required* init-er below.
+        private readonly Arr<TimeProfile> _timeProfiles = null!; // Will be set by *required* init-er below.
 
         /// <summary>
         /// All the existing timing patterns for this route.
         /// </summary>
-        public required TimeProfile[] TimeProfiles
+        public required IReadOnlyList<TimeProfile> TimeProfiles
         {
-            get => _timeProfiles.Underlying;
-            init => _timeProfiles = value.AsGenericOrderedValueEqualityCollection<TimeProfile, TimeProfile[]>();
+            get => _timeProfiles;
+            init => _timeProfiles = Arr.createRange(value);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ public partial record Line
         /// <param name="stop">The <see cref="Stop"/> to check for.</param>
         /// <param name="onlyDepartures">Only consider departures, i.e. the last stop of this route is ignored.</param>
         public bool DoesStopAt(Stop stop, bool onlyDepartures) => StopPositions
-            .Take(StopPositions.Length - (onlyDepartures
+            .Take(StopPositions.Count - (onlyDepartures
                 ? /* when we only want departures, the last stop is no longer relevant */ 1
                 : 0)).Select(pos => pos.Stop).Contains(stop);
 
@@ -187,9 +188,13 @@ public partial record Line
         public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime,
             TimeSpan secondTime)
         {
-            var beforeIndex = Array.IndexOf(StopPositions, before);
+            List<int> list = [1, 2, 3];
+            IReadOnlyList<int> d = list;
+            var x = list[1..];
+            Console.WriteLine(x.Count);
+            var beforeIndex = StopPositions.IndexOf(before);
             if (beforeIndex == -1) return this;
-            var afterIndex = Array.IndexOf(StopPositions, after);
+            var afterIndex = StopPositions.IndexOf(after);
             if (afterIndex == -1) return this;
             if (afterIndex != beforeIndex + 1) return this;
             Stop.Position[] insertedPositions =
@@ -222,4 +227,14 @@ public partial record Line
         public int? TripCount(DaysOfOperation days) => Line?.Trips.Where(trip => trip.Route == this)
             .Select(trip => int.PopCount((int)(trip.DaysOfOperation & days))).Sum();
     }
+}
+
+file static class CollectionExtensions
+{
+    [Pure]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int IndexOf<T>(this IReadOnlyList<T> list, T element) where T : IEqualityOperators<T, T, bool> =>
+        list is Arr<T> arr
+            ? arr.IndexOf(element)
+            : list.Index().Where(tuple => tuple.Item == element).Select(tuple => tuple.Index).FirstOrDefault(-1);
 }

@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using R4Utils.ValueEqualityCollections;
+using LanguageExt;
 
 namespace Timetable;
 
@@ -15,19 +15,17 @@ public partial record Line
     /// </summary>
     public required string Name { get; init; }
 
-    private readonly ValueEqualityCollection<Route, Route[]>
-        _routes = null!; // Will be set by *required* init-er below.
+    private readonly Arr<Route> _routes = null!; // Will be set by *required* init-er below.
 
     /// <summary>
     /// All <see cref="Line.Route"/>s assigned to this <see cref="Line"/>.
     /// </summary>
-    public required Route[] Routes
+    public required IReadOnlyList<Route> Routes
     {
-        get => _routes.Underlying;
+        get => _routes;
         init
         {
-            _routes = value.AsGenericOrderedValueEqualityCollection<Route, Route[]>();
-            foreach (var route in Routes)
+            foreach (var route in value)
             {
                 route.Line = this;
                 // Validate that stop distances length matches route length.
@@ -35,6 +33,7 @@ public partial record Line
                     route.TimeProfiles.All(profile => profile.StopDistances.Length == route.StopPositions.Length - 1),
                     $"For {this.Name}, {route.ToString()}, at least one time profile has an incorrect stop distance count.");
             }
+            _routes = Arr.createRange(value);
         }
     }
 
@@ -84,16 +83,15 @@ public partial record Line
     public IEnumerable<Trip> TripsOfRouteIndex(Index routeIndex) =>
         Trips.Where(trip => trip.Route == Routes[routeIndex]);
 
-    private readonly ValueEqualityCollection<TripCreate, ICollection<TripCreate>>
-        _tripsCreate = null!; // Will be set by *required* init-er below.
+    private readonly Arr<TripCreate> _tripsCreate = null!; // Will be set by *required* init-er below.
 
     /// <summary>
     /// All <see cref="TripCreate"/>s used to specify which <see cref="Line.Trip"/>s exist for this <see cref="Line"/>.
     /// </summary>
-    public required ICollection<TripCreate> TripsCreate
+    public required IReadOnlyList<TripCreate> TripsCreate
     {
-        get => _tripsCreate.Underlying;
-        init => _tripsCreate = value.AsGenericValueEqualityCollection<TripCreate, ICollection<TripCreate>>();
+        get => _tripsCreate;
+        init => _tripsCreate = Arr.createRange(value);
     }
 
     /// <summary>
@@ -111,16 +109,15 @@ public partial record Line
     /// </summary>
     public IEnumerable<Route> MainRoutes => MainRouteIndices.Select(index => Routes[index]);
 
-    private readonly ValueEqualityCollection<Index, Index[]>
-        _mainRouteIndices = null!; // Will be set by *required* init-er below.
+    private readonly Arr<Index> _mainRouteIndices = null!; // Will be set by *required* init-er below.
 
     /// <summary>
     /// Specifies the indices of the <see cref="Line.Route"/>s that are considered <see cref="MainRoutes"/>.
     /// </summary>
-    public required Index[] MainRouteIndices
+    public required IReadOnlyList<Index> MainRouteIndices
     {
-        get => _mainRouteIndices.Underlying;
-        init => _mainRouteIndices = value.AsGenericOrderedValueEqualityCollection<Index, Index[]>();
+        get => _mainRouteIndices;
+        init => _mainRouteIndices = Arr.createRange(value);
     }
 
     /// <summary>
@@ -131,32 +128,27 @@ public partial record Line
     /// </summary>
     public IEnumerable<Route> OverviewRoutes => OverviewRouteIndices.Select(index => Routes[index]);
 
-    private readonly ValueEqualityCollection<Index, Index[]>
-        _overviewRouteIndices = null!; // Will be set by *required* init-er below.
+    private readonly Arr<Index> _overviewRouteIndices = null!; // Will be set by *required* init-er below.
 
     /// <summary>
     /// Specifies the indices of the <see cref="Line.Route"/>s that are considers <see cref="OverviewRoutes"/>.
     /// </summary>
-    public required Index[] OverviewRouteIndices
+    public required IReadOnlyList<Index> OverviewRouteIndices
     {
-        get => _overviewRouteIndices.Underlying;
-        init => _overviewRouteIndices = value.AsGenericOrderedValueEqualityCollection<Index, Index[]>();
+        get => _overviewRouteIndices;
+        init => _overviewRouteIndices = Arr.createRange(value);
     }
 
-    private readonly ValueEqualityCollection<(string, string), (string, string)[]> _annotations =
-        Array.Empty<(string, string)>()
-            .AsGenericOrderedValueEqualityCollection<(string, string), (string, string)
-                []>(); // Will be set by *required* init-er below.
+    private readonly HashMap<string, string> _annotations = HashMap<string, string>.Empty;
 
     /// <summary>
     /// Manual annotations, indexed by their symbol, mapping to their text.
     /// </summary>
     // TODO: Find a better way here, potentially with a native value equality dictionary.
-    public Dictionary<string, string> Annotations
+    public IReadOnlyDictionary<string, string> Annotations
     {
-        get => _annotations.Underlying.ToDictionary();
-        init => _annotations = value.Select(kvp => (kvp.Key, kvp.Value)).ToArray()
-            .AsGenericOrderedValueEqualityCollection<(string, string), (string, string)[]>();
+        get => _annotations.ToReadOnlyDictionary();
+        init => _annotations = HashMap.createRange(value);
     }
 
     /// <summary>
