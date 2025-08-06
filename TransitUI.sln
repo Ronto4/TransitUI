@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Timetable", "Timetable\Time
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VipTimetable", "VipTimetable\VipTimetable.csproj", "{980D1CB3-74A8-41C0-98B9-BBF543D707EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimetableConsole", "TimetableConsole\TimetableConsole.csproj", "{571CFDBC-13FB-4D7E-B327-A50B97075C53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,5 +45,9 @@ Global
 		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{980D1CB3-74A8-41C0-98B9-BBF543D707EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{571CFDBC-13FB-4D7E-B327-A50B97075C53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{571CFDBC-13FB-4D7E-B327-A50B97075C53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{571CFDBC-13FB-4D7E-B327-A50B97075C53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{571CFDBC-13FB-4D7E-B327-A50B97075C53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,3 +1,5 @@
+using LanguageExt;
+
 namespace Timetable;
 
 public partial record Line
@@ -42,20 +44,32 @@ public partial record Line
         [Obsolete($"Use {nameof(AnnotationSymbols)} instead.", false)]
         public string AnnotationSymbol
         {
-            init => AnnotationSymbols.Add(value);
+            init => _annotationSymbols = Arr.create(value);
         }
+
+        private readonly Arr<string> _annotationSymbols = Arr.empty<string>();
 
         /// <summary>
         /// The symbols (defined as the keys of <see cref="Line.Annotations"/>) of the annotations this trip has.
         /// </summary>
-        public List<string> AnnotationSymbols { get; init; } = [];
+        public IReadOnlyList<string> AnnotationSymbols
+        {
+            get => _annotationSymbols;
+            init => _annotationSymbols = Arr.createRange(value);
+        }
+
+        private readonly Arr<Connection> _connections = Arr.empty<Connection>();
 
         /// <summary>
         /// All through services this trip participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
         /// </summary>
-        public List<Connection> Connections { get; init; } = [];
+        public IReadOnlyList<Connection> Connections
+        {
+            get => _connections;
+            init => _connections = Arr.createRange(value);
+        }
 
         /// <summary>
         /// Repeat this <see cref="TripCreate"/> instance for every <paramref name="interval"/>.

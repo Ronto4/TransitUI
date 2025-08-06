@@ -1,3 +1,5 @@
+using R4Utils.ValueEqualityCollections;
+
 namespace Timetable;
 
 /// <summary>
@@ -19,10 +21,19 @@ public partial record Stop
     /// </summary>
     public required string InitialName { private get; init; }
 
+    private readonly ValueEqualityCollection<(DateOnly Date, string Name), List<(DateOnly Date, string Name)>>
+        _nameChanges = null!; // Will be set by *required* init-er below.
+
     /// <summary>
     /// Maps the <see cref="DateOnly"/> of a change of name of this <see cref="Stop"/> to its new name.
     /// </summary>
-    public List<(DateOnly Date, string Name)> NameChanges { get; init; } = [];
+    public List<(DateOnly Date, string Name)> NameChanges
+    {
+        get => _nameChanges.Underlying;
+        init => _nameChanges =
+            value.AsGenericOrderedValueEqualityCollection<(DateOnly Date, string Name),
+                List<(DateOnly Date, string Name)>>();
+    }
 
     /// <summary>
     /// The <see cref="City"/> of this <see cref="Stop"/>.
@@ -49,7 +60,8 @@ public partial record Stop
     private string DisplayNameFor(string name, City referenceCity) =>
         referenceCity == City ? name : $"{City.Name}, {name}";
 
-    private readonly Position[] _positions = null!; // Will be set below.
+    private readonly ValueEqualityCollection<Position, Position[]> _positions =
+        Array.Empty<Position>().AsGenericOrderedValueEqualityCollection<Position, Position[]>();
 
     /// <summary>
     /// All <see cref="Position"/>s of this <see cref="Stop"/>.
@@ -57,10 +69,10 @@ public partial record Stop
     /// <remarks>Defaults to a single-element array if omitted.</remarks>
     public /*required*/ Position[] Positions
     {
-        get => _positions;
+        get => _positions.Underlying;
         init
         {
-            _positions = value;
+            _positions = value.AsGenericOrderedValueEqualityCollection<Position, Position[]>();
             foreach (var position in _positions)
             {
                 if (position.Stop is not null)

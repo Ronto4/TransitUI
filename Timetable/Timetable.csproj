@@ -15,4 +15,8 @@
       <DocumentationFile>bin\Release\net8.0\Timetable.xml</DocumentationFile>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="LanguageExt.Core" Version="4.4.9" />
+    </ItemGroup>
+
 </Project>
