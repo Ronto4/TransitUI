@@ -34,6 +34,15 @@ public partial record Line
             /// regardless of the fact they appear as normal on the route.
             /// </summary>
             public Stop? NotableViaStop { get; init; } = null;
+
+            /// <summary>
+            /// An ID used to match trips that should connect with each other.
+            /// Ignored if it is <c>0</c> (the default).
+            /// </summary>
+            /// <remarks>
+            /// Links to <see cref="Line.Trip.ConnectionId"/> and <see cref="Line.TripCreate.ConnectionId"/>.
+            /// </remarks>
+            public long ConnectingId { get; init; } = 0;
         }
     }
 }

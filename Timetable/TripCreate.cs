@@ -51,6 +51,15 @@ public partial record Line
         public List<string> AnnotationSymbols { get; init; } = [];
 
         /// <summary>
+        /// An ID used to match trips that should connect with each other.
+        /// Ignored if it is <c>0</c> (the default).
+        /// </summary>
+        /// <remarks>
+        /// Links to <see cref="Line.TripCreate.Connection.ConnectingId"/>.
+        /// </remarks>
+        public long ConnectionId { get; init; } = 0;
+
+        /// <summary>
         /// All through services this trip participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
@@ -105,6 +114,23 @@ public partial record Line
             {
                 yield return this with { StartTime = newStartTime };
                 newStartTime = newStartTime.Add(interval);
+            }
+        }
+
+        /// <summary>
+        /// Split this <see cref="TripCreate"/> into multiple, one for each of the provided <paramref name="days"/>.
+        /// <br/><br/>
+        /// You MUST ensure to only call it with non-overlapping <paramref name="days"/>. 
+        /// </summary>
+        public IEnumerable<TripCreate> SplitOffByDays(params DaysOfOperation[] days)
+        {
+            // Otherwise, this breaks.
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var day in days)
+            {
+                var newDays = DaysOfOperation & day;
+                if (newDays is DaysOfOperation.None) continue;
+                yield return this with { DaysOfOperation = newDays };
             }
         }
     }

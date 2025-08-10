@@ -7,6 +7,14 @@ public partial record Line
     /// </summary>
     public partial record Trip
     {
+        /// <inheritdoc cref="object.ToString"/>
+        public override string ToString() => new
+        {
+            Line = Line.Name,
+            Route = $"{Route.StopPositions.First().Stop.InitialName} > {Route.StopPositions.Last().Stop.InitialName}",
+            DaysOfOperation, StartTime, ConnectionId, Connections = Connections.Print(", ")
+        }.ToString()!;
+
         /// <summary>
         /// The <see cref="Timetable.Line"/> this <see cref="Trip"/> uses.
         /// </summary>
@@ -38,6 +46,15 @@ public partial record Line
         public required List<ManualAnnotation> Annotations { get; init; }
 
         /// <summary>
+        /// An ID used to match trips that should connect with each other.
+        /// Ignored if it is <c>0</c> (the default).
+        /// </summary>
+        /// <remarks>
+        /// Links to <see cref="Line.TripCreate.Connection.ConnectingId"/>.
+        /// </remarks>
+        public long ConnectionId { get; init; } = 0;
+
+        /// <summary>
         /// All through services this <see cref="Trip"/> participates in.
         /// <br/><br/>
         /// This should have 0 (no through service), 1 (start or end of through service), or 2 (middle of a through service) elements.
@@ -49,21 +66,55 @@ public partial record Line
         /// </summary>
         /// <param name="allLines">All <see cref="Line"/>s present in the current network, indexed by their id.</param>
         // Consider adding more validation steps if it becomes a problem.
-        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) => Connections.Select(
-            connection => new Connection
+        public IEnumerable<Connection> GetConnections(IReadOnlyDictionary<string, Line> allLines) =>
+            Connections.Select(connection =>
             {
-                Type = connection.Type,
-                NotableViaStop = connection.NotableViaStop,
-                Trip = connection.Type is ConnectionType.ContinuesAs
-                    ? allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
-                        .Single(trip =>
-                            trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
-                            trip.DaysOfOperation == DaysOfOperation)
-                    : allLines[connection.ConnectingLineIdentifier].TripsOfRouteIndex(connection.ConnectingRouteIndex)
-                        .Single(trip =>
-                            StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay) &&
-                            trip.DaysOfOperation == DaysOfOperation),
-            });
+                Trip? connectingTrip;
+                List<Trip> connectingTrips = [];
+                try
+                {
+                    connectingTrips = (connection.Type is ConnectionType.ContinuesAs
+                        ? allLines[connection.ConnectingLineIdentifier]
+                            .TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                            .Where(TripMatchesContinuing)
+                        : allLines[connection.ConnectingLineIdentifier]
+                            .TripsOfRouteIndex(connection.ConnectingRouteIndex)
+                            .Where(TripMatchesComing)).ToList();
+                    connectingTrip = connectingTrips.SingleOrDefault();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    if (ex.Message != "Sequence contains more than one element") throw;
+                    Console.WriteLine(
+                        $"[WARNING] Found more than one connecting trip for connection {connection}!\nTrip: {this}\nFound {connectingTrips.Print(",\n\t")}\nSkipping it.");
+                    return null;
+                }
+
+                if (connectingTrip is null)
+                {
+                    Console.WriteLine(
+                        $"[WARNING] Could not find a connecting trip for connection {connection}!\nTrip: {this}\nSkipping it.");
+                    return null;
+                }
+
+                return new Connection
+                {
+                    Type = connection.Type,
+                    NotableViaStop = connection.NotableViaStop,
+                    Trip = connectingTrip,
+                };
+
+                bool TripMatchesComing(Trip trip) =>
+                    StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1)
+                        .Add(connection.Delay) && (trip.DaysOfOperation == DaysOfOperation ||
+                                                   (trip.ConnectionId is not 0 &&
+                                                    trip.ConnectionId == connection.ConnectingId));
+
+                bool TripMatchesContinuing(Trip trip) =>
+                    trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
+                    (trip.DaysOfOperation == DaysOfOperation ||
+                     (trip.ConnectionId is not 0 && trip.ConnectionId == connection.ConnectingId));
+            }).WhereNotNull();
 
         /// <summary>
         /// The time at which this <see cref="Trip"/> departs the <see cref="Stop"/> specified by the <see cref="Route"/>'s <see cref="Line.Route.CommonStopIndex"/>.
@@ -90,4 +141,13 @@ public partial record Line
         /// <returns></returns>
         public TimeOnly TimeAtLastStop() => TimeAtStop(Route.StopPositions.Length - 1);
     }
+}
+
+file static class Extensions
+{
+    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : class =>
+        enumerable.Where(item => item is not null)!;
+
+    public static string Print<T>(this IEnumerable<T> enumerable, string separator) =>
+        $"[{string.Join(separator, enumerable)}]";
 }

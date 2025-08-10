@@ -17,7 +17,7 @@ public partial record Stop
     /// <summary>
     /// The name of this <see cref="Stop"/>, without any city names.
     /// </summary>
-    public required string InitialName { private get; init; }
+    public required string InitialName { internal get; init; }
 
     /// <summary>
     /// Maps the <see cref="DateOnly"/> of a change of name of this <see cref="Stop"/> to its new name.
