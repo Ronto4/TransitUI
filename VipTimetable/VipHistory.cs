@@ -159,5 +159,13 @@ public class VipHistory : IHistory
             """),
         new HistoryEntry(new DateOnly(2025, 1, 13),
             "Die Bauarbeiten sind beendet."),
+        new HistoryEntry(new DateOnly(2025, 1, 20),
+            """
+            Es gibt Fahrleitungsarbeiten im Bereich Abzweig Betriebshof ViP.
+            Daher wird montags bis freitags die Linie 96 ab ca. 20 Uhr zwischen Bisamkiez und Marie-Juchacz-Str. durch Busse ersetzt.
+            """
+        ),
+        new HistoryEntry(new DateOnly(2025, 1, 25),
+            "Ursprünglich auch noch in der Folgewoche geplant sind die Bauarbeiten in Abzweig Betriebshof bereits nach einer Woche beendet."),
     ];
 }
