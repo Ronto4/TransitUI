@@ -67,7 +67,7 @@ internal class Tram96From20240102 : ILineInstance
                         StopDistances =
                         [
                             M2, M1, M1, M2, M1, M1, M1, M1, M1, M1, M2, M1, M1, M3, M2, M1, M1, M1, M1, M2, M2, M1, M2,
-                            M2, M1, M1, M1, M1, M1, M2
+                            M1, M2, M1, M1, M1, M1, M2
                         ]
                     }
                 ],

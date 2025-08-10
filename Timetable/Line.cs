@@ -73,6 +73,7 @@ public partial record Line
         DaysOfOperation = trip.DaysOfOperation,
         Annotations = trip.AnnotationSymbols
             .Select(symbol => new Trip.ManualAnnotation { Symbol = symbol, Text = Annotations[symbol] }).ToList(),
+        ConnectionId = trip.ConnectionId,
         Connections = trip.Connections,
     });
 

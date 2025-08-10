@@ -152,5 +152,12 @@ public class VipHistory : IHistory
             "Der durchgehende Nachtverkehr gilt nicht mehr."),
         new HistoryEntry(new DateOnly(2025, 1, 6),
             "Zum Start in die Vorlesungszeit verkehrt auch die Linie X5 wieder."),
+        new HistoryEntry(new DateOnly(2025, 1, 10),
+            """
+            Es gibt Fahrleitungsarbeiten am Hauptbahnhof.
+            Für drei Tage wird Abends der Tramverkehr zwischen Platz der Einheit und Waldstr./Horstweg unterbrochen, es gibt einen Ersatzverkehr mit Bussen. 
+            """),
+        new HistoryEntry(new DateOnly(2025, 1, 13),
+            "Die Bauarbeiten sind beendet."),
     ];
 }
