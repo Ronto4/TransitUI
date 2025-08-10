@@ -171,6 +171,14 @@ public class Tram93From20250110Until20250112 : ILineInstance
             {
                 if (trip.StartTime < new TimeOnly(19, 50))
                 {
+                    var weekendStartTime = trip.StartTime.AddMinutes(14);
+                    var connectionId = 9293 * 10000 + weekendStartTime.Hour * 100 + weekendStartTime.Minute;
+                    var weekendDays = (trip.DaysOfOperation & DaysOfOperation.Weekend).HasFlag(DaysOfOperation.Sunday)
+                        ? DaysOfOperation.None
+                        : (trip.DaysOfOperation & DaysOfOperation.Weekend) is DaysOfOperation.None
+                        // This prevents the weekday trip from generating another weekend trip.
+                            ? DaysOfOperation.None
+                            : DaysOfOperation.Weekend;
                     returnTrips =
                     [
                         trip with
@@ -181,8 +189,17 @@ public class Tram93From20250110Until20250112 : ILineInstance
                         {
                             RouteIndex = Original.Line.Routes.Length + 3,
                             TimeProfileIndex = 0,
-                            DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                            StartTime = trip.StartTime.AddMinutes(14),
+                            DaysOfOperation = weekendDays,
+                            StartTime = weekendStartTime,
+                            ConnectionId = connectionId,
+                            Connections =
+                            [
+                                new Line.TripCreate.Connection
+                                {
+                                    ConnectingLineIdentifier = "tram92", ConnectingRouteIndex = 11, Delay = M4,
+                                    Type = Line.Trip.ConnectionType.ComesAs, ConnectingId = connectionId
+                                },
+                            ],
                         },
                     ];
                 }

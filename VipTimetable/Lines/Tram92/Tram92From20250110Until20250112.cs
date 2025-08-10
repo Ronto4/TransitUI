@@ -14,7 +14,6 @@ public class Tram92From20250110Until20250112 : ILineInstance
         Annotations = new Dictionary<string, string>
         {
             { "A", "weiter als 99 nach Fontanestr." },
-            { "B", "weiter als 93 nach Glienicker Brücke." },
         },
         MainRouteIndices = [..Original.Line.MainRouteIndices, Original.Line.Routes.Length],
         Routes =
@@ -109,6 +108,8 @@ public class Tram92From20250110Until20250112 : ILineInstance
             {
                 if (trip.StartTime <= new TimeOnly(21, 50) && trip.StartTime >= new TimeOnly(2, 0))
                 {
+                    var tram93Departure = trip.StartTime.AddMinutes(12).AddMinutes(4);
+                    var connectionId = 9293 * 10000 + tram93Departure.Hour * 100 + tram93Departure.Minute;
                     returnTrips =
                     [
                         trip with
@@ -120,7 +121,21 @@ public class Tram92From20250110Until20250112 : ILineInstance
                             RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                            AnnotationSymbols = [trip.StartTime < new TimeOnly(19, 50) ? "B" : "A"],
+                            AnnotationSymbols = trip.StartTime < new TimeOnly(19, 50) ? [] : ["A"],
+                            ConnectionId = connectionId,
+                            Connections = trip.StartTime < new TimeOnly(19, 50)
+                                ?
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram93",
+                                        ConnectingRouteIndex = 11,
+                                        Delay = M4,
+                                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                                        ConnectingId = connectionId,
+                                    },
+                                ]
+                                : [],
                         }
                     ];
                 }
