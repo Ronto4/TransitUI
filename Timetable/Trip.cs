@@ -105,15 +105,16 @@ public partial record Line
                 };
 
                 bool TripMatchesComing(Trip trip) =>
-                    StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1)
-                        .Add(connection.Delay) && (trip.DaysOfOperation == DaysOfOperation ||
-                                                   (trip.ConnectionId is not 0 &&
-                                                    trip.ConnectionId == connection.ConnectingId));
+                    StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay) &&
+                    (connection.ConnectingId is 0
+                        ? trip.DaysOfOperation == DaysOfOperation
+                        : trip.ConnectionId == connection.ConnectingId);
 
                 bool TripMatchesContinuing(Trip trip) =>
                     trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
-                    (trip.DaysOfOperation == DaysOfOperation ||
-                     (trip.ConnectionId is not 0 && trip.ConnectionId == connection.ConnectingId));
+                    (connection.ConnectingId is 0
+                        ? trip.DaysOfOperation == DaysOfOperation
+                        : trip.ConnectionId == connection.ConnectingId);
             }).WhereNotNull();
 
         /// <summary>

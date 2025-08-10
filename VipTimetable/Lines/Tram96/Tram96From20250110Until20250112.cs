@@ -194,6 +194,9 @@ public class Tram96From20250110Until20250112 : ILineInstance
                     if (trip.StartTime < new TimeOnly(21, 30) && trip.StartTime > new TimeOnly(2, 0))
                     {
                         var cutoffTime = new TimeOnly(19, 25);
+                        var weekendStartTime = trip.StartTime.AddMinutes(trip.StartTime < cutoffTime ? 26 : 27);
+                        var connectionId = 9396 * 10000 + weekendStartTime.Hour * 100 + weekendStartTime.Minute;
+                        var comesAsTram93 = weekendStartTime == new TimeOnly(19, 56);
                         returnTrips =
                         [
                             trip with
@@ -214,7 +217,21 @@ public class Tram96From20250110Until20250112 : ILineInstance
                                     _ => 0,
                                 },
                                 DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                                StartTime = trip.StartTime.AddMinutes(trip.StartTime < cutoffTime ? 26 : 27)
+                                StartTime = weekendStartTime,
+                                ConnectionId = comesAsTram93 ? connectionId : 0,
+                                Connections = comesAsTram93
+                                    ?
+                                    [
+                                        new Line.TripCreate.Connection
+                                        {
+                                            ConnectingLineIdentifier = "tram93",
+                                            ConnectingRouteIndex = 9,
+                                            Delay = M1,
+                                            Type = Line.Trip.ConnectionType.ComesAs,
+                                            ConnectingId = connectionId,
+                                        },
+                                    ]
+                                    : [],
                             },
                         ];
                     }

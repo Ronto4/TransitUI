@@ -124,6 +124,9 @@ public class Tram91From20250110Until20250112 : ILineInstance
                 {
                     if (trip.StartTime <= new TimeOnly(21, 40) && trip.StartTime >= new TimeOnly(2, 0))
                     {
+                        var weekendStartTime =
+                            trip.StartTime.AddMinutes(trip.StartTime < new TimeOnly(20, 0) ? 16 : 17);
+                        var connectionId = 9391 * 10000 + weekendStartTime.Hour * 100 + weekendStartTime.Minute;
                         returnTrips =
                         [
                             trip with
@@ -137,7 +140,21 @@ public class Tram91From20250110Until20250112 : ILineInstance
                                     : Original.Line.Routes.Length + 1,
                                 TimeProfileIndex = trip.StartTime < new TimeOnly(20, 0) ? 1 : 0,
                                 DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                                StartTime = trip.StartTime.AddMinutes(trip.StartTime < new TimeOnly(20, 0) ? 16 : 17),
+                                StartTime = weekendStartTime,
+                                ConnectionId = trip.StartTime == new TimeOnly(20, 0) ? connectionId : 0,
+                                Connections = trip.StartTime == new TimeOnly(20, 0)
+                                    ?
+                                    [
+                                        new Line.TripCreate.Connection
+                                        {
+                                            ConnectingLineIdentifier = "tram93",
+                                            ConnectingRouteIndex = 9,
+                                            Delay = M0,
+                                            Type = Line.Trip.ConnectionType.ComesAs,
+                                            ConnectingId = connectionId,
+                                        },
+                                    ]
+                                    : [],
                             }
                         ];
                     }
