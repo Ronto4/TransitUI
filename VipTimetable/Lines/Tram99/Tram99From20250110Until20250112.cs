@@ -202,6 +202,8 @@ public class Tram99From20250110Until20250112 : ILineInstance
                     }
                     else if (trip.StartTime < new TimeOnly(21, 54) && trip.StartTime > new TimeOnly(2, 0))
                     {
+                        var weekendStartTime = trip.StartTime.AddMinutes(11);
+                        var connectionId = 9299 * 10000 + weekendStartTime.Hour * 100 + weekendStartTime.Minute;
                         returnTrips =
                         [
                             trip with
@@ -212,18 +214,45 @@ public class Tram99From20250110Until20250112 : ILineInstance
                             {
                                 DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
                                 RouteIndex = Original.Line.Routes.Length + 1,
-                                StartTime = trip.StartTime.AddMinutes(11),
+                                StartTime = weekendStartTime,
+                                ConnectionId = connectionId,
+                                Connections =
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram92",
+                                        ConnectingRouteIndex = 11,
+                                        Delay = weekendStartTime == new TimeOnly(20, 5) ? M0 :
+                                            weekendStartTime == new TimeOnly(20, 25) ? M5 : M2,
+                                        Type = Line.Trip.ConnectionType.ComesAs,
+                                        ConnectingId = connectionId,
+                                    },
+                                ],
                             },
                         ];
                     }
                     else
                     {
+                        var startTime = trip.StartTime.AddMinutes(11);
+                        var connectionId = 9299 * 10000 + startTime.Hour * 100 + startTime.Minute;
                         returnTrips =
                         [
                             trip with
                             {
                                 RouteIndex = Original.Line.Routes.Length + 1,
-                                StartTime = trip.StartTime.AddMinutes(11),
+                                StartTime = startTime,
+                                ConnectionId = connectionId,
+                                Connections =
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram92",
+                                        ConnectingRouteIndex = 11,
+                                        Delay = M2,
+                                        Type = Line.Trip.ConnectionType.ComesAs,
+                                        ConnectingId = connectionId,
+                                    },
+                                ],
                             },
                         ];
                     }

@@ -11,10 +11,6 @@ public class Tram92From20250110Until20250112 : ILineInstance
 
     public Line Line { get; } = Original.Line with
     {
-        Annotations = new Dictionary<string, string>
-        {
-            { "A", "weiter als 99 nach Fontanestr." },
-        },
         MainRouteIndices = [..Original.Line.MainRouteIndices, Original.Line.Routes.Length],
         Routes =
         [
@@ -82,6 +78,8 @@ public class Tram92From20250110Until20250112 : ILineInstance
             List<Line.TripCreate>? returnTrips = null;
             if (trip.StartTime == new TimeOnly(21, 31))
             {
+                var tram99Departure = trip.StartTime.AddMinutes(12).AddMinutes(2);
+                var connectionId = 9299 * 10000 + tram99Departure.Hour * 100 + tram99Departure.Minute;
                 returnTrips =
                 [
                     trip with
@@ -95,7 +93,18 @@ public class Tram92From20250110Until20250112 : ILineInstance
                         RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                         TimeProfileIndex = 0,
                         DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                        AnnotationSymbols = ["A"],
+                        ConnectionId = connectionId,
+                        Connections =
+                        [
+                            new Line.TripCreate.Connection
+                            {
+                                ConnectingLineIdentifier = "tram99",
+                                ConnectingRouteIndex = 7,
+                                Delay = M2,
+                                Type = Line.Trip.ConnectionType.ContinuesAs,
+                                ConnectingId = connectionId,
+                            },
+                        ],
                     },
                 ];
             }
@@ -109,7 +118,11 @@ public class Tram92From20250110Until20250112 : ILineInstance
                 if (trip.StartTime <= new TimeOnly(21, 50) && trip.StartTime >= new TimeOnly(2, 0))
                 {
                     var tram93Departure = trip.StartTime.AddMinutes(12).AddMinutes(4);
-                    var connectionId = 9293 * 10000 + tram93Departure.Hour * 100 + tram93Departure.Minute;
+                    var tram93ConnectionId = 9293 * 10000 + tram93Departure.Hour * 100 + tram93Departure.Minute;
+                    var tram99Delay = trip.StartTime == new TimeOnly(19, 53) ? M0 :
+                        trip.StartTime == new TimeOnly(20, 08) ? M5 : M2;
+                    var tram99Departure = trip.StartTime.AddMinutes(12).Add(tram99Delay);
+                    var tram99ConnectionId = 9299 * 10000 + tram99Departure.Hour * 100 + tram99Departure.Minute;
                     returnTrips =
                     [
                         trip with
@@ -121,8 +134,9 @@ public class Tram92From20250110Until20250112 : ILineInstance
                             RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                            AnnotationSymbols = trip.StartTime < new TimeOnly(19, 50) ? [] : ["A"],
-                            ConnectionId = connectionId,
+                            ConnectionId = trip.StartTime < new TimeOnly(19, 50)
+                                ? tram93ConnectionId
+                                : tram99ConnectionId,
                             Connections = trip.StartTime < new TimeOnly(19, 50)
                                 ?
                                 [
@@ -132,34 +146,75 @@ public class Tram92From20250110Until20250112 : ILineInstance
                                         ConnectingRouteIndex = 11,
                                         Delay = M4,
                                         Type = Line.Trip.ConnectionType.ContinuesAs,
-                                        ConnectingId = connectionId,
+                                        ConnectingId = tram93ConnectionId,
                                     },
                                 ]
-                                : [],
+                                :
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram99",
+                                        ConnectingRouteIndex = 7,
+                                        Delay = tram99Delay,
+                                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                                        ConnectingId = tram99ConnectionId,
+                                    },
+                                ],
                         }
                     ];
                 }
                 else
                 {
-                    returnTrips =
-                    [
-                        trip with
-                        {
-                            RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
-                            TimeProfileIndex = 0,
-                            DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Sunday,
-                            AnnotationSymbols =
-                            trip.StartTime > new TimeOnly(23, 30) || trip.StartTime < new TimeOnly(2, 0) ? [] : ["A"],
-                        },
-                        trip with
-                        {
-                            RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
-                            TimeProfileIndex = 0,
-                            DaysOfOperation = trip.DaysOfOperation & ~DaysOfOperation.Sunday,
-                            AnnotationSymbols =
-                            trip.StartTime == new TimeOnly(0, 51) || trip.StartTime == new TimeOnly(1, 11) ? [] : ["A"],
-                        },
-                    ];
+                    var sundayContinuesAsTram99 =
+                        !(trip.StartTime > new TimeOnly(23, 30) || trip.StartTime < new TimeOnly(2, 0));
+                    var otherContinuesAsTram99 =
+                        !(trip.StartTime == new TimeOnly(0, 51) || trip.StartTime == new TimeOnly(1, 11));
+                    var tram99Delay = M2;
+                    var tram99Departure = trip.StartTime.AddMinutes(12).Add(tram99Delay);
+                    var tram99ConnectionId = 9299 * 10000 + tram99Departure.Hour * 100 + tram99Departure.Minute;
+                    var tram99Connection = new Line.TripCreate.Connection
+                    {
+                        ConnectingLineIdentifier = "tram99",
+                        ConnectingRouteIndex = 7,
+                        Delay = tram99Delay,
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingId = tram99ConnectionId,
+                    };
+                    if (sundayContinuesAsTram99 == otherContinuesAsTram99)
+                    {
+                        returnTrips =
+                        [
+                            trip with
+                            {
+                                RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
+                                TimeProfileIndex = 0,
+                                ConnectionId = sundayContinuesAsTram99 ? tram99ConnectionId : 0,
+                                Connections = sundayContinuesAsTram99 ? [tram99Connection,] : [],
+                            },
+                        ];
+                    }
+                    else
+                    {
+                        returnTrips =
+                        [
+                            trip with
+                            {
+                                RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
+                                TimeProfileIndex = 0,
+                                DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Sunday,
+                                ConnectionId = sundayContinuesAsTram99 ? tram99ConnectionId : 0,
+                                Connections = sundayContinuesAsTram99 ? [tram99Connection,] : [],
+                            },
+                            trip with
+                            {
+                                RouteIndex = Original.Line.Routes.Length /* Kirschallee -> Pl.d.Einh./W. */,
+                                TimeProfileIndex = 0,
+                                DaysOfOperation = trip.DaysOfOperation & ~DaysOfOperation.Sunday,
+                                ConnectionId = otherContinuesAsTram99 ? tram99ConnectionId : 0,
+                                Connections = otherContinuesAsTram99 ? [tram99Connection,] : [],
+                            },
+                        ];
+                    }
                 }
             }
             else if ((trip.RouteIndex.Equals(6) || trip.RouteIndex.Equals(8) || trip.RouteIndex.Equals(9)) &&
