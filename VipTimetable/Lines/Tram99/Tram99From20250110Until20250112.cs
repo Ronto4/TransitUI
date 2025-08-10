@@ -11,10 +11,6 @@ public class Tram99From20250110Until20250112 : ILineInstance
 
     public Line Line { get; } = Original.Line with
     {
-        Annotations = new Dictionary<string, string>
-        {
-            { "A", "weiter als 92 nach Kirschallee" },
-        },
         MainRouteIndices =
         [..Original.Line.MainRouteIndices, Original.Line.Routes.Length, Original.Line.Routes.Length + 1],
         Routes =
@@ -117,6 +113,12 @@ public class Tram99From20250110Until20250112 : ILineInstance
                         }
                         else
                         {
+                            var weekendStartTime = trip.StartTime.AddMinutes(-6);
+                            var tram92Departure =
+                                weekendStartTime == new TimeOnly(20, 10) || weekendStartTime == new TimeOnly(20, 30)
+                                    ? weekendStartTime.AddMinutes(15)
+                                    : weekendStartTime.AddMinutes(12);
+                            var connectionId = 9992 * 10000 + tram92Departure.Hour * 100 + tram92Departure.Minute;
                             returnTrips =
                             [
                                 trip with
@@ -128,8 +130,19 @@ public class Tram99From20250110Until20250112 : ILineInstance
                                     RouteIndex = Original.Line.Routes.Length,
                                     TimeProfileIndex = 0,
                                     DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                                    AnnotationSymbols = ["A"],
-                                    StartTime = trip.StartTime.AddMinutes(-6),
+                                    StartTime = weekendStartTime,
+                                    ConnectionId = connectionId,
+                                    Connections =
+                                    [
+                                        new Line.TripCreate.Connection
+                                        {
+                                            ConnectingLineIdentifier = "tram92",
+                                            ConnectingRouteIndex = 12,
+                                            Delay = tram92Departure - weekendStartTime - TimeSpan.FromMinutes(12),
+                                            Type = Line.Trip.ConnectionType.ContinuesAs,
+                                            ConnectingId = connectionId,
+                                        },
+                                    ],
                                 },
                             ];
                         }
@@ -148,14 +161,34 @@ public class Tram99From20250110Until20250112 : ILineInstance
                     }
                     else
                     {
+                        var newDays = trip.StartTime == new TimeOnly(23, 16) || trip.StartTime == new TimeOnly(23, 36)
+                            ? trip.DaysOfOperation.HasFlag(DaysOfOperation.Sunday)
+                                ? DaysOfOperation.None
+                                : DaysOfOperation.Daily
+                            : trip.DaysOfOperation;
+                        var startTime = trip.StartTime.AddMinutes(-6);
+                        var tram92Departure = startTime.AddMinutes(12);
+                        var connectionId = 9992 * 10000 + tram92Departure.Hour * 100 + tram92Departure.Minute;
                         returnTrips =
                         [
                             trip with
                             {
                                 RouteIndex = Original.Line.Routes.Length,
                                 TimeProfileIndex = 0,
-                                AnnotationSymbols = ["A"],
-                                StartTime = trip.StartTime.AddMinutes(-6),
+                                StartTime = startTime,
+                                DaysOfOperation = newDays,
+                                ConnectionId = connectionId,
+                                Connections =
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram92",
+                                        ConnectingRouteIndex = 12,
+                                        Delay = M0,
+                                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                                        ConnectingId = connectionId,
+                                    },
+                                ],
                             },
                         ];
                     }
@@ -198,21 +231,65 @@ public class Tram99From20250110Until20250112 : ILineInstance
 
                 return returnTrips ?? [trip];
             }).Where(trip => trip.DaysOfOperation != DaysOfOperation.None),
-            ..new Line.TripCreate
+            new Line.TripCreate
             {
                 RouteIndex = Original.Line.Routes.Length,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(19, 35),
-                AnnotationSymbols = ["A"],
-            }.AlsoEvery(TimeSpan.FromMinutes(18), 2),
+                ConnectionId = 9992 * 10000 + 19 /* hour of 92 departure */ * 100 + 51 /* minute of 92 departure */,
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        ConnectingLineIdentifier = "tram92",
+                        ConnectingRouteIndex = 12,
+                        Delay = M4,
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingId =
+                            9992 * 10000 + 19 /* hour of 92 departure */ * 100 + 51 /* minute of 92 departure */,
+                    },
+                ],
+            },
+            new Line.TripCreate
+            {
+                RouteIndex = Original.Line.Routes.Length,
+                TimeProfileIndex = 0,
+                DaysOfOperation = DaysOfOperation.Weekend,
+                StartTime = new TimeOnly(19, 53),
+                ConnectionId = 9992 * 10000 + 20 /* hour of 92 departure */ * 100 + 5 /* minute of 92 departure */,
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        ConnectingLineIdentifier = "tram92",
+                        ConnectingRouteIndex = 12,
+                        Delay = M0,
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingId =
+                            9992 * 10000 + 20 /* hour of 92 departure */ * 100 + 5 /* minute of 92 departure */,
+                    },
+                ],
+            },
             new Line.TripCreate
             {
                 RouteIndex = Original.Line.Routes.Length,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekend,
                 StartTime = new TimeOnly(21, 30),
-                AnnotationSymbols = ["A"],
+                ConnectionId = 9992 * 10000 + 21 /* hour of 92 departure */ * 100 + 42 /* minute of 92 departure */,
+                Connections =
+                [
+                    new Line.TripCreate.Connection
+                    {
+                        ConnectingLineIdentifier = "tram92",
+                        ConnectingRouteIndex = 12,
+                        Delay = M0,
+                        Type = Line.Trip.ConnectionType.ContinuesAs,
+                        ConnectingId =
+                            9992 * 10000 + 21 /* hour of 92 departure */ * 100 + 42 /* minute of 92 departure */,
+                    },
+                ],
             },
             new Line.TripCreate
             {

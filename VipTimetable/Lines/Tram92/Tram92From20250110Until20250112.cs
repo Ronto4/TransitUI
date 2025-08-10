@@ -152,6 +152,9 @@ public class Tram92From20250110Until20250112 : ILineInstance
             {
                 if (trip.StartTime <= new TimeOnly(21, 50) && trip.StartTime >= new TimeOnly(2, 0))
                 {
+                    var weekendStartTime =
+                        trip.StartTime.AddMinutes(trip.RouteIndex.Equals(6) ? 26 : trip.RouteIndex.Equals(8) ? 14 : 5);
+                    var connectionId = 9992 * 10000 + weekendStartTime.Hour * 100 + weekendStartTime.Minute;
                     returnTrips =
                     [
                         trip with
@@ -163,13 +166,30 @@ public class Tram92From20250110Until20250112 : ILineInstance
                             RouteIndex = Original.Line.Routes.Length + 1 /* Pl.d.Einh./W. -> Kirschallee */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Weekend,
-                            StartTime = trip.StartTime.AddMinutes(trip.RouteIndex.Equals(6) ? 26 :
-                                trip.RouteIndex.Equals(8) ? 14 : 5),
+                            StartTime = weekendStartTime,
+                            ConnectionId = connectionId,
+                            Connections = weekendStartTime <= new TimeOnly(19, 37)
+                                ? []
+                                :
+                                [
+                                    new Line.TripCreate.Connection
+                                    {
+                                        ConnectingLineIdentifier = "tram99",
+                                        ConnectingRouteIndex = 6,
+                                        Delay = weekendStartTime == new TimeOnly(19, 51) ? M4 :
+                                            weekendStartTime == new TimeOnly(20, 25) ||
+                                            weekendStartTime == new TimeOnly(20, 45) ? M3 : M0,
+                                        Type = Line.Trip.ConnectionType.ComesAs,
+                                        ConnectingId = connectionId,
+                                    },
+                                ],
                         }
                     ];
                 }
                 else
                 {
+                    var startTime = trip.StartTime.AddMinutes(5);
+                    var connectionId = 9992 * 10000 + startTime.Hour * 100 + startTime.Minute;
                     returnTrips =
                     [
                         trip with
@@ -180,14 +200,26 @@ public class Tram92From20250110Until20250112 : ILineInstance
                                 : Original.Line.Routes.Length + 1 /* Pl.d.Einh./W. -> Kirschallee */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & DaysOfOperation.Sunday,
-                            StartTime = trip.StartTime.AddMinutes(5),
+                            StartTime = startTime,
                         },
                         trip with
                         {
                             RouteIndex = Original.Line.Routes.Length + 1 /* Pl.d.Einh./W. -> Kirschallee */,
                             TimeProfileIndex = 0,
                             DaysOfOperation = trip.DaysOfOperation & ~DaysOfOperation.Sunday,
-                            StartTime = trip.StartTime.AddMinutes(5),
+                            StartTime = startTime,
+                            ConnectionId = connectionId,
+                            Connections =
+                            [
+                                new Line.TripCreate.Connection
+                                {
+                                    ConnectingLineIdentifier = "tram99",
+                                    ConnectingRouteIndex = 6,
+                                    Delay = M0,
+                                    Type = Line.Trip.ConnectionType.ComesAs,
+                                    ConnectingId = connectionId,
+                                },
+                            ],
                         },
                     ];
                 }
