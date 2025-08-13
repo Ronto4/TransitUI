@@ -1,6 +1,7 @@
 @using Timetable
 @using TransitWebViewer.Utils
 @implements ISelector<DaysOfOperation>
+@inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     @Days.Display()
@@ -8,11 +9,22 @@
 <ul class="dropdown-menu">
     @foreach (var days in Enum.GetValues(typeof(DaysOfOperation)).Cast<DaysOfOperation>().Where(ShowDays))
     {
-    <li><a class="dropdown-item" @onclick="_ => { Days = days; OnUpdate(Days); }">@days.Display()</a></li>
+    <li><a class="dropdown-item" @onclick="_ => { Days = days; EmitUpdate(); }">@days.Display()</a></li>
     }
 </ul>
 
 @code {
+
+    [Parameter, EditorRequired] public required int? InitialDays { get; init; }
+
+    protected override void OnInitialized()
+    {
+        if (InitialDays is { } initialDays && Enum.IsDefined(typeof(DaysOfOperation), initialDays))
+        {
+            Days = (DaysOfOperation)initialDays;
+            EmitUpdate();
+        }
+    }
 
     private DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
 
@@ -33,4 +45,10 @@
     ]).Contains(days);
 
     [Parameter, EditorRequired] public required Action<DaysOfOperation> OnUpdate { get; init; }
+
+    private void EmitUpdate()
+    {
+        OnUpdate(Days);
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("days", (int)Days));
+    }
 }

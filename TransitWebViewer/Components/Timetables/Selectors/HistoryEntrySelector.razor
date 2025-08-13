@@ -1,6 +1,7 @@
 @using global::VipTimetable
 @using Timetable
 @implements ISelector<IHistoryEntry?>
+@inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
@@ -14,8 +15,21 @@
 
 @code {
     [Parameter, EditorRequired] public required Action<IHistoryEntry?> OnUpdate { get; init; }
+    [Parameter, EditorRequired] public required DateOnly InitialDate { get; set; }
 
     private IHistoryEntry? HistoryEntry { get; set; } = null;
 
-    private void EmitUpdate() => OnUpdate(HistoryEntry);
+    // OnParametersSet
+    protected override void OnInitialized()
+    {
+        HistoryEntry = IHistory<VipHistory>.EntryAt(InitialDate);
+        EmitUpdate();
+    }
+
+    private void EmitUpdate()
+    {
+        OnUpdate(HistoryEntry);
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("date", HistoryEntry?.EffectiveDate.ToString("O")));
+    }
+
 }
