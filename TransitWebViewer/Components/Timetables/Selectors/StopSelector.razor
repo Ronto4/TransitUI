@@ -1,6 +1,7 @@
 @using Timetable
 @using TransitWebViewer.Utils
 @implements ISelector<Stop?>
+@inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     @(SelectedStop is not null ? SelectedStop.FullName(ReferenceDate) : "Haltestelle")
@@ -8,7 +9,7 @@
 <ul class="dropdown-menu">
     @foreach (var stop in PossibleStops)
     {
-    <li><a class="dropdown-item" @onclick="_ => { SelectedStop = stop; OnUpdate(stop); }">@stop.FullName(ReferenceDate)</a></li>
+    <li><a class="dropdown-item" @onclick="_ => { SelectedStop = stop; EmitUpdate(); }">@stop.FullName(ReferenceDate)</a></li>
     }
 </ul>
 
@@ -16,11 +17,8 @@
 
     [Parameter, EditorRequired] public required DateOnly ReferenceDate { get; init; }
 
-    [Parameter, EditorRequired]
-    public required IReadOnlyCollection<Line.Trip> SourceTrips
-    {
-        init => PossibleStops = GetPossibleStops(value);
-    }
+    [Parameter, EditorRequired] public required IReadOnlyCollection<Line.Trip> SourceTrips { get; init; }
+    [Parameter, EditorRequired] public required int? InitialStopIndex { get; set; }
 
     public enum Mode
     {
@@ -32,6 +30,26 @@
     }
 
     [Parameter, EditorRequired] public required Mode SelectionMode { get; init; }
+
+    protected override void OnInitialized()
+    {
+        PossibleStops = GetPossibleStops(SourceTrips);
+    }
+
+    private bool _hasSetInitial = false;
+
+    protected override void OnParametersSet()
+    {
+        if (_hasSetInitial) return;
+        if (InitialStopIndex is { } initialStopIndex && initialStopIndex < PossibleStops.Count)
+        {
+            var newStop =  PossibleStops.ElementAt(initialStopIndex);
+            if (newStop == SelectedStop) return;
+            SelectedStop = newStop;
+            EmitUpdate();
+            _hasSetInitial = true;
+        }
+    }
 
     private IReadOnlyCollection<Stop> GetPossibleStops(IReadOnlyCollection<Line.Trip> trips)
         => SelectionMode is Mode.UnionRouteStops
@@ -60,6 +78,13 @@
         }
 
         return base.SetParametersAsync(parameters);
+    }
+
+    private void EmitUpdate()
+    {
+        OnUpdate(SelectedStop);
+        var index = PossibleStops.Index().Single(tuple => tuple.Item == SelectedStop).Index;
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("stop-index", index));
     }
 
 }

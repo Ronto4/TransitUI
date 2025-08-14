@@ -1,5 +1,6 @@
 @using Timetable
 @implements ISelector<IReadOnlyCollection<Line.Trip>>
+@inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     @(Line is null ? "Linie" : Line.Name)
@@ -32,16 +33,37 @@
     /// </summary>
     [Parameter, EditorRequired] public required City? ReferenceCity { get; init; }
     [Parameter, EditorRequired] public required IHistoryEntry HistoryEntry { get; init; }
+    [Parameter, EditorRequired] public required string? InitialLineIdentifier { get; init; }
+    [Parameter, EditorRequired] public required int[] InitialRoutes { get; set; }
     private IHistoryEntry? _historyEntry = null;
     [Parameter, EditorRequired] public required Action<IReadOnlyCollection<Line.Trip>> OnUpdate { get; init; }
     private Line? Line { get; set; } = null;
     private List<Line.Route> Routes { get; } = [];
     private static DaysOfOperation Days => DaysOfOperation.Daily;
 
+    protected override void OnInitialized()
+    {
+        if (InitialLineIdentifier is null) return;
+        if (!HistoryEntry.LinesById.TryGetValue(InitialLineIdentifier, out var line))
+        {
+            Console.WriteLine($"[WARNING] Got unknown line identifier '{InitialLineIdentifier}'.");
+            return;
+        }
+        Line = line;
+        Routes.AddRange(Line.Routes.Where((_, index) => InitialRoutes.Contains(index)).ToList());
+        EmitUpdate();
+    }
+
     private void EmitUpdate()
     {
         var trips = Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToArray() ?? [];
         OnUpdate(trips);
+        var parameters = new Dictionary<string, object?>
+        {
+            { "line", HistoryEntry.LinesById.Single(kvp => kvp.Value == Line).Key },
+            { "route", Line?.Routes.Select((route, index) => (route, index)).Where(tuple => Routes.Contains(tuple.route)).Select(tuple => tuple.index).ToArray() },
+        };
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameters(parameters));
     }
 
     private void ClearRoutes()

@@ -8,6 +8,21 @@
 
 @code
 {
+    [Parameter, SupplyParameterFromQuery(Name = "date")]
+    public DateTime? QueryDate { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "line")]
+    public string? QueryLineIdentifier { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "route")]
+    public int[] QueryRouteIndices { get; init; } = [];
+
+    [Parameter, SupplyParameterFromQuery(Name = "days")]
+    public int? QueryDays { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "collapse-trips")]
+    public bool? QueryCollapseTrips { get; init; }
+
     private static IHistoryEntry? HistoryEntry { get; set; } = null;
 
     private static DaysOfOperation Days { get; set; } = DaysOfOperation.Daily;
@@ -18,16 +33,16 @@
 }
 
 <div class="button-group">
-    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }" />
+    <HistoryEntrySelector InitialDate="QueryDate is {} date ? DateOnly.FromDateTime(date) : DateOnly.FromDateTime(DateTime.Now)" OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }" />
 
-    <DaySelector OnUpdate="days => { Days = days; StateHasChanged(); }" />
-    <BooleanSelector OnUpdate="collapseTrips => { CollapseTrips = collapseTrips; StateHasChanged(); }" Text="Fasse im Takt verkehrende Fahrten zusammen" />
+    <DaySelector InitialDays="QueryDays" OnUpdate="days => { Days = days; StateHasChanged(); }" />
+    <BooleanSelector Initial="QueryCollapseTrips" QueryParameterName="collapse-trips" OnUpdate="collapseTrips => { CollapseTrips = collapseTrips; StateHasChanged(); }" Text="Fasse im Takt verkehrende Fahrten zusammen" />
 </div>
 
 @if (HistoryEntry is not null)
 {
     <div class="button-group pt-1">
-        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
+        <TripSelector InitialLineIdentifier="@QueryLineIdentifier" InitialRoutes="QueryRouteIndices" HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
     </div>
 }
 

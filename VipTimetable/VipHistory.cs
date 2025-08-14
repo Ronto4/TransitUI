@@ -2,7 +2,7 @@ using Timetable;
 
 namespace VipTimetable;
 
-public class VipHistory : IHistory
+public class VipHistory : IHistory<VipHistory>
 {
     public static IHistoryEntry[] History { get; } =
     [

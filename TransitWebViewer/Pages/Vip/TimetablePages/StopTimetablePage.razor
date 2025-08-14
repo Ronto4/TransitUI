@@ -8,6 +8,21 @@
 
 @code
 {
+    [Parameter, SupplyParameterFromQuery(Name = "date")]
+    public DateOnly? QueryDate { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "line")]
+    public string? QueryLineIdentifier { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "route")]
+    public int[] QueryRouteIndices { get; init; } = [];
+
+    [Parameter, SupplyParameterFromQuery(Name = "days-partition")]
+    public int? QueryDayPartitionInitialIndex { get; init; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "stop-index")]
+    public int? QueryStopInitialIndex { get; init; }
+
     private static IHistoryEntry? HistoryEntry { get; set; } = null;
 
     private static IReadOnlyCollection<Line.Trip> Trips { get; set; } = [];
@@ -16,20 +31,20 @@
 
     private static Stop? StartStopForStopView { get; set; } = null;
 
-    private static IReadOnlyCollection<DaysOfOperation> DaysPartition { get; set; } = DaysPartitionSelector.Initial;
+    private static IReadOnlyCollection<DaysOfOperation> DaysPartition { get; set; } = DaysPartitionSelector.Default;
 }
 
 <div class="button-group">
-    <HistoryEntrySelector OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }"/>
-    <StopSelector SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops"
+    <HistoryEntrySelector InitialDate="QueryDate ?? DateOnly.FromDateTime(DateTime.Now)" OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }"/>
+    <StopSelector InitialStopIndex="QueryStopInitialIndex" SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops"
                   OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" ReferenceDate="HistoryEntry?.EffectiveDate ?? new DateOnly()"/>
-    <DaysPartitionSelector OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }"/>
+    <DaysPartitionSelector InitialIndex="QueryDayPartitionInitialIndex" OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }"/>
 </div>
 
 @if (HistoryEntry is not null)
 {
     <div class="button-group pt-1">
-        <TripSelector HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
+        <TripSelector InitialLineIdentifier="@QueryLineIdentifier" InitialRoutes="QueryRouteIndices" HistoryEntry="HistoryEntry" OnUpdate="trips => { Trips = trips; StateHasChanged(); }" ReferenceCity="Cities.Potsdam"/>
     </div>
 }
 

@@ -1,6 +1,7 @@
 @using Timetable
 @using TransitWebViewer.Utils
 @implements ISelector<IReadOnlyCollection<DaysOfOperation>>
+@inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     @Display(CurrentSelection)
@@ -8,16 +9,27 @@
 <ul class="dropdown-menu">
     @foreach (var daysPartition in Possibilities)
     {
-        <li><a class="dropdown-item" @onclick="_ => { CurrentSelection = daysPartition; OnUpdate(CurrentSelection); }">@Display(daysPartition)</a></li>
+        <li><a class="dropdown-item" @onclick="_ => { CurrentSelection = daysPartition; EmitUpdate(); }">@Display(daysPartition)</a></li>
     }
 </ul>
 
 @code {
     [Parameter, EditorRequired] public required Action<IReadOnlyCollection<DaysOfOperation>> OnUpdate { get; init; }
 
-    public static IReadOnlyCollection<DaysOfOperation> Initial => [DaysOfOperation.Weekday, DaysOfOperation.Weekend];
+    [Parameter, EditorRequired] public required int? InitialIndex { get; init; }
 
-    private IReadOnlyCollection<DaysOfOperation> CurrentSelection { get; set; } = Initial;
+    protected override void OnInitialized()
+    {
+        if (InitialIndex is { } initialIndex && initialIndex < Possibilities.Count)
+        {
+            CurrentSelection = Possibilities.ElementAt(initialIndex);
+        }
+        EmitUpdate();
+    }
+
+    public static IReadOnlyCollection<DaysOfOperation> Default => [DaysOfOperation.Weekday, DaysOfOperation.Weekend];
+
+    private IReadOnlyCollection<DaysOfOperation> CurrentSelection { get; set; } = Default;
 
     private IReadOnlyCollection<IReadOnlyCollection<DaysOfOperation>> Possibilities { get; } =
     [
@@ -29,5 +41,12 @@
     ];
 
     private static string Display(IReadOnlyCollection<DaysOfOperation> daysPartition) => string.Join(" & ", daysPartition.Select(days => days.Display()));
+
+    private void EmitUpdate()
+    {
+        OnUpdate(CurrentSelection);
+        var index = Possibilities.Index().Single(tuple => tuple.Item.SequenceEqual(CurrentSelection)).Index;
+        Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("days-partition", index));
+    }
 
 }
