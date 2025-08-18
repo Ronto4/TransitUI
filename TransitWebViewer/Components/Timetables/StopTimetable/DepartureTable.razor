@@ -9,7 +9,7 @@
         </th>
         @foreach (var (days, index) in StopTimetableView.DaysPartition.Select((days, index) => (days, index)))
         {
-            <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)">
+            <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)" class="@days.CssColor()">
                 @days.Display()
             </th>
         }

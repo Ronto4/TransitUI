@@ -1,4 +1,5 @@
 @using Timetable.Views
+@using TransitWebViewer.Utils
 
 <tr>
     <th scope="row" class="align-content-center">@Hour</th>
@@ -6,13 +7,13 @@
     {
         @foreach (var departure in departures)
         {
-            <td class="text-center align-content-center">
+            <td class="text-center align-content-center @StopTimetableView.DaysPartition.ElementAt(index).CssColor()">
                 <DepartureMinute Departure="departure" DayMask="StopTimetableView.DaysPartition.ElementAt(index)" StopTimetableView="StopTimetableView" />
             </td>
         }
         @for (var i = departures.Count; i < Math.Max(StopTimetableView.MaximumColumns.ElementAt(index), 1); ++i)
         {
-            <td class="text-center align-content-center"></td>
+            <td class="text-center align-content-center @StopTimetableView.DaysPartition.ElementAt(index).CssColor()"></td>
         }
     }
 </tr>

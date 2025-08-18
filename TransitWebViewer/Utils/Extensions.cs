@@ -35,6 +35,19 @@ internal static class Extensions
             _ => days,
         };
 
+    /// <summary>
+    /// Returns optional CSS classes to be used when the <paramref name="days"/> need to be displayed, e.g., in a table.
+    /// </summary>
+    public static string CssColor(this DaysOfOperation days) => days switch
+    {
+        DaysOfOperation.Daily => "",
+        DaysOfOperation.School or DaysOfOperation.Weekday => "table-primary",
+        DaysOfOperation.Holiday => "table-secondary",
+        DaysOfOperation.Saturday or DaysOfOperation.Weekend => "table-warning",
+        DaysOfOperation.Sunday => "table-danger",
+        _ => "",
+    };
+
     public static IEnumerable<T> Intersect<T>(this IEnumerable<IEnumerable<T>> enumerable)
     {
         var listOfEnumerables = enumerable.ToList();
