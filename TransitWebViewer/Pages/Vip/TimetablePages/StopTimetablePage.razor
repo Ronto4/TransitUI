@@ -12,10 +12,10 @@
     public DateOnly? QueryDate { get; init; }
 
     [Parameter, SupplyParameterFromQuery(Name = "line")]
-    public string? QueryLineIdentifier { get; init; }
+    public string[] QueryLineIdentifier { get; init; } = [];
 
     [Parameter, SupplyParameterFromQuery(Name = "route")]
-    public int[] QueryRouteIndices { get; init; } = [];
+    public string[] QueryRouteIndices { get; init; } = [];
 
     [Parameter, SupplyParameterFromQuery(Name = "days-partition")]
     public int? QueryDayPartitionInitialIndex { get; init; }
