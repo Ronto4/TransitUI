@@ -11,7 +11,7 @@ public partial record Line
     {
         /// <inheritdoc />
         public override string ToString() => //throw new NotImplementedException();
-            $"{StopPositions.First().Stop} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
+            $"{StopPositions.First().Stop.InitialName} {(InterpretAsBidirectional ? "–" : ">")} {StopPositions.Last().Stop.InitialName}{(ManualAnnotation is null ? "" : $" {ManualAnnotation}")}";
 
         internal Line? Line { get; set; }
 

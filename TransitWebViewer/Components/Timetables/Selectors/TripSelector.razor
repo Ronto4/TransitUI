@@ -2,73 +2,111 @@
 @implements ISelector<IReadOnlyCollection<Line.Trip>>
 @inject NavigationManager Navigation
 
-<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    @(Line is null ? "Linie" : Line.Name)
-</button>
-<ul class="dropdown-menu">
-    @foreach (var line in HistoryEntry.OrderedLinesById.Select(entry => entry.Value))
+<ul>
+    @foreach (var (index, line) in Lines.Index())
     {
-        <li><a class="dropdown-item" @onclick="_ => { Line = line; ClearRoutes(); }">@line.Name</a></li>
+        <li class="pt-1">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @line.Name
+            </button>
+            <ul class="dropdown-menu">
+                @foreach (var otherLine in HistoryEntry.OrderedLinesById.Select(entry => entry.Value))
+                {
+                    <li><a class="dropdown-item" @onclick="_ => { Lines[index] = otherLine; ClearRoutes(index); }">@line.Name</a></li>
+                }
+            </ul>
+            <button class="btn btn-secondary" type="button" @onclick="_ => { ClearRoutes(index); Lines.RemoveAt(index); }">
+                🗑️
+            </button>
+            <span class="ps-1">
+                @foreach (var route in line.Routes)
+                {
+                    <div class="form-check-inline">
+                        <input class="form-check-input" type="checkbox" checked="@Routes[index].Contains(route)" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes[index].Add(route);else Routes[index].Remove(route); EmitUpdate(); }">
+                        <label class="form-check-label" for="@route.GetHashCode()">
+                            <RouteName Route="route" ReferenceDate="HistoryEntry.EffectiveDate" ReferenceCity="ReferenceCity"/>
+                        </label>
+                    </div>
+                }
+            </span>
+        </li>
     }
+    <li class="pt-1">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Linie
+        </button>
+        <ul class="dropdown-menu">
+            @foreach (var line in HistoryEntry.OrderedLinesById.Select(entry => entry.Value).Where(line => !Lines.Contains(line)))
+            {
+                <li><a class="dropdown-item" @onclick="_ => { Lines.Add(line); Routes.Add([]); ClearRoutes(Lines.Count - 1); }">@line.Name</a></li>
+            }
+        </ul>
+    </li>
 </ul>
 
-@if (Line is not null)
-{
-    <span class="ps-1">
-        @foreach (var route in Line.Routes)
-        {
-            <div class="form-check-inline">
-                <input class="form-check-input" type="checkbox" checked="@Routes.Contains(route)" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes.Add(route);else Routes.Remove(route); EmitUpdate(); }">
-                <label class="form-check-label" for="@route.GetHashCode()">
-                    <RouteName Route="route" ReferenceDate="HistoryEntry.EffectiveDate" ReferenceCity="ReferenceCity" />
-                </label>
-            </div>
-        }
-    </span>
-}
-
 @code {
+    private const string RouteSeperator = "-";
     /// <summary>
     /// When this is <c>null</c>, the city name will always be printed.
     /// </summary>
     [Parameter, EditorRequired] public required City? ReferenceCity { get; init; }
     [Parameter, EditorRequired] public required IHistoryEntry HistoryEntry { get; init; }
-    [Parameter, EditorRequired] public required string? InitialLineIdentifier { get; init; }
-    [Parameter, EditorRequired] public required int[] InitialRoutes { get; set; }
+    [Parameter, EditorRequired] public required string[] InitialLineIdentifier { get; init; }
+    [Parameter, EditorRequired] public required string[] InitialRoutes { get; set; }
     private IHistoryEntry? _historyEntry = null;
     [Parameter, EditorRequired] public required Action<IReadOnlyCollection<Line.Trip>> OnUpdate { get; init; }
-    private Line? Line { get; set; } = null;
-    private List<Line.Route> Routes { get; } = [];
+    private List<Line> Lines { get; set; } = [];
+    private List<List<Line.Route>> Routes { get; } = [];
     private static DaysOfOperation Days => DaysOfOperation.Daily;
 
     protected override void OnInitialized()
     {
-        if (InitialLineIdentifier is null) return;
-        if (!HistoryEntry.LinesById.TryGetValue(InitialLineIdentifier, out var line))
+        if (InitialLineIdentifier is []) return;
+        var initialRoutes = InitialRoutes.Select(route =>
         {
-            Console.WriteLine($"[WARNING] Got unknown line identifier '{InitialLineIdentifier}'.");
-            return;
+            var split = route.Split(RouteSeperator, 2);
+            if (split.Length != 2) return null;
+            if (!int.TryParse(split[0], out var routeIndex)) return null;
+            return new { RouteIndex = routeIndex, LineId = split[1], };
+        }).Where(x => x is not null).ToArray();
+        List<(string, Line)> lines = [];
+        foreach (var lineIdentifier in InitialLineIdentifier)
+        {
+            if (!HistoryEntry.LinesById.TryGetValue(lineIdentifier, out var line))
+            {
+                Console.WriteLine($"[WARNING] Got unknown line identifier '{InitialLineIdentifier}'.");
+                continue;
+            }
+            lines.Add((lineIdentifier, line));
         }
-        Line = line;
-        Routes.AddRange(Line.Routes.Where((_, index) => InitialRoutes.Contains(index)).ToList());
+
+        lines = lines.OrderBy(tuple => tuple.Item2, new LineOrdering.NaturalCustomerLineComparer()).ToList();
+        foreach (var (lineIdentifier, line) in lines)
+        {
+            Routes.Add(line.Routes.Where((_, index) => initialRoutes.Any(entry => entry!.LineId == lineIdentifier && entry.RouteIndex == index)).ToList());
+        }
+
+        Lines = lines.Select(tuple => tuple.Item2).ToList();
         EmitUpdate();
     }
 
     private void EmitUpdate()
     {
-        var trips = Line?.Trips.Where(trip => Routes.Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None).ToArray() ?? [];
+        var trips = Lines.SelectMany((line, index) => line.Trips.Where(trip => Routes[index].Contains(trip.Route) && (trip.DaysOfOperation & Days) != DaysOfOperation.None)).ToArray();
         OnUpdate(trips);
+        var lines = Lines.Select(line => (line, HistoryEntry.LinesById.Single(kvp => kvp.Value == line).Key)).ToArray();
+        var routes = lines.SelectMany((line, lineIndex) => line.line.Routes.Index().Where(tuple => Routes[lineIndex].Contains(tuple.Item)).Select(tuple => $"{tuple.Index}{RouteSeperator}{line.Key}")).ToArray();
         var parameters = new Dictionary<string, object?>
         {
-            { "line", HistoryEntry.LinesById.Single(kvp => kvp.Value == Line).Key },
-            { "route", Line?.Routes.Select((route, index) => (route, index)).Where(tuple => Routes.Contains(tuple.route)).Select(tuple => tuple.index).ToArray() },
+            { "line", lines.Select(line => line.Key).ToArray() },
+            { "route", routes },
         };
         Navigation.NavigateTo(Navigation.GetUriWithQueryParameters(parameters));
     }
 
-    private void ClearRoutes()
+    private void ClearRoutes(int index)
     {
-        Routes.Clear();
+        Routes[index].Clear();
         StateHasChanged();
         EmitUpdate();
     }
@@ -79,7 +117,7 @@
         if (parameters.TryGetValue<IHistoryEntry>(nameof(HistoryEntry), out var nextHistoryView) && _historyEntry != nextHistoryView)
         {
             _historyEntry = nextHistoryView;
-            Line = null;
+            Lines = [];
             StateHasChanged();
         }
 
