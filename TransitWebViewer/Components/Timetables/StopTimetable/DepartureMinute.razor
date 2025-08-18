@@ -41,6 +41,7 @@
             DaysOfOperation.Weekend => "67",
             DaysOfOperation.School => "99",
             DaysOfOperation.Holiday => "98",
+            DaysOfOperation.School | DaysOfOperation.Weekend => "99 & 67",
             DaysOfOperation.Holiday | DaysOfOperation.Weekend => "98 & 67",
             DaysOfOperation.Friday | DaysOfOperation.Saturday => "56",
             DaysOfOperation.Monday | DaysOfOperation.Tuesday | DaysOfOperation.Wednesday | DaysOfOperation.Thursday | DaysOfOperation.Sunday => "74",
