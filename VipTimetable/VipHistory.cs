@@ -167,5 +167,15 @@ public class VipHistory : IHistory<VipHistory>
         ),
         new HistoryEntry(new DateOnly(2025, 1, 25),
             "Ursprünglich auch noch in der Folgewoche geplant sind die Bauarbeiten in Abzweig Betriebshof bereits nach einer Woche beendet."),
+        new HistoryEntry(new DateOnly(2025, 2, 3),
+            """
+            Zu Beginn der Winterferien wird ein Fahrplanwechsel durchgeführt.
+            Als Verbesserung wird der 10-Minuten-Takt der 92 an Schultagen zwischen Bisamkiez und Gaußstr. ausgeweitet.
+            Auf der anderen Seite wird in den Ferien der 20-Minuten-Takt auf der Linie 616 ersatzlos gestrichen.
+            Auch wird der 10-Minuten-Takt der 605 nur noch in der Hauptverkehrszeit angeboten
+            und die Linie 639 in den Ferien ersatzlos gestrichen.
+            Außerdem kommt es zu kleineren Fahrplananpassungen.
+            """
+        ),
     ];
 }
