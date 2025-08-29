@@ -79,7 +79,7 @@ public class Tram92From20240422 : ILineInstance
                     {
                         StopDistances =
                         [
-                            M1, M0, M0, M2, M1, M1, M1, M1, M1, M2, M2, M1, M1, M3, M2, M1, M1, M1, M1, M2, M1, M1, M2, M1,
+                            M1, M0, M1, M1, M1, M1, M1, M1, M1, M2, M2, M1, M1, M3, M2, M1, M1, M1, M1, M2, M1, M1, M2, M1,
                             M1, M1, M1, M1, M1, M2
                         ]
                     },
