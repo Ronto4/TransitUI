@@ -106,9 +106,11 @@ public partial record Line
         /// <summary>
         /// Whether this route and <paramref name="other"/> route have identical start and end stops.
         /// </summary>
-        public bool LooselyIsSame(Route other) => InterpretAsBidirectional == other.InterpretAsBidirectional &&
-                                                  StopPositions.First().Stop == other.StopPositions.First().Stop &&
-                                                  StopPositions.Last().Stop == other.StopPositions.Last().Stop;
+        public bool LooselyIsSame(Route other, bool enforceIdenticalManualAnnotation) =>
+            InterpretAsBidirectional == other.InterpretAsBidirectional &&
+            StopPositions.First().Stop == other.StopPositions.First().Stop &&
+            StopPositions.Last().Stop == other.StopPositions.Last().Stop &&
+            (enforceIdenticalManualAnnotation == false || ManualAnnotation == other.ManualAnnotation);
 
         /// <summary>
         /// Whether this route stops at exactly the same <see cref="Stop"/>s as <paramref name="other"/> but in reverse.
