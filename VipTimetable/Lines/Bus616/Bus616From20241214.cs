@@ -40,7 +40,7 @@ public class Bus616From20241214 : ILineInstance
                     new Line.Route.TimeProfile
                         { StopDistances = [M2, M1, M1, M2, M1, M1, M1, M1, M1, M1, M1, M1, M1, M2] }
                 ],
-                CommonStopIndex = 5,
+                CommonStopIndex = 5 /* Schloss Babelsberg */,
             },
             new Line.Route
             {
