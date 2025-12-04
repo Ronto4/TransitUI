@@ -97,7 +97,8 @@ public class Bus692From20250203 : ILineInstance
             {
                 TimeProfiles =
                 [
-                    ..Previous.Line.Routes[3].TimeProfiles, new Line.Route.TimeProfile
+                    ..Previous.Line.Routes[3].TimeProfiles,
+                    new Line.Route.TimeProfile
                     {
                         StopDistances =
                         [
@@ -123,7 +124,88 @@ public class Bus692From20250203 : ILineInstance
                     },
                 ],
             },
-            ..Previous.Line.Routes[4..],
+            Previous.Line.Routes[4] with
+            {
+                TimeProfiles =
+                [
+                    ..Previous.Line.Routes[4].TimeProfiles,
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                            [M1, M1, M1, M1, M1, M1, M2, M1, M2, M1, M1, M3, M3, M1, M1, M1, M1, M1, M1, M0, M2,],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                            [M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M1, M1, M1, M1, M0, M2,],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                            [M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M2, M1, M1, M1, M0, M2,],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                            [M1, M1, M1, M1, M1, M1, M2, M1, M1, M1, M1, M3, M2, M1, M1, M1, M1, M1, M1, M0, M2,],
+                    },
+                ],
+            },
+            Previous.Line.Routes[5] with
+            {
+                TimeProfiles =
+                [
+                    ..Previous.Line.Routes[5].TimeProfiles,
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                        [
+                            M1, M1, M1, M1, M1, M1, M2, M1, M2, M1, M1, M3, M3, M1, M1, M1, M1, M1, M1, M2, M1, M0, M1,
+                            M3, M2,
+                        ],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                        [
+                            M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M1, M1, M1, M1, M2, M1, M0, M1,
+                            M3, M2,
+                        ],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                        [
+                            M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M2, M1, M1, M1, M2, M1, M1, M1,
+                            M3, M2,
+                        ],
+                    },
+                ],
+            },
+            Previous.Line.Routes[6] with
+            {
+                TimeProfiles =
+                [
+                    ..Previous.Line.Routes[6].TimeProfiles,
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                        [
+                            M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M1, M1, M1, M1, M0, M2, M1, M0,
+                            M2, M1, M0, M1, M3, M2,
+                        ],
+                    },
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances =
+                        [
+                            M1, M1, M1, M1, M1, M2, M2, M1, M2, M1, M1, M3, M3, M1, M1, M2, M1, M1, M1, M0, M2, M1, M0,
+                            M2, M1, M1, M1, M3, M2,
+                        ],
+                    },
+                ],
+            },
+            ..Previous.Line.Routes[7..],
         ],
         TripsCreate = Previous.Line.TripsCreate.Select(Helpers.Transform).ToArray(),
     };
@@ -133,10 +215,120 @@ file static class Helpers
 {
     public static Line.TripCreate Transform(Line.TripCreate trip)
     {
+        // Some special cases
+        if (trip.RouteIndex.Equals(4) && trip.StartTime == new TimeOnly(0, 4))
+        {
+            return trip with
+            {
+                TimeProfileIndex = 7,
+            };
+        }
+
         return (trip.DaysOfOperation & DaysOfOperation.Weekend) > 0 ? TransformWeekend(trip) : TransformWeekday(trip);
     }
 
-    private static Line.TripCreate TransformWeekday(Line.TripCreate trip)
+    private static Line.TripCreate TransformWeekday(Line.TripCreate trip) =>
+        trip.RouteIndex.Value switch
+        {
+            <= 3 => TransformWeekdayToKlinikum(trip),
+            >= 4 => TransformWeekdayFromKlinikum(trip),
+        };
+
+    private static Line.TripCreate TransformWeekdayFromKlinikum(Line.TripCreate trip)
+    {
+        if (trip.RouteIndex.Equals(4))
+        {
+            if (trip.StartTime < new TimeOnly(6, 20))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 4,
+                };
+            }
+
+            if (new TimeOnly(6, 20) < trip.StartTime && trip.StartTime < new TimeOnly(11, 0))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 5,
+                };
+            }
+
+            if (new TimeOnly(11, 0) < trip.StartTime && trip.StartTime < new TimeOnly(17, 20))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 6,
+                };
+            }
+
+            if (new TimeOnly(17, 20) < trip.StartTime)
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 5,
+                };
+            }
+        }
+
+        if (trip.RouteIndex.Equals(5))
+        {
+            if (trip.StartTime == new TimeOnly(5, 41))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 3,
+                };
+            }
+
+            if (new TimeOnly(8, 40) < trip.StartTime && trip.StartTime < new TimeOnly(11, 40))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 4,
+                };
+            }
+
+            if (new TimeOnly(11, 40) < trip.StartTime && trip.StartTime < new TimeOnly(17, 40))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 5,
+                };
+            }
+
+            if (new TimeOnly(17, 40) < trip.StartTime)
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 4,
+                };
+            }
+        }
+
+        if (trip.RouteIndex.Equals(6))
+        {
+            if (trip.StartTime < new TimeOnly(13, 40))
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 4,
+                };
+            }
+
+            if (new TimeOnly(13, 40) < trip.StartTime)
+            {
+                return trip with
+                {
+                    TimeProfileIndex = 5,
+                };
+            }
+        }
+
+        return trip;
+    }
+
+    private static Line.TripCreate TransformWeekdayToKlinikum(Line.TripCreate trip)
     {
         if (trip.RouteIndex.Equals(0) && trip.StartTime == new TimeOnly(5, 7))
         {
