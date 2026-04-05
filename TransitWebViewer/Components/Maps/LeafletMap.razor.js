@@ -5,7 +5,8 @@ export class LeafletMap {
 
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors',
+            referrerPolicy: 'strict-origin-when-cross-origin',
         }).addTo(map);
 
         return map;
