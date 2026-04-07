@@ -261,24 +261,44 @@
           {
             @code {
 
-              private static IEnumerable<KeyValuePair<Line.Route, List<string>>> RemoveDuplicatesWithPrevious(IEnumerable<KeyValuePair<Line.Route, List<string>>> frequencies, string lineId)
+              private record FrequencyComparisonCell(string? Previous, string Now);
+
+              private static IEnumerable<KeyValuePair<Line.Route, List<FrequencyComparisonCell>>> NowToComparison(IEnumerable<KeyValuePair<Line.Route, List<string>>> current)
+                => current.Select(kvp => new KeyValuePair<Line.Route, List<FrequencyComparisonCell>>(kvp.Key, kvp.Value.Select(now => new FrequencyComparisonCell(null, now)).ToList()));
+
+              private static List<KeyValuePair<Line.Route, List<FrequencyComparisonCell>>> RemoveDuplicatesWithPrevious(List<KeyValuePair<Line.Route, List<FrequencyComparisonCell>>> frequencies, string lineId)
               {
-                if (_previous is null) return frequencies;
-                if (_previous.OrderedLinesById.All(pair => pair.Key != lineId)) return frequencies;
+                if (_previous is null || _previous.OrderedLinesById.All(pair => pair.Key != lineId)) return frequencies;
                 var previousFrequencies = GetFrequencies(_previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
+                // var frequenciesWithComparison = NowToComparison(frequencies, previousFrequencies);
                 return frequencies.Where(frequency =>
                 {
-                  var value = previousFrequencies.Where(previous => frequency.Key.LooselyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
+                  var value = previousFrequencies.Where(previous => frequency.Key.LooselyIsSame(previous.Key, true) && frequency.Value.Select(comparison => comparison.Now).SequenceEqual(previous.Value.Select(comparison => comparison.Now))).ToDictionary();
                   var ret = value.Count == 0;
                   // Console.Error.WriteLine(frequency.Key);
                   // Console.Error.WriteLine(string.Join(" | ", value.Select(val => $"{val.Key}: {string.Join(", ", val.Value)}")));
                   return ret;
-                });
+                }).Select(frequency
+                  => previousFrequencies.Keys.Any(key => frequency.Key.LooselyIsSame(key, true)) ? new KeyValuePair<Line.Route, List<FrequencyComparisonCell>>(
+                    frequency.Key,
+                    frequency.Value
+                      .Zip(previousFrequencies[previousFrequencies.Keys.Where(key => frequency.Key.LooselyIsSame(key, true)).ToList().Count > 1 ? throw new Exception($"Multiple:\n\t{string.Join(",\n\t", previousFrequencies.Keys.Where(key => frequency.Key.LooselyIsSame(key, true)).ToList())}") : previousFrequencies.Keys.Single(key => frequency.Key.LooselyIsSame(key, true))])
+                      .Select(tuple => tuple.First with { Previous = tuple.Second.Now }).ToList()
+                    ) : frequency
+                  ).ToList();/*
+                ){
+                  for (var i = 0; i < frequency.Value.Count; ++i)
+                  {
+                    frequency.Value[i].Previous = previousFrequencies[frequency.Key][i];
+                  }
+                }
+
+                return frequencies;*/
               }
 
-              private static Dictionary<Line.Route, List<string>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies, string lineId, bool deduplicateWithPrevious = true)
+              private static Dictionary<Line.Route, List<FrequencyComparisonCell>> RemoveDuplicates(Dictionary<Line.Route, List<string>> frequencies, string lineId, bool deduplicateWithPrevious = true)
               {
-                var frequenciesList = frequencies.ToList();
+                var frequenciesList = NowToComparison(frequencies).ToList();
                 for (var i = 0; i < frequenciesList.Count; ++i)
                 {
                   // Reset to unidirectional.
@@ -298,13 +318,13 @@
 
                 if (deduplicateWithPrevious)
                 {
-                  frequenciesList = RemoveDuplicatesWithPrevious(frequenciesList, lineId).ToList();
+                  frequenciesList = RemoveDuplicatesWithPrevious(frequenciesList, lineId);
                 }
 
                 return frequenciesList.ToDictionary();
               }
 
-              private static Dictionary<Line.Route, List<string>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
+              private static Dictionary<Line.Route, List<FrequencyComparisonCell>> GetFrequencies(Line line, string lineId, bool deduplicateWithPrevious = true)
               {
                 var school = LineHelper.GetFrequencies(line, [
                   (new TimeOnly(1, 0), new TimeOnly(4, 0)),
@@ -364,7 +384,18 @@
                   <td><RouteName Route="route" ReferenceDate="entry.EffectiveDate" ReferenceCity="Cities.Potsdam"/></td>
                   @foreach (var frequency in frequencies)
                   {
-                    <td>@frequency</td>
+                    <td>
+                      @if (frequency.Previous is { } previous && previous != frequency.Now)
+                      {
+                        <small><div class="text-danger text-decoration-line-through">@previous</div></small>
+                        <br/>
+                        <div class="text-success">@frequency.Now</div>
+                      }
+                      else
+                      {
+                        @frequency.Now
+                      }
+                    </td>
                   }
                 </tr>
               }
