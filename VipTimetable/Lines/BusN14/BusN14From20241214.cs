@@ -365,7 +365,7 @@ public class BusN14From20241214 : ILineInstance
                 RouteIndex = 1,
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Saturday,
-                StartTime = new TimeOnly(5, 35),
+                StartTime = new TimeOnly(5, 5),
             },
             ..new Line.TripCreate
             {

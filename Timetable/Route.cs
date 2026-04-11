@@ -134,13 +134,13 @@ public partial record Line
         /// <summary>
         /// Get the same route as this but omitting all <paramref name="stopsToExclude"/>.
         /// </summary>
-        public Route WithoutStops(IEnumerable<Stop> stopsToExclude) =>
-            stopsToExclude.Aggregate(this, (route, stopToExclude) => route.WithoutStop(stopToExclude));
+        public Route WithoutStops(IEnumerable<Stop> stopsToExclude, bool skipUpdatingCommonStopIndex = true) =>
+            stopsToExclude.Aggregate(this, (route, stopToExclude) => route.WithoutStop(stopToExclude, skipUpdatingCommonStopIndex));
 
         /// <summary>
         /// Get the same route as this but omitting <paramref name="stopToExclude"/>, if it is present.
         /// </summary>
-        public Route WithoutStop(Stop stopToExclude) => StopPositions.Any(pos => pos.Stop == stopToExclude)
+        public Route WithoutStop(Stop stopToExclude, bool skipUpdatingCommonStopIndex = true) => StopPositions.Any(pos => pos.Stop == stopToExclude)
             ? this with
             {
                 StopPositions = StopPositions.Where(stop => stop.Stop != stopToExclude)
@@ -159,6 +159,7 @@ public partial record Line
                         ],
                     };
                 }).ToArray(),
+                CommonStopIndex = !skipUpdatingCommonStopIndex && StopPositions.Index().Single(elem => elem.Item.Stop == stopToExclude).Index < CommonStopIndex ? CommonStopIndex - 1 : CommonStopIndex,
             }
             : this;
 
@@ -168,7 +169,7 @@ public partial record Line
         /// if those two stations exist and are next to each other.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime)
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false)
         {
             var beforeIndex = Array.IndexOf(StopPositions, before);
             if (beforeIndex == -1) return this;
@@ -189,7 +190,7 @@ public partial record Line
             {
                 StopPositions = insertedPositions,
                 TimeProfiles = timeProfiles,
-                CommonStopIndex = CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
+                CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
             };
         }
 
