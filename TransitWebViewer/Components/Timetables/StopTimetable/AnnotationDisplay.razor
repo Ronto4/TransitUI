@@ -16,12 +16,12 @@
             {
                 case Line.Trip.ManualAnnotation manualAnnotation:
                     <th scope="row" class="align-content-center"><span
-                            class="border border-dark p-0 fw-normal">@manualAnnotation.Symbol</span></th>
+                                                                     class="border border-dark p-0 fw-normal">@manualAnnotation.Symbol</span></th>
                     <td class="text-start align-content-center">@manualAnnotation.Text</td>
                     break;
                 case Line.Trip.ContinuesAnnotation continuesAnnotation:
                     <th scope="row" class="align-content-center"><span
-                            class="p-0 fw-normal">@continuesAnnotation.Symbol</span></th>
+                                                                     class="p-0 fw-normal">@continuesAnnotation.Symbol</span></th>
                     <td class="text-start align-content-center">
                         <span>@ContinuesToAnnotationText(continuesAnnotation)</span>
                     </td>
@@ -29,7 +29,7 @@
                 case Line.Trip.OnlyToAnnotation onlyToAnnotation:
                 {
                     <th scope="row" class="align-content-center"><span
-                            class="p-0 fw-normal">@onlyToAnnotation.Symbol</span></th>
+                                                                     class="p-0 fw-normal">@onlyToAnnotation.Symbol</span></th>
                     <td class="text-start align-content-center">
                         @if (onlyToAnnotation.DisplayRouteIndex == 0)
                         {
@@ -48,7 +48,7 @@
                 }
                 case Line.Trip.ContinuesFromToAnnotation continuesFromToAnnotation:
                     <th scope="row" class="align-content-center"><span
-                            class="p-0 fw-normal">@continuesFromToAnnotation.Symbol</span></th>
+                                                                     class="p-0 fw-normal">@continuesFromToAnnotation.Symbol</span></th>
                     <td class="text-start align-content-center">
                         @if (continuesFromToAnnotation.OnlyToAnnotation.DisplayRouteIndex == 0)
                         {
@@ -66,13 +66,31 @@
     }
     <tr>
         <th scope="row" class="align-content-center"></th>
-        <td class="text-start align-content-center">
-            Erklärung der Verkehrstage:
-            99&#8239;=&#8239;Schultage, 98&#8239;=&#8239;Ferientage.
-            Alle anderen Ziffern stehen jeweils für einen Wochentag (1&#8239;=&#8239;Montag, &#x2026;, 7&#8239;=&#8239;Sonntag).
-            Zwei Ziffern geben von&#x2026;bis an (z.&#8239;B. 74&#8239;=&#8239;Sonntag bis Donnerstag).
-        </td>
+        @if (StopTimetableView.ValidityMode is ValidityMode.Regular)
+        {
+            <td class="text-start align-content-center">
+                Erklärung der Verkehrstage:
+                99&#8239;=&#8239;Schultage, 98&#8239;=&#8239;Ferientage.
+                Alle anderen Ziffern stehen jeweils für einen Wochentag (1&#8239;=&#8239;Montag, &#x2026;, 7&#8239;=&#8239;Sonntag).
+                Zwei Ziffern geben von&#x2026;bis an (z.&#8239;B. 74&#8239;=&#8239;Sonntag bis Donnerstag).
+            </td>
+        }
+        else
+        {
+            <td class="text-start align-content-center">
+                Dieser Fahrplan gilt <b>ausschließlich</b> am @StopTimetableView.DayOfTimetable.ToString("D").
+            </td>
+        }
     </tr>
+    @if (StopTimetableView.ValidityMode is ValidityMode.Regular)
+    {
+        <tr>
+            <th scope="row" class="align-content-center"></th>
+            <td class="text-start align-content-center">
+                An gesetzlichen Feiertagen verkehrt diese Linie wie Sonntag, an Heiligabend und Silvester wie Samstag.
+            </td>
+        </tr>
+    }
     <tr>
         <th scope="row" class="align-content-center"></th>
         <td class="text-start align-content-center">

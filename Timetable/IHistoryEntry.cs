@@ -14,6 +14,13 @@ public interface IHistoryEntry
     public DateOnly EffectiveDate { get; }
 
     /// <summary>
+    /// Indicate whether this history entry is valid
+    /// also for all dates following <see cref="EffectiveDate"/> (<see cref="ValidityMode.Regular"/>)
+    /// or only for <see cref="EffectiveDate"/> (<see cref="ValidityMode.OnlyOnThisDay"/>).
+    /// </summary>
+    public ValidityMode ValidityMode { get; }
+
+    /// <summary>
     /// All lines, indexed by their ID.
     /// </summary>
     public IReadOnlyDictionary<string, Line> LinesById { get; }

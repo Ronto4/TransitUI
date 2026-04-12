@@ -1,3 +1,4 @@
+@using Timetable
 @using Timetable.Views
 @using TransitWebViewer.Utils
 
@@ -7,10 +8,19 @@
         <th scope="col">
             🕐
         </th>
-        @foreach (var (days, index) in StopTimetableView.DaysPartition.Select((days, index) => (days, index)))
+        @if (StopTimetableView.ValidityMode is ValidityMode.Regular)
         {
-            <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)" class="@days.CssColor()">
-                @days.Display()
+            @foreach (var (days, index) in StopTimetableView.DaysPartition.Select((days, index) => (days, index)))
+            {
+                <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)" class="@days.CssColor()">
+                    @days.Display()
+                </th>
+            }
+        }
+        else
+        {
+            <th scope="col" colspan="@StopTimetableView.MaximumColumns.Max()">
+                @StopTimetableView.DayOfTimetable.ToString("D")
             </th>
         }
     </tr>
