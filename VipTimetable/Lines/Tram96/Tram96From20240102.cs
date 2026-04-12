@@ -103,8 +103,8 @@ internal class Tram96From20240102 : ILineInstance
                 [
                     new Line.Route.TimeProfile
                     {
-                        StopDistances = [M2, M1, M1, M2, M1, M1, M1, M1, M1, M1, M2, M1, M1, M3, M2, M1, M1, M1, M1, M2]
-                    }
+                        StopDistances = [M2, M1, M1, M1, M1, M1, M1, M1, M1, M2, M2, M1, M1, M4, M2, M0, M1, M1, M2, M2,],
+                    },
                 ],
                 CommonStopIndex = 0
             },
@@ -187,8 +187,8 @@ internal class Tram96From20240102 : ILineInstance
                 [
                     new Line.Route.TimeProfile
                     {
-                        StopDistances = [M1, M1, M1, M3, M2, M0, M1, M1, M1, M2]
-                    }
+                        StopDistances = [M1, M1, M1, M3, M2, M0, M1, M1, M2, M2,],
+                    },
                 ],
                 CommonStopIndex = 4
             },

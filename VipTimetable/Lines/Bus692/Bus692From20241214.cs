@@ -244,14 +244,6 @@ public class Bus692From20241214 : ILineInstance
                             M1, M1,
                         ],
                     },
-                    new Line.Route.TimeProfile
-                    {
-                        StopDistances =
-                        [
-                            M2, M2, M1, M0, M2, M1, M1, M2, M0, M2, M1, M1, M3, M2, M1, M1, M2, M1, M1, M1, M1, M1, M3,
-                            M1, M1,
-                        ],
-                    },
                 ],
                 CommonStopIndex = 20,
             },
@@ -740,7 +732,7 @@ file static class Trips
         ..new Line.TripCreate
         {
             RouteIndex = 3,
-            TimeProfileIndex = 2,
+            TimeProfileIndex = 0,
             DaysOfOperation = DaysOfOperation.Weekend,
             StartTime = new TimeOnly(10, 14),
         }.AlsoEvery(M60, new TimeOnly(19, 14)),

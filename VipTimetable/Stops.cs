@@ -103,6 +103,7 @@ internal static class Stops
     public static Stop BahnhofParkSanssouci { get; } = new() { City = Potsdam, InitialName = "Bahnhof Park Sanssouci" };
     public static Stop BahnhofPirschheide { get; } = new() { City = Potsdam, InitialName = "Bahnhof Pirschheide" };
     public static Stop BahnhofRehbrücke { get; } = new() { City = Potsdam, InitialName = "Bahnhof Rehbrücke" };
+    public static Stop BahnhofRehbrückeSüd { get; } = new() { City = Potsdam, InitialName = "Bahnhof Rehbrücke/Süd" };
     public static Stop Bassewitz { get; } = new() { City = Potsdam, InitialName = "Bassewitz" };
     public static Stop Bassinplatz { get; } = new() { City = Potsdam, InitialName = "Bassinplatz" };
     public static Stop Baumschulenweg { get; } = new() { City = Potsdam, InitialName = "Baumschulenweg" };
