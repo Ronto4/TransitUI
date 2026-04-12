@@ -246,5 +246,7 @@ public class VipHistory : IHistory<VipHistory>
         ),
         new HistoryEntry(new DateOnly(2025, 5, 2), ValidityMode.OnlyOnThisDay,
             "Am Brückentag nach dem Ersten Mai verkehrt die Linie X15 anstelle der Linie X5."),
+        new HistoryEntry(new DateOnly(2025, 5, 8), ValidityMode.OnlyOnThisDay,
+            "Wegen des Feiertags in Berlin gibt es Zusatzfahrten auf der Linie N16."),
     ];
 }

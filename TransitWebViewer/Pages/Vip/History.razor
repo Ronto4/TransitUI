@@ -59,7 +59,11 @@
 
   private static string AssignPreviousHistory(IHistoryEntry? entry)
   {
-    _previous = entry;
+    if (entry is null || entry.ValidityMode is ValidityMode.Regular)
+    {
+      _previous = entry;
+    }
+
     return string.Empty;
   }
 
