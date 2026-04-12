@@ -182,5 +182,11 @@ public class VipHistory : IHistory<VipHistory>
             "Aufgrund des Feiertages in Berlin gibt es eine zusätzliche Fahrt der Linie N16."),
         new HistoryEntry(new DateOnly(2025, 3, 9), "Der reguläre Fahrplan auf der Linie N16 gilt wieder."),
         new HistoryEntry(new DateOnly(2025, 4, 7), "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
+        new HistoryEntry(new DateOnly(2025, 4, 18),
+            """
+            Mit Beginn der Tourismussaison verkehrt die Linie X15 wieder.
+            Darüberhinaus kommt es zu Änderungen der Betriebszeiten der F1; diese werden an Wochenenden um eine Stunde nach hinten verschoben.
+            """
+        ),
     ];
 }
