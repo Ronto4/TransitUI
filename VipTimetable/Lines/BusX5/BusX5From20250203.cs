@@ -3,10 +3,9 @@ using static VipTimetable.Minutes;
 
 namespace VipTimetable.Lines.BusX5;
 
-public class BusX5From20250203Until20250207 : ILineInstance
+public class BusX5From20250203 : ILineInstance
 {
     public DateOnly ValidFrom { get; } = new(2025, 2, 3);
-    public DateOnly? ValidUntilInclusive() => new DateOnly(2025, 2, 7);
     private static BusX5From20250106 Previous { get; } = new();
 
     public Line Line { get; } = Previous.Line with

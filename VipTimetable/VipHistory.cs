@@ -177,5 +177,10 @@ public class VipHistory : IHistory<VipHistory>
             Außerdem kommt es zu kleineren Fahrplananpassungen.
             """
         ),
+        new HistoryEntry(new DateOnly(2025, 2, 10), "Während der vorlesungsfreien Zeit verkehrt die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2025, 3, 8),
+            "Aufgrund des Feiertages in Berlin gibt es eine zusätzliche Fahrt der Linie N16."),
+        new HistoryEntry(new DateOnly(2025, 3, 9), "Der reguläre Fahrplan auf der Linie N16 gilt wieder."),
+        new HistoryEntry(new DateOnly(2025, 4, 7), "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
     ];
 }
