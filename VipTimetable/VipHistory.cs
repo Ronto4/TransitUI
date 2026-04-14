@@ -258,5 +258,8 @@ public class VipHistory : IHistory<VipHistory>
             Der Fahrplan der Linie 609 von diesem Tag liegt leider aktuell nicht vor.
             """
         ),
+        new HistoryEntry(new DateOnly(2025, 7, 21), "Während der vorlesungsfreien Zeit verkehrt die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2025, 10, 13),
+            "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
     ];
 }
