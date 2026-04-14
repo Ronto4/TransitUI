@@ -53,7 +53,11 @@
 @if (StartStopForStopView is { } startStop)
 {
     <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLinesMapping()"
-                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveDate ?? new DateOnly()"/>
+                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveDate ?? new DateOnly()"
+                   ValidityMode="HistoryEntry?.ValidityMode ?? ValidityMode.Regular"
+                   DaysOfOperationOnDayOfTimetable="IHistory<VipHistory>.OperationOn(
+                       HistoryEntry?.EffectiveDate ?? new DateOnly()
+                   )"/>
 }
 else
 {

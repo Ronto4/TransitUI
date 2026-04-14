@@ -104,16 +104,21 @@ public partial record Line
                     Trip = connectingTrip,
                 };
 
+                // For both:
+                // In course of adding single-day timetable changes (2026-04-13),
+                // the more strict requirement `trip.DaysOfOperation == DaysOfOperation`
+                // has been softened to `(trip.DaysOfOperation & DaysOfOperation) == DaysOfOperation`
+                // in order to still show the connections on those single-day timetables where days might not match.
                 bool TripMatchesComing(Trip trip) =>
                     StartTime == trip.TimeAtStop(trip.Route.StopPositions.Length - 1).Add(connection.Delay) &&
                     (connection.ConnectingId is 0
-                        ? trip.DaysOfOperation == DaysOfOperation
+                        ? (trip.DaysOfOperation & DaysOfOperation) == DaysOfOperation
                         : trip.ConnectionId == connection.ConnectingId);
 
                 bool TripMatchesContinuing(Trip trip) =>
                     trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
                     (connection.ConnectingId is 0
-                        ? trip.DaysOfOperation == DaysOfOperation
+                        ? (trip.DaysOfOperation & DaysOfOperation) == DaysOfOperation
                         : trip.ConnectionId == connection.ConnectingId);
             }).WhereNotNull();
 

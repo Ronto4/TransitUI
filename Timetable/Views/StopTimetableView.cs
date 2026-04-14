@@ -263,6 +263,11 @@ public class StopTimetableView
     public DateOnly DayOfTimetable { get; }
 
     /// <summary>
+    /// The <see cref="Timetable.ValidityMode"/> of the underlying timetable.
+    /// </summary>
+    public ValidityMode ValidityMode { get; }
+
+    /// <summary>
     /// Create a new instance of a <see cref="StopTimetableView"/>.
     /// </summary>
     /// <param name="allLines">All <see cref="Timetable.Line"/>s of the network, indexed by their id.</param>
@@ -273,11 +278,13 @@ public class StopTimetableView
     /// </param>
     /// <param name="startStop">The <see cref="Timetable.Stop"/> where this <see cref="StopTimetableView"/> is positioned at.</param>
     /// <param name="dateOfTimetable">The first day on which this timetable is valid.</param>
+    /// <param name="validityMode">The <see cref="Timetable.ValidityMode"/> of the underlying timetable.</param>
     public StopTimetableView(IReadOnlyDictionary<string, Line> allLines, IReadOnlyCollection<Line.Trip> trips,
         IReadOnlyCollection<DaysOfOperation> daysPartition,
-        Stop startStop, DateOnly dateOfTimetable)
+        Stop startStop, DateOnly dateOfTimetable, ValidityMode validityMode)
     {
         DayOfTimetable = dateOfTimetable;
+        ValidityMode = validityMode;
         StartStop = startStop;
         DaysPartition = daysPartition;
 
@@ -384,8 +391,8 @@ public class StopTimetableView
                     // Re-order entries in stop info.
                     foreach (var (stopInfo, stopInfoIndex) in stopInfos.Select((stopInfo, index) => (stopInfo, index)))
                     {
-                        foreach (var (previousIndex, orderedIndex) in previousToOrderedMapping.Select(
-                                     (previousIndex, orderedIndex) => (previousIndex, orderedIndex)))
+                        foreach (var (previousIndex, orderedIndex) in previousToOrderedMapping.Select((previousIndex,
+                                     orderedIndex) => (previousIndex, orderedIndex)))
                         {
                             stopInfo.Times[orderedIndex] = previousRoutes[previousIndex][stopInfoIndex];
                         }

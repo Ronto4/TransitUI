@@ -5,9 +5,10 @@ namespace VipTimetable;
 
 public class HistoryEntry : IHistoryEntry
 {
-    public HistoryEntry(DateOnly fromDate, string description)
+    public HistoryEntry(DateOnly fromDate, ValidityMode validityMode, string description)
     {
         EffectiveDate = fromDate;
+        ValidityMode = validityMode;
         LinesById = new Dictionary<string, Line>(Lines.Lines.LinesById
             .Select(entry => (lineId: entry.Key, Line: entry.Value.AtTime(EffectiveDate)))
             .Where(tuple => tuple.Line is not null)
@@ -15,7 +16,12 @@ public class HistoryEntry : IHistoryEntry
         Description = description;
     }
 
+    public HistoryEntry(DateOnly fromDate, string description) : this(fromDate, ValidityMode.Regular, description)
+    {
+    }
+
     public DateOnly EffectiveDate { get; }
+    public ValidityMode ValidityMode { get; }
     public IReadOnlyDictionary<string, Line> LinesById { get; }
     public string Description { get; }
 }

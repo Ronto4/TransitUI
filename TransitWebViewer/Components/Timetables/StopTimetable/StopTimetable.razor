@@ -24,6 +24,8 @@ else
 @code {
 
     [Parameter, EditorRequired] public required DateOnly DayOfTimetable { get; init; }
+    [Parameter, EditorRequired] public required ValidityMode ValidityMode { get; init; }
+    [Parameter, EditorRequired] public required DaysOfOperation DaysOfOperationOnDayOfTimetable { get; init; }
 
     /// <summary>
     /// The stop which is used as the position of this timetable.
@@ -55,6 +57,22 @@ else
     }
 
     private StopTimetableView? _stopTimetableView = null;
-    private StopTimetableView StopTimetableView => _stopTimetableView ??= new StopTimetableView(AllLines, SourceTripsForTimetable, DaysPartition, TimetableOriginStop, DayOfTimetable);
+
+    private StopTimetableView StopTimetableView => _stopTimetableView ??= new StopTimetableView(
+        AllLines,
+        SourceTripsForTimetable
+            .Select(trip => trip with
+            {
+                DaysOfOperation = trip.DaysOfOperation & (ValidityMode is ValidityMode.Regular
+                    ? DaysOfOperation.Daily
+                    : DaysOfOperationOnDayOfTimetable)
+            })
+            .Where(trip => trip.DaysOfOperation != DaysOfOperation.None)
+            .ToArray(),
+        ValidityMode is ValidityMode.Regular ? DaysPartition : [DaysOfOperationOnDayOfTimetable],
+        TimetableOriginStop,
+        DayOfTimetable,
+        ValidityMode
+    );
 
 }

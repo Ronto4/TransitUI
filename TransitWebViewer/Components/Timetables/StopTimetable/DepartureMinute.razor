@@ -27,11 +27,20 @@
         ? ""
         : (days & mask) switch
         {
+            DaysOfOperation.SchoolMonday when mask is DaysOfOperation.School => "1",
+            DaysOfOperation.HolidayMonday when mask is DaysOfOperation.Holiday => "1",
             DaysOfOperation.Monday => "1",
+            DaysOfOperation.SchoolTuesday when mask is DaysOfOperation.School => "2",
+            DaysOfOperation.HolidayTuesday when mask is DaysOfOperation.Holiday => "2",
             DaysOfOperation.Tuesday => "2",
+            DaysOfOperation.SchoolWednesday when mask is DaysOfOperation.School => "3",
+            DaysOfOperation.HolidayWednesday when mask is DaysOfOperation.Holiday => "3",
             DaysOfOperation.Wednesday => "3",
+            DaysOfOperation.SchoolThursday when mask is DaysOfOperation.School => "4",
+            DaysOfOperation.HolidayThursday when mask is DaysOfOperation.Holiday => "4",
             DaysOfOperation.Thursday => "4",
             DaysOfOperation.SchoolFriday when mask is DaysOfOperation.School => "5",
+            DaysOfOperation.HolidayFriday when mask is DaysOfOperation.Holiday => "5",
             DaysOfOperation.SchoolFriday => "5 (99)",
             DaysOfOperation.Friday => "5",
             DaysOfOperation.Saturday => "6",

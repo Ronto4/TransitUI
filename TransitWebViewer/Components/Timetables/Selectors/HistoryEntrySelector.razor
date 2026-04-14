@@ -4,12 +4,24 @@
 @inject NavigationManager Navigation
 
 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    @(HistoryEntry is null ? "Fahrplanperiode" : $"ab {HistoryEntry.EffectiveDate}")
+    @(HistoryEntry is null ? "Fahrplanperiode" : $"{(HistoryEntry.ValidityMode is ValidityMode.Regular ? "ab" : "am")} {HistoryEntry.EffectiveDate}")
 </button>
 <ul class="dropdown-menu">
     @foreach (var historyEntry in VipHistory.History)
     {
-        <li><a class="dropdown-item" @onclick="_ => { HistoryEntry = historyEntry; EmitUpdate(); }">ab @historyEntry.EffectiveDate</a></li>
+        <li>
+            <a class="dropdown-item"
+               @onclick="_ => { HistoryEntry = historyEntry; EmitUpdate(); }">
+                @if (historyEntry.ValidityMode is ValidityMode.Regular)
+                {
+                    @("ab ")
+                }
+                else
+                {
+                    @("am ")
+                }
+                @historyEntry.EffectiveDate</a>
+        </li>
     }
 </ul>
 
