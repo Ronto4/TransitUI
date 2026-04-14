@@ -550,4 +550,5 @@ internal static class Stops
     public static Stop BerlinSNikolassee { get; } = new() { City = Berlin, InitialName = "S Nikolassee" };
     public static Stop KietzerStr { get; } = new() { City = Potsdam, InitialName = "Kietzer Str." };
     public static Stop MarquardterStr { get; } = new() { City = Potsdam, InitialName = "Marquardter Str." };
+    public static Stop KrampnitzerTor { get; } = new() { City = Potsdam, InitialName = "Krampnitzer Tor" };
 }

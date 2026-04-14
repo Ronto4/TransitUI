@@ -250,5 +250,13 @@ public class VipHistory : IHistory<VipHistory>
             "Wegen des Feiertags in Berlin gibt es Zusatzfahrten auf der Linie N16."),
         new HistoryEntry(new DateOnly(2025, 5, 30), ValidityMode.OnlyOnThisDay,
             "Am Brückentag nach Christi Himmelfahrt verkehrt die Linie X15 anstelle der Linie X5."),
+        new HistoryEntry(new DateOnly(2025, 6, 14), ValidityMode.OnlyOnThisDay,
+            """
+            Aufgrund des Tages der offenen Tür in Krampnitz wird
+            die Linie 609 tagsüber durch das Kasernengelände geleitet
+            und Richtung Campus Jungfernsee durch die Linie 609E auf einen 20-Minuten-Takt verdichtet.
+            Der Fahrplan der Linie 609 von diesem Tag liegt leider aktuell nicht vor.
+            """
+        ),
     ];
 }
