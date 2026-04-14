@@ -259,9 +259,12 @@ public class VipHistory : IHistory<VipHistory>
             """
         ),
         new HistoryEntry(new DateOnly(2025, 7, 21), "Während der vorlesungsfreien Zeit verkehrt die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2025, 10, 11),
+            "Während des Winters fährt die Linie X15 nicht."),
         new HistoryEntry(new DateOnly(2025, 10, 13),
             "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
         new HistoryEntry(new DateOnly(2026, 2, 9), "Während der vorlesungsfreien Zeit verkehrt die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2026, 4, 3), "Mit Beginn der Tourismussaison verkehrt die Linie X15 wieder."),
         new HistoryEntry(new DateOnly(2026, 4, 13),
             "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
     ];
