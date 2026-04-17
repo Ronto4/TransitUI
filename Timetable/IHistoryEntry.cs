@@ -1,7 +1,7 @@
 namespace Timetable;
 
 /// <summary>
-/// One point in time of the network with all of the lines available from <see cref="EffectiveDate"/>.
+/// One point in time of the network with all of the lines available from <see cref="EffectiveFrom"/>.
 /// </summary>
 public interface IHistoryEntry
 {
@@ -11,12 +11,12 @@ public interface IHistoryEntry
     /// <br/><br/>
     /// Note: <see cref="LineOperationTime.Nighttime"/> only lines switch to the new timetable in the evening of this day.
     /// </summary>
-    public DateOnly EffectiveDate { get; }
+    public DateOnly EffectiveFrom { get; }
 
     /// <summary>
     /// Indicate whether this history entry is valid
-    /// also for all dates following <see cref="EffectiveDate"/> (<see cref="ValidityMode.Regular"/>)
-    /// or only for <see cref="EffectiveDate"/> (<see cref="ValidityMode.OnlyOnThisDay"/>).
+    /// also for all dates following <see cref="EffectiveFrom"/> (<see cref="ValidityMode.Regular"/>)
+    /// or only for <see cref="EffectiveFrom"/> (<see cref="ValidityMode.OnlyOnThisDay"/>).
     /// </summary>
     public ValidityMode ValidityMode { get; }
 

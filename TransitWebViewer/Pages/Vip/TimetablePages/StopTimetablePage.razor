@@ -37,7 +37,7 @@
 <div class="button-group">
     <HistoryEntrySelector InitialDate="QueryDate ?? DateOnly.FromDateTime(DateTime.Now)" OnUpdate="historyEntry => { HistoryEntry = historyEntry; Trips = []; StateHasChanged(); }"/>
     <StopSelector InitialStopIndex="QueryStopInitialIndex" SourceTrips="Trips" SelectionMode="StopSelector.Mode.IntersectRouteStops"
-                  OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" ReferenceDate="HistoryEntry?.EffectiveDate ?? new DateOnly()"/>
+                  OnUpdate="stop => { StartStopForStopView = stop; StateHasChanged(); }" ReferenceDate="HistoryEntry?.EffectiveFrom ?? new DateOnly()"/>
     <DaysPartitionSelector InitialIndex="QueryDayPartitionInitialIndex" OnUpdate="daysPartition => { DaysPartition = daysPartition; StateHasChanged(); }"/>
 </div>
 
@@ -53,10 +53,10 @@
 @if (StartStopForStopView is { } startStop)
 {
     <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLinesMapping()"
-                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveDate ?? new DateOnly()"
+                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveFrom ?? new DateOnly()"
                    ValidityMode="HistoryEntry?.ValidityMode ?? ValidityMode.Regular"
                    DaysOfOperationOnDayOfTimetable="IHistory<VipHistory>.OperationOn(
-                       HistoryEntry?.EffectiveDate ?? new DateOnly()
+                       HistoryEntry?.EffectiveFrom ?? new DateOnly()
                    )"/>
 }
 else

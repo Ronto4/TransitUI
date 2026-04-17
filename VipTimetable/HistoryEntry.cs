@@ -7,10 +7,10 @@ public class HistoryEntry : IHistoryEntry
 {
     public HistoryEntry(DateOnly fromDate, ValidityMode validityMode, string description)
     {
-        EffectiveDate = fromDate;
+        EffectiveFrom = fromDate;
         ValidityMode = validityMode;
         LinesById = new Dictionary<string, Line>(Lines.Lines.LinesById
-            .Select(entry => (lineId: entry.Key, Line: entry.Value.AtTime(EffectiveDate)))
+            .Select(entry => (lineId: entry.Key, Line: entry.Value.AtTime(EffectiveFrom)))
             .Where(tuple => tuple.Line is not null)
             .Select(tuple => new KeyValuePair<string, Line>(tuple.lineId, tuple.Line!.Line))).ToFrozenDictionary();
         Description = description;
@@ -20,7 +20,20 @@ public class HistoryEntry : IHistoryEntry
     {
     }
 
-    public DateOnly EffectiveDate { get; }
+    public HistoryEntry(DateOnly fromDate, DateOnly untilDate, string description) : this(fromDate, ValidityMode.Regular, description)
+    {
+        
+        EffectiveFrom = fromDate;
+        EffectiveUntil = untilDate;
+        LinesById = new Dictionary<string, Line>(Lines.Lines.LinesById
+            .Select(entry => (lineId: entry.Key, Line: entry.Value.AtTime(EffectiveFrom)))
+            .Where(tuple => tuple.Line is not null)
+            .Select(tuple => new KeyValuePair<string, Line>(tuple.lineId, tuple.Line!.Line))).ToFrozenDictionary();
+        Description = description;
+    }
+
+    public DateOnly EffectiveFrom { get; }
+    public DateOnly? EffectiveUntil { get; }
     public ValidityMode ValidityMode { get; }
     public IReadOnlyDictionary<string, Line> LinesById { get; }
     public string Description { get; }

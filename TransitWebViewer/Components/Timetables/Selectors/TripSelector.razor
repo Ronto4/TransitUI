@@ -24,7 +24,7 @@
                     <div class="form-check-inline">
                         <input class="form-check-input" type="checkbox" checked="@Routes[index].Contains(route)" value="" id="@route.GetHashCode()" @onchange="e => { if (e.Value is true) Routes[index].Add(route);else Routes[index].Remove(route); EmitUpdate(); }">
                         <label class="form-check-label" for="@route.GetHashCode()">
-                            <RouteName Route="route" ReferenceDate="HistoryEntry.EffectiveDate" ReferenceCity="ReferenceCity"/>
+                            <RouteName Route="route" ReferenceDate="HistoryEntry.EffectiveFrom" ReferenceCity="ReferenceCity"/>
                         </label>
                     </div>
                 }

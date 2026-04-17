@@ -115,7 +115,7 @@
         {
           @("Nur am ")
         }
-        @entry.EffectiveDate.ToString("D")
+        @entry.EffectiveFrom.ToString("D")
       </th>
       <td>
         @((MarkupString)entry.Description)
@@ -174,12 +174,12 @@
             {
               <tr>
                 <th scope="row">@line.Name</th>
-                <td>@overviewRoute.StopPositions.First().Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
+                <td>@overviewRoute.StopPositions.First().Stop.DisplayName(entry.EffectiveFrom, Cities.Potsdam)</td>
                 <td>
                   <span>
                     @for (var i = 1; i < overviewRoute.StopPositions.Length - 1; ++i)
                     {
-                      @overviewRoute.StopPositions[i].Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)
+                      @overviewRoute.StopPositions[i].Stop.DisplayName(entry.EffectiveFrom, Cities.Potsdam)
                       @if (i < overviewRoute.StopPositions.Length - 2)
                       {
                         @(overviewRoute.InterpretAsBidirectional ? NDashSpaces : RightArrowSpaces)
@@ -191,7 +191,7 @@
                     <span class="fst-italic @(overviewRoute.StopPositions.Length == 3 ? "ps-1" : "")">(@(overviewRoute.InterpretAsBidirectional ? "in beiden Richtungen" : "nur in Richtung"))</span>
                   }
                 </td>
-                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
+                <td>@overviewRoute.StopPositions.Last().Stop.DisplayName(entry.EffectiveFrom, Cities.Potsdam)</td>
                 @* <td>ViP</td> *@
               </tr>
             }
@@ -203,7 +203,7 @@
           @code {
 
             private static IEnumerable<Stop> AllStops(IEnumerable<Line> lines) => lines.SelectMany(line => line.Routes).SelectMany(route => route.StopPositions).Select(position => position.Stop).Distinct();
-            private static IEnumerable<Stop> ChangedStopNames(IHistoryEntry entry) => AllStops(entry.LinesById.Values).Where(stop => stop.FullName(entry.EffectiveDate.AddDays(-1)) != stop.FullName(entry.EffectiveDate)).OrderBy(stop => stop.FullName(entry.EffectiveDate.AddDays(-1)));
+            private static IEnumerable<Stop> ChangedStopNames(IHistoryEntry entry) => AllStops(entry.LinesById.Values).Where(stop => stop.FullName(entry.EffectiveFrom.AddDays(-1)) != stop.FullName(entry.EffectiveFrom)).OrderBy(stop => stop.FullName(entry.EffectiveFrom.AddDays(-1)));
 
           }
           @if (ChangedStopNames(entry).Any())
@@ -220,8 +220,8 @@
               @foreach (var stop in ChangedStopNames(entry))
               {
                 <tr>
-                  <td>@stop.DisplayName(entry.EffectiveDate.AddDays(-1), Cities.Potsdam)</td>
-                  <td>@stop.DisplayName(entry.EffectiveDate, Cities.Potsdam)</td>
+                  <td>@stop.DisplayName(entry.EffectiveFrom.AddDays(-1), Cities.Potsdam)</td>
+                  <td>@stop.DisplayName(entry.EffectiveFrom, Cities.Potsdam)</td>
                 </tr>
               }
               </tbody>
@@ -234,7 +234,7 @@
           <thead>
           <tr>
             <th rowspan="1" colspan="2" scope="col">Strecke</th>
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
             {
               <th rowspan="1" colspan="7" scope="col">
                 @if (entry.ValidityMode is ValidityMode.Regular)
@@ -243,12 +243,12 @@
                 }
                 else
                 {
-                  @entry.EffectiveDate.ToString("D")
+                  @entry.EffectiveFrom.ToString("D")
                 }
               </th>
             }
 
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
             {
               <th rowspan="1" colspan="7" scope="col">
                 @if (entry.ValidityMode is ValidityMode.Regular)
@@ -257,12 +257,12 @@
                 }
                 else
                 {
-                  @entry.EffectiveDate.ToString("D")
+                  @entry.EffectiveFrom.ToString("D")
                 }
               </th>
             }
 
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
             {
               <th rowspan="1" colspan="4" scope="col">
                 @if (entry.ValidityMode is ValidityMode.Regular)
@@ -271,12 +271,12 @@
                 }
                 else
                 {
-                  @entry.EffectiveDate.ToString("D")
+                  @entry.EffectiveFrom.ToString("D")
                 }
               </th>
             }
 
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
             {
               <th rowspan="1" colspan="4" scope="col">
                 @if (entry.ValidityMode is ValidityMode.Regular)
@@ -285,7 +285,7 @@
                 }
                 else
                 {
-                  @entry.EffectiveDate.ToString("D")
+                  @entry.EffectiveFrom.ToString("D")
                 }
               </th>
             }
@@ -293,7 +293,7 @@
           <tr>
             <th scope="col">Linie</th>
             <th scope="col">Abschnitt</th>
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
             {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–6 Uhr</th>
@@ -303,7 +303,7 @@
               <th scope="col">18–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
             }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
             {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–6 Uhr</th>
@@ -313,14 +313,14 @@
               <th scope="col">18–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
             }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
             {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–7 Uhr</th>
               <th scope="col">7–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
             }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveDate))
+            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
             {
               <th scope="col">1–6 Uhr</th>
               <th scope="col">6–10 Uhr</th>
@@ -380,7 +380,7 @@
               private static Dictionary<Line.Route, List<string>> GetFrequencies(IHistoryEntry entry, Line line, string lineId, bool deduplicateWithPrevious = true)
               {
                 Dictionary<Line.Route, List<string>> all = new();
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveDate))
+                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
                 {
                   var school = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
@@ -390,7 +390,7 @@
                     (new TimeOnly(13, 0), new TimeOnly(18, 0)),
                     (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.School : IHistory<VipHistory>.OperationOn(entry.EffectiveDate));
+                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.School : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
                   foreach (var (route, frequencies) in school)
                   {
                     if (!all.ContainsKey(route))
@@ -401,7 +401,7 @@
                   }
                 }
 
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveDate))
+                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
                 {
                   var holiday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
@@ -411,7 +411,7 @@
                     (new TimeOnly(13, 0), new TimeOnly(18, 0)),
                     (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Holiday : IHistory<VipHistory>.OperationOn(entry.EffectiveDate));
+                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Holiday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
                   foreach (var (route, frequencies) in holiday)
                   {
                     if (!all.ContainsKey(route))
@@ -422,14 +422,14 @@
                   }
                 }
 
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveDate))
+                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
                 {
                   var saturday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                     (new TimeOnly(4, 0), new TimeOnly(7, 0)),
                     (new TimeOnly(7, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Saturday : IHistory<VipHistory>.OperationOn(entry.EffectiveDate));
+                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Saturday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
                   foreach (var (route, frequencies) in saturday)
                   {
                     if (!all.ContainsKey(route))
@@ -440,14 +440,14 @@
                   }
                 }
 
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveDate))
+                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
                 {
                   var sunday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(6, 0)),
                     (new TimeOnly(6, 0), new TimeOnly(10, 0)),
                     (new TimeOnly(10, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Sunday : IHistory<VipHistory>.OperationOn(entry.EffectiveDate));
+                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Sunday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
                   foreach (var (route, frequencies) in sunday)
                   {
                     if (!all.ContainsKey(route))
@@ -468,7 +468,7 @@
               {
                 <tr class="@(!OnlyShowMainRoutes && line.MainRoutes.Contains(route) ? "table-success" : "")">
                   <td>@line.Name</td>
-                  <td><RouteName Route="route" ReferenceDate="entry.EffectiveDate" ReferenceCity="Cities.Potsdam"/></td>
+                  <td><RouteName Route="route" ReferenceDate="entry.EffectiveFrom" ReferenceCity="Cities.Potsdam"/></td>
                   @foreach (var frequency in frequencies)
                   {
                     <td>@frequency</td>

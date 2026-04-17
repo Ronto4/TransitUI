@@ -31,7 +31,7 @@ public interface IHistory<TSelf> where TSelf : IHistory<TSelf>
     /// If the <paramref name="date"/> is before the first <see cref="IHistoryEntry"/> in <see cref="History"/>, <c>null</c> will be returned.
     /// </summary>
     public static IHistoryEntry? EntryAt(DateOnly date) =>
-        TSelf.History.LastOrDefault(entry => entry.EffectiveDate <= date);
+        TSelf.History.LastOrDefault(entry => entry.EffectiveFrom <= date);
 
     /// <summary>
     /// Get the <see cref="DaysOfOperation"/> of the provided <paramref name="date"/>.
