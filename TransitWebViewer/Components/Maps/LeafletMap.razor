@@ -3,32 +3,88 @@
 @inject IJSRuntime JsRuntime
 @inject NavigationManager NavigationManager
 
-<div id="map" style="height: 500px;"></div>
+<div id="map" style="height: 90vh;"></div>
 
 
 @code {
     private IJSObjectReference? _leafletMap;
 
     string TtssProxyUrl => $"{NavigationManager.BaseUri}api/vip";
-    
+    private TtssApi? _ttssApi = null;
+
+    TtssApi TtssApi
+    {
+        get
+        {
+            if (_ttssApi is null)
+            {
+                _ttssApi =
+                    new TtssApi
+                    {
+                        Language = "de",
+                        BaseUri = new Uri("https://www.swp-potsdam.de/"),
+                        ProxyUri = new Uri(TtssProxyUrl),
+                        // ProxyUri = new Uri("http://localhost:5025/api/vip"),
+                    };
+            }
+
+            return _ttssApi;
+        }
+    }
+
     private Timer? Timer { get; set; } = null;
 
     private async Task VehicleUpdate()
     {
-        var ttssApi = new TtssApi
+        var dotNetReference = DotNetObjectReference.Create(this);
+        var vehiclesResponse = await TtssApi.GetVehiclesAsync(new VehicleRequest());
+        var vehicles = vehiclesResponse.Vehicles.Where(vehicle => vehicle is { IsDeleted: false, Position: not null }).ToArray();
+        foreach (var vehicle in vehicles)
         {
-            Language = "de",
-            BaseUri = new Uri("https://www.swp-potsdam.de/"),
-            ProxyUri = new Uri(TtssProxyUrl),
-            // ProxyUri = new Uri("http://localhost:5177"),
-        };
-        var vehicles = await ttssApi.GetVehiclesAsync(new VehicleRequest());
-        foreach (var vehicle in vehicles.Vehicles)
+            const string lineBreak = "<br />";
+            var direction = new Func<string>(() =>
+            {
+                var direction = vehicle.Direction ?? "unbekannt";
+                var firstSpace = direction.IndexOf(" ", StringComparison.Ordinal);
+                if (firstSpace > -1 && direction[..firstSpace] == direction[(firstSpace + 1)..(firstSpace * 2 + 1)])
+                {
+                    direction = direction[firstSpace..];
+                }
+
+                direction = direction.Replace("->", $"{lineBreak}-> ");
+                return string.Join(lineBreak, direction.Split("//").Select(part => part.Trim()).ToArray());
+            })();
+            await JsRuntime.InvokeVoidAsync(
+                "leafletMap.vehicleAt",
+                dotNetReference,
+                _leafletMap,
+                vehicle.VehicleId,
+                vehicle.Position!.Latitude,
+                vehicle.Position.Longitude,
+                direction,
+                vehicle.Color?.Replace("0x", "#") ?? "#000000",
+                vehicle.TripId
+            );
+        }
+
+        // See https://github.com/dotnet/aspnetcore/issues/8743#issuecomment-476261870 for the cast to `object`.
+        await JsRuntime.InvokeVoidAsync("leafletMap.keepOnlyVehicles", (object)vehicles.Select(vehicle => vehicle.VehicleId).ToArray());
+    }
+
+    [JSInvokable(nameof(OnOpenTripMarker))]
+    public async Task OnOpenTripMarker(string? tripId)
+    {
+        if (tripId is null)
         {
-            if (vehicle.IsDeleted) continue;
-            if (vehicle.Position is null) continue;
-            await JsRuntime.InvokeAsync<IJSObjectReference>(
-                "leafletMap.vehicleAt", _leafletMap, vehicle.Position.Latitude, vehicle.Position.Longitude, vehicle.Direction ?? "unbekannt"
+            await Console.Error.WriteLineAsync("Cannot render trip path as no trip is was set.");
+            return;
+        }
+
+        var paths = await TtssApi.GetTripPathsAsync(new TripPathsRequest { TripId = tripId });
+        foreach (var path in paths.Paths)
+        {
+            await JsRuntime.InvokeVoidAsync(
+                "leafletMap.drawRoute", _leafletMap, path.Waypoints, path.Color, true, tripId
             );
         }
     }
@@ -42,9 +98,7 @@
                 "leafletMap.initialize", "map", 52.395833, 13.061389, 13
             );
 
-            await VehicleUpdate();
-
-            // Timer = new Timer(_ => Task.Run(VehicleUpdate), null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+            Timer = new Timer(_ => Task.Run(VehicleUpdate), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
         }
     }
 
