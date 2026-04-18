@@ -6,8 +6,8 @@ internal interface ILineInstance
 {
     public DateOnly ValidFrom { get; }
 
-    public DateOnly? ValidUntilInclusive() => ValidityMode() is Timetable.ValidityMode.OnlyOnThisDay ? ValidFrom : null;
+    public DateOnly? ValidUntilInclusive() => null;
 
-    public ValidityMode ValidityMode() => Timetable.ValidityMode.Regular;
+    public ValidityMode ValidityMode() => ValidUntilInclusive() is null ? Timetable.ValidityMode.Regular : Timetable.ValidityMode.Temporary;
     public Line Line { get; }
 }

@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Timetable;
 
 /// <summary>
@@ -7,7 +9,7 @@ namespace Timetable;
 /// only lines from midnight to 2am.
 /// </summary>
 [Flags]
-public enum DaysOfOperation
+public enum DaysOfOperation : int
 {
     /// <summary>
     /// No days
@@ -123,4 +125,74 @@ public enum DaysOfOperation
     /// Every day
     /// </summary>
     Daily = Weekday | Weekend,
+}
+
+/// <summary>
+/// Extensions for handling <see cref="DaysOfOperation"/>.
+/// </summary>
+public static class Extensions
+{
+    /// <summary>
+    /// Returns either <see cref="DaysOfOperation.Daily"/> or <see cref="DaysOfOperation.Weekday"/> or <see cref="DaysOfOperation.Weekend"/> or <see cref="DaysOfOperation.Saturday"/> or <see cref="DaysOfOperation.Sunday"/> or <see cref="DaysOfOperation.School"/> or <see cref="DaysOfOperation.Holiday"/>.
+    /// whichever matches the provided <paramref name="days"/> best.
+    /// </summary>
+    public static DaysOfOperation KindOfDay(this DaysOfOperation days, DaysOfOperation reference)
+    {
+        if (days is DaysOfOperation.Daily || days == reference)
+        {
+            return DaysOfOperation.Daily;
+        }
+
+        if (days is DaysOfOperation.Weekday)
+        {
+            return DaysOfOperation.Weekday;
+        }
+
+        if (days is DaysOfOperation.Weekend)
+        {
+            return DaysOfOperation.Weekend;
+        }
+
+        if (days is DaysOfOperation.School)
+        {
+            return DaysOfOperation.School;
+        }
+
+        if (days is DaysOfOperation.Holiday)
+        {
+            return DaysOfOperation.Holiday;
+        }
+
+        if (days is DaysOfOperation.Saturday)
+        {
+            return DaysOfOperation.Saturday;
+        }
+
+        if (days is DaysOfOperation.Sunday)
+        {
+            return DaysOfOperation.Sunday;
+        }
+
+        if (days is DaysOfOperation.Monday or DaysOfOperation.Tuesday or DaysOfOperation.Wednesday
+            or DaysOfOperation.Thursday or DaysOfOperation.Friday)
+        {
+            return DaysOfOperation.Weekday;
+        }
+
+        if (days is DaysOfOperation.SchoolMonday or DaysOfOperation.SchoolTuesday or DaysOfOperation.SchoolWednesday or
+            DaysOfOperation.SchoolThursday or DaysOfOperation.SchoolFriday)
+        {
+            return DaysOfOperation.School;
+        }
+
+
+        if (days is DaysOfOperation.HolidayMonday or DaysOfOperation.HolidayTuesday or DaysOfOperation.HolidayWednesday
+            or
+            DaysOfOperation.HolidayThursday or DaysOfOperation.HolidayFriday)
+        {
+            return DaysOfOperation.Holiday;
+        }
+
+        throw new Exception($"Unexpected value for days: {days}.");
+    }
 }

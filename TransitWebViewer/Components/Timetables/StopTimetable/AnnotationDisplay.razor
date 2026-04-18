@@ -75,10 +75,16 @@
                 Zwei Ziffern geben von&#x2026;bis an (z.&#8239;B. 74&#8239;=&#8239;Sonntag bis Donnerstag).
             </td>
         }
-        else
+        else if (StopTimetableView.DayOfTimetable == StopTimetableView.LastDayOfTimetable)
         {
             <td class="text-start align-content-center">
                 Dieser Fahrplan gilt <b>ausschließlich</b> am @StopTimetableView.DayOfTimetable.ToString("D").
+            </td>
+        }
+        else
+        {
+            <td class="text-start align-content-center">
+                Dieser Fahrplan gilt nur von @StopTimetableView.DayOfTimetable.ToString("D") bis @StopTimetableView.LastDayOfTimetable!.Value.ToString("D").
             </td>
         }
     </tr>

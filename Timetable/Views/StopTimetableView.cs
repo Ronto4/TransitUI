@@ -265,7 +265,12 @@ public class StopTimetableView
     /// <summary>
     /// The <see cref="Timetable.ValidityMode"/> of the underlying timetable.
     /// </summary>
-    public ValidityMode ValidityMode { get; }
+    public ValidityMode ValidityMode => LastDayOfTimetable is null ? ValidityMode.Regular : ValidityMode.Temporary;
+
+    /// <summary>
+    /// The last day on which this timetable is valid, if known.
+    /// </summary>
+    public DateOnly? LastDayOfTimetable { get; }
 
     /// <summary>
     /// Create a new instance of a <see cref="StopTimetableView"/>.
@@ -278,13 +283,13 @@ public class StopTimetableView
     /// </param>
     /// <param name="startStop">The <see cref="Timetable.Stop"/> where this <see cref="StopTimetableView"/> is positioned at.</param>
     /// <param name="dateOfTimetable">The first day on which this timetable is valid.</param>
-    /// <param name="validityMode">The <see cref="Timetable.ValidityMode"/> of the underlying timetable.</param>
+    /// <param name="lastDayOfTimetable">The last day on which this timetable is valid, if known.</param>
     public StopTimetableView(IReadOnlyDictionary<string, Line> allLines, IReadOnlyCollection<Line.Trip> trips,
         IReadOnlyCollection<DaysOfOperation> daysPartition,
-        Stop startStop, DateOnly dateOfTimetable, ValidityMode validityMode)
+        Stop startStop, DateOnly dateOfTimetable, DateOnly? lastDayOfTimetable)
     {
         DayOfTimetable = dateOfTimetable;
-        ValidityMode = validityMode;
+        LastDayOfTimetable = lastDayOfTimetable;
         StartStop = startStop;
         DaysPartition = daysPartition;
 

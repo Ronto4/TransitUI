@@ -2,6 +2,7 @@
 @using Timetable
 @using TransitWebViewer.Components.Timetables.StopTimetable
 @using TransitWebViewer.Components.Timetables.Selectors
+@using TransitWebViewer.Utils
 @using VipTimetable
 
 <h3>ViP - Haltestellenfahrpläne</h3>
@@ -52,12 +53,14 @@
 
 @if (StartStopForStopView is { } startStop)
 {
-    <StopTimetable TimetableOriginStop="startStop" SourceTripsForTimetable="Trips" AllLines="GetAllLinesMapping()"
-                   DaysPartition="DaysPartition" DayOfTimetable="HistoryEntry?.EffectiveFrom ?? new DateOnly()"
-                   ValidityMode="HistoryEntry?.ValidityMode ?? ValidityMode.Regular"
-                   DaysOfOperationOnDayOfTimetable="IHistory<VipHistory>.OperationOn(
-                       HistoryEntry?.EffectiveFrom ?? new DateOnly()
-                   )"/>
+    <StopTimetable
+        TimetableOriginStop="startStop"
+        SourceTripsForTimetable="Trips"
+        AllLines="GetAllLinesMapping()"
+        DaysPartition="DaysPartition"
+        DayOfTimetable="HistoryEntry?.EffectiveFrom ?? new DateOnly()"
+        LastDayOfTimetable="HistoryEntry?.EffectiveUntil"
+        DaysOfOperationOnDayOfTimetable="(HistoryEntry?.EffectiveFrom ?? new DateOnly()).AllDatesUntil(HistoryEntry?.EffectiveUntil ?? DateOnly.FromDateTime(DateTime.Now)).Select(IHistory<VipHistory>.OperationOn).ToArray()"/>
 }
 else
 {

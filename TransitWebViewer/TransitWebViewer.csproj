@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <LangVersion>13</LangVersion>
+        <WarningsAsErrors>RZ2012</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>

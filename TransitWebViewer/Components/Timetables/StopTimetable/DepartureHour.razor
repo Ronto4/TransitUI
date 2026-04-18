@@ -8,13 +8,13 @@
     {
         @foreach (var departure in departures)
         {
-            <td class="text-center align-content-center @(StopTimetableView.ValidityMode is ValidityMode.Regular ? StopTimetableView.DaysPartition.ElementAt(index).CssColor() : "")">
+            <td class="text-center align-content-center @(StopTimetableView.ValidityMode is ValidityMode.Regular ? StopTimetableView.DaysPartition.ElementAt(index).CssColor() : StopTimetableView.DaysPartition.ElementAt(index).KindOfDay(StopTimetableView.DaysPartition.Or()).CssColor() /* : departure.Days.KindOfDay(StopTimetableView.DaysPartition.Or()).CssColor()*/)">
                 <DepartureMinute Departure="departure" DayMask="StopTimetableView.DaysPartition.ElementAt(index)" StopTimetableView="StopTimetableView" />
             </td>
         }
         @for (var i = departures.Count; i < Math.Max(StopTimetableView.MaximumColumns.ElementAt(index), 1); ++i)
         {
-            <td class="text-center align-content-center @(StopTimetableView.ValidityMode is ValidityMode.Regular ? StopTimetableView.DaysPartition.ElementAt(index).CssColor() : "")"></td>
+            <td class="text-center align-content-center @(StopTimetableView.ValidityMode is ValidityMode.Regular ? StopTimetableView.DaysPartition.ElementAt(index).CssColor() : StopTimetableView.DaysPartition.ElementAt(index).KindOfDay(StopTimetableView.DaysPartition.Or()).CssColor())"></td>
         }
     }
 </tr>

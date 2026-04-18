@@ -24,8 +24,9 @@ else
 @code {
 
     [Parameter, EditorRequired] public required DateOnly DayOfTimetable { get; init; }
-    [Parameter, EditorRequired] public required ValidityMode ValidityMode { get; init; }
-    [Parameter, EditorRequired] public required DaysOfOperation DaysOfOperationOnDayOfTimetable { get; init; }
+    [Parameter, EditorRequired] public required DateOnly? LastDayOfTimetable { get; init; }
+    private ValidityMode ValidityMode => LastDayOfTimetable is null ? ValidityMode.Regular : ValidityMode.Temporary;
+    [Parameter, EditorRequired] public required DaysOfOperation[] DaysOfOperationOnDayOfTimetable { get; init; }
 
     /// <summary>
     /// The stop which is used as the position of this timetable.
@@ -65,14 +66,15 @@ else
             {
                 DaysOfOperation = trip.DaysOfOperation & (ValidityMode is ValidityMode.Regular
                     ? DaysOfOperation.Daily
-                    : DaysOfOperationOnDayOfTimetable)
+                        : (DaysOfOperation)Utils.Extensions.Or(DaysOfOperationOnDayOfTimetable.Cast<int>()))
+                    // : DaysOfOperationOnDayOfTimetable.Or() /* TODO: This has to be fixed to support more than one day. */ )
             })
             .Where(trip => trip.DaysOfOperation != DaysOfOperation.None)
             .ToArray(),
-        ValidityMode is ValidityMode.Regular ? DaysPartition : [DaysOfOperationOnDayOfTimetable],
+        ValidityMode is ValidityMode.Regular ? DaysPartition : DaysOfOperationOnDayOfTimetable,
         TimetableOriginStop,
         DayOfTimetable,
-        ValidityMode
+        LastDayOfTimetable
     );
 
 }

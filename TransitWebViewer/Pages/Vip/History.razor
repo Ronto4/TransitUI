@@ -2,6 +2,7 @@
 @using Timetable
 @using VipTimetable
 @using TransitWebViewer.Components.Timetables
+@using TransitWebViewer.Utils
 <h3>ViP &ndash; Liniengeschichte</h3>
 
 <style>
@@ -111,11 +112,17 @@
   {
     <tr>
       <th scope="row">
-        @if (entry.ValidityMode is ValidityMode.OnlyOnThisDay)
+        @if (entry.ValidityMode is ValidityMode.Regular)
         {
-          @("Nur am ")
+          @entry.EffectiveFrom.ToString("D")
+        } else if (entry.EffectiveFrom == entry.EffectiveUntil)
+        {
+          @($"Nur am {entry.EffectiveFrom.ToString("D")}")
         }
-        @entry.EffectiveFrom.ToString("D")
+        else
+        {
+          @($"Nur von {entry.EffectiveFrom.ToString("D")} bis {entry.EffectiveUntil!.Value.ToString("D")}")
+        }
       </th>
       <td>
         @((MarkupString)entry.Description)
@@ -234,66 +241,51 @@
           <thead>
           <tr>
             <th rowspan="1" colspan="2" scope="col">Strecke</th>
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
+            @if (entry.ValidityMode is ValidityMode.Regular)
             {
-              <th rowspan="1" colspan="7" scope="col">
-                @if (entry.ValidityMode is ValidityMode.Regular)
-                {
-                  @("Schultage")
-                }
-                else
-                {
-                  @entry.EffectiveFrom.ToString("D")
-                }
-              </th>
+              <th rowspan="1" colspan="7" scope="col">Schultage</th>
+              <th rowspan="1" colspan="7" scope="col">Ferien</th>
+              <th rowspan="1" colspan="4" scope="col">Samstag</th>
+              <th rowspan="1" colspan="4" scope="col">Sonntag</th>
             }
-
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
+            else
             {
-              <th rowspan="1" colspan="7" scope="col">
-                @if (entry.ValidityMode is ValidityMode.Regular)
+              @foreach (var date in entry.EffectiveFrom.AllDatesUntil(entry.EffectiveUntil!.Value))
+              {
+                @if (IHistory<VipHistory>.IsSchool(date))
                 {
-                  @("Ferien")
+                  <th rowspan="1" colspan="7" scope="col">
+                    @date.ToString("D")
+                  </th>
                 }
-                else
-                {
-                  @entry.EffectiveFrom.ToString("D")
-                }
-              </th>
-            }
 
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
-            {
-              <th rowspan="1" colspan="4" scope="col">
-                @if (entry.ValidityMode is ValidityMode.Regular)
+                @if (IHistory<VipHistory>.IsSchoolHoliday(date))
                 {
-                  @("Samstag")
+                  <th rowspan="1" colspan="7" scope="col">
+                    @date.ToString("D")
+                  </th>
                 }
-                else
-                {
-                  @entry.EffectiveFrom.ToString("D")
-                }
-              </th>
-            }
 
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
-            {
-              <th rowspan="1" colspan="4" scope="col">
-                @if (entry.ValidityMode is ValidityMode.Regular)
+                @if (IHistory<VipHistory>.IsSaturday(date))
                 {
-                  @("Sonntag")
+                  <th rowspan="1" colspan="4" scope="col">
+                    @date.ToString("D")
+                  </th>
                 }
-                else
+
+                @if (IHistory<VipHistory>.IsSunday(date))
                 {
-                  @entry.EffectiveFrom.ToString("D")
+                  <th rowspan="1" colspan="4" scope="col">
+                    @date.ToString("D")
+                  </th>
                 }
-              </th>
+              }
             }
           </tr>
           <tr>
             <th scope="col">Linie</th>
             <th scope="col">Abschnitt</th>
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
+            @if (entry.ValidityMode is ValidityMode.Regular)
             {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–6 Uhr</th>
@@ -302,9 +294,6 @@
               <th scope="col">13–18 Uhr</th>
               <th scope="col">18–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
-            }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
-            {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–6 Uhr</th>
               <th scope="col">6–9 Uhr</th>
@@ -312,20 +301,57 @@
               <th scope="col">13–18 Uhr</th>
               <th scope="col">18–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
-            }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
-            {
               <th scope="col">1–4 Uhr</th>
               <th scope="col">4–7 Uhr</th>
               <th scope="col">7–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
-            }
-            @if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
-            {
               <th scope="col">1–6 Uhr</th>
               <th scope="col">6–10 Uhr</th>
               <th scope="col">10–20 Uhr</th>
               <th scope="col">20–1 Uhr</th>
+            }
+            else
+            {
+              @foreach (var date in entry.EffectiveFrom.AllDatesUntil(entry.EffectiveUntil!.Value))
+              {
+                @if (IHistory<VipHistory>.IsSchool(date))
+                {
+                  <th scope="col">1–4 Uhr</th>
+                  <th scope="col">4–6 Uhr</th>
+                  <th scope="col">6–9 Uhr</th>
+                  <th scope="col">9–13 Uhr</th>
+                  <th scope="col">13–18 Uhr</th>
+                  <th scope="col">18–20 Uhr</th>
+                  <th scope="col">20–1 Uhr</th>
+                }
+
+                @if (IHistory<VipHistory>.IsSchoolHoliday(date))
+                {
+                  <th scope="col">1–4 Uhr</th>
+                  <th scope="col">4–6 Uhr</th>
+                  <th scope="col">6–9 Uhr</th>
+                  <th scope="col">9–13 Uhr</th>
+                  <th scope="col">13–18 Uhr</th>
+                  <th scope="col">18–20 Uhr</th>
+                  <th scope="col">20–1 Uhr</th>
+                }
+
+                @if (IHistory<VipHistory>.IsSaturday(date))
+                {
+                  <th scope="col">1–4 Uhr</th>
+                  <th scope="col">4–7 Uhr</th>
+                  <th scope="col">7–20 Uhr</th>
+                  <th scope="col">20–1 Uhr</th>
+                }
+
+                @if (IHistory<VipHistory>.IsSunday(date))
+                {
+                  <th scope="col">1–6 Uhr</th>
+                  <th scope="col">6–10 Uhr</th>
+                  <th scope="col">10–20 Uhr</th>
+                  <th scope="col">20–1 Uhr</th>
+                }
+              }
             }
           </tr>
           </thead>
@@ -380,7 +406,7 @@
               private static Dictionary<Line.Route, List<string>> GetFrequencies(IHistoryEntry entry, Line line, string lineId, bool deduplicateWithPrevious = true)
               {
                 Dictionary<Line.Route, List<string>> all = new();
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchool(entry.EffectiveFrom))
+                if (entry.ValidityMode is ValidityMode.Regular)
                 {
                   var school = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
@@ -390,7 +416,7 @@
                     (new TimeOnly(13, 0), new TimeOnly(18, 0)),
                     (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.School : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
+                  ], DaysOfOperation.School);
                   foreach (var (route, frequencies) in school)
                   {
                     if (!all.ContainsKey(route))
@@ -399,10 +425,6 @@
                     }
                     all[route].AddRange(frequencies);
                   }
-                }
-
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSchoolHoliday(entry.EffectiveFrom))
-                {
                   var holiday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                     (new TimeOnly(4, 0), new TimeOnly(6, 0)),
@@ -411,7 +433,7 @@
                     (new TimeOnly(13, 0), new TimeOnly(18, 0)),
                     (new TimeOnly(18, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Holiday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
+                  ], DaysOfOperation.Holiday);
                   foreach (var (route, frequencies) in holiday)
                   {
                     if (!all.ContainsKey(route))
@@ -420,16 +442,12 @@
                     }
                     all[route].AddRange(frequencies);
                   }
-                }
-
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSaturday(entry.EffectiveFrom))
-                {
                   var saturday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(4, 0)),
                     (new TimeOnly(4, 0), new TimeOnly(7, 0)),
                     (new TimeOnly(7, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Saturday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
+                  ], DaysOfOperation.Saturday);
                   foreach (var (route, frequencies) in saturday)
                   {
                     if (!all.ContainsKey(route))
@@ -438,16 +456,12 @@
                     }
                     all[route].AddRange(frequencies);
                   }
-                }
-
-                if (entry.ValidityMode is ValidityMode.Regular || IHistory<VipHistory>.IsSunday(entry.EffectiveFrom))
-                {
                   var sunday = LineHelper.GetFrequencies(line, [
                     (new TimeOnly(1, 0), new TimeOnly(6, 0)),
                     (new TimeOnly(6, 0), new TimeOnly(10, 0)),
                     (new TimeOnly(10, 0), new TimeOnly(20, 0)),
                     (new TimeOnly(20, 0), new TimeOnly(1, 0))
-                  ], entry.ValidityMode is ValidityMode.Regular ? DaysOfOperation.Sunday : IHistory<VipHistory>.OperationOn(entry.EffectiveFrom));
+                  ], DaysOfOperation.Sunday);
                   foreach (var (route, frequencies) in sunday)
                   {
                     if (!all.ContainsKey(route))
@@ -455,6 +469,93 @@
                       all.Add(route, []);
                     }
                     all[route].AddRange(frequencies);
+                  }
+                }
+                else
+                {
+                  foreach (var date in entry.EffectiveFrom.AllDatesUntil(entry.EffectiveUntil!.Value))
+                  {
+                    if (IHistory<VipHistory>.IsSchool(date))
+                    {
+                      var school = LineHelper.GetFrequencies(line, [
+                        (new TimeOnly(1, 0), new TimeOnly(4, 0)),
+                        (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                        (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                        (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                        (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                        (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                        (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                      ], IHistory<VipHistory>.OperationOn(date));
+                      foreach (var (route, frequencies) in school)
+                      {
+                        if (!all.ContainsKey(route))
+                        {
+                          all.Add(route, []);
+                        }
+
+                        all[route].AddRange(frequencies);
+                      }
+                    }
+
+                    if (IHistory<VipHistory>.IsSchoolHoliday(date))
+                    {
+                      var holiday = LineHelper.GetFrequencies(line, [
+                        (new TimeOnly(1, 0), new TimeOnly(4, 0)),
+                        (new TimeOnly(4, 0), new TimeOnly(6, 0)),
+                        (new TimeOnly(6, 0), new TimeOnly(9, 0)),
+                        (new TimeOnly(9, 0), new TimeOnly(13, 0)),
+                        (new TimeOnly(13, 0), new TimeOnly(18, 0)),
+                        (new TimeOnly(18, 0), new TimeOnly(20, 0)),
+                        (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                      ], IHistory<VipHistory>.OperationOn(date));
+                      foreach (var (route, frequencies) in holiday)
+                      {
+                        if (!all.ContainsKey(route))
+                        {
+                          all.Add(route, []);
+                        }
+
+                        all[route].AddRange(frequencies);
+                      }
+                    }
+
+                    if (IHistory<VipHistory>.IsSaturday(date))
+                    {
+                      var saturday = LineHelper.GetFrequencies(line, [
+                        (new TimeOnly(1, 0), new TimeOnly(4, 0)),
+                        (new TimeOnly(4, 0), new TimeOnly(7, 0)),
+                        (new TimeOnly(7, 0), new TimeOnly(20, 0)),
+                        (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                      ], IHistory<VipHistory>.OperationOn(date));
+                      foreach (var (route, frequencies) in saturday)
+                      {
+                        if (!all.ContainsKey(route))
+                        {
+                          all.Add(route, []);
+                        }
+
+                        all[route].AddRange(frequencies);
+                      }
+                    }
+
+                    if (IHistory<VipHistory>.IsSunday(date))
+                    {
+                      var sunday = LineHelper.GetFrequencies(line, [
+                        (new TimeOnly(1, 0), new TimeOnly(6, 0)),
+                        (new TimeOnly(6, 0), new TimeOnly(10, 0)),
+                        (new TimeOnly(10, 0), new TimeOnly(20, 0)),
+                        (new TimeOnly(20, 0), new TimeOnly(1, 0))
+                      ], IHistory<VipHistory>.OperationOn(date));
+                      foreach (var (route, frequencies) in sunday)
+                      {
+                        if (!all.ContainsKey(route))
+                        {
+                          all.Add(route, []);
+                        }
+
+                        all[route].AddRange(frequencies);
+                      }
+                    }
                   }
                 }
 

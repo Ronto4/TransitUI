@@ -10,7 +10,7 @@
         </th>
         @if (StopTimetableView.ValidityMode is ValidityMode.Regular)
         {
-            @foreach (var (days, index) in StopTimetableView.DaysPartition.Select((days, index) => (days, index)))
+            @foreach (var (index, days) in StopTimetableView.DaysPartition.Index())
             {
                 <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)" class="@days.CssColor()">
                     @days.Display()
@@ -19,9 +19,12 @@
         }
         else
         {
-            <th scope="col" colspan="@StopTimetableView.MaximumColumns.Max()">
-                @StopTimetableView.DayOfTimetable.ToString("D")
-            </th>
+            @foreach (var (index, date) in StopTimetableView.DayOfTimetable.AllDatesUntil(StopTimetableView.LastDayOfTimetable ?? StopTimetableView.DayOfTimetable).Index())
+            {
+                <th scope="col" colspan="@StopTimetableView.MaximumColumns.ElementAt(index)" class="@(IHistory<VipTimetable.VipHistory>.OperationOn(date).KindOfDay(StopTimetableView.DaysPartition.Or()).CssColor())">
+                    @date.ToString("D")
+                </th>
+            }
         }
     </tr>
     </thead>

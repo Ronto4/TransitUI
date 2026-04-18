@@ -6,11 +6,11 @@ namespace Timetable;
 public enum ValidityMode
 {
     /// <summary>
-    /// Consider the provided date as the start of a validiity period.
+    /// Consider the provided date as the start of a validity period.
     /// </summary>
     Regular,
     /// <summary>
-    /// Consider the provided date as the only day on which the information is valid.
+    /// Consider the provided timetable period as a temporary measure.
     /// </summary>
-    OnlyOnThisDay,
+    Temporary,
 }

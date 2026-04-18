@@ -63,4 +63,16 @@ internal static class Extensions
             );
         return intersection;
     }
+
+    public static IEnumerable<DateOnly> AllDatesUntil(this DateOnly start, DateOnly until)
+    {
+        var days = until.DayNumber - start.DayNumber + 1 /* if they are identical we still want to count the `until` date. */;
+        return Enumerable.Range(0, days).Select(start.AddDays);
+    }
+
+    public static T Or<T>(this IEnumerable<T> enumerable)
+        where T : System.Numerics.IBitwiseOperators<T, T, T>, System.Numerics.IAdditiveIdentity<T, T> =>
+        enumerable.Aggregate(T.AdditiveIdentity, (prev, current) => prev | current);
+
+    public static DaysOfOperation Or(this IEnumerable<DaysOfOperation> days) => (DaysOfOperation)days.Cast<int>().Or();
 }

@@ -12,13 +12,19 @@ public interface IHistoryEntry
     /// Note: <see cref="LineOperationTime.Nighttime"/> only lines switch to the new timetable in the evening of this day.
     /// </summary>
     public DateOnly EffectiveFrom { get; }
-
+    /// <summary>
+    /// The last day on which the lines listed here are running.
+    /// If not specified, the history entry is valid starting at <see cref="EffectiveFrom"/>.
+    /// <br/><br/>
+    /// Note: TODO: Figure this out. // <see cref="LineOperationTime.Nighttime"/> only lines switch to the new timetable in the evening of this day.
+    /// </summary>
+    public DateOnly? EffectiveUntil { get; }
     /// <summary>
     /// Indicate whether this history entry is valid
-    /// also for all dates following <see cref="EffectiveFrom"/> (<see cref="ValidityMode.Regular"/>)
-    /// or only for <see cref="EffectiveFrom"/> (<see cref="ValidityMode.OnlyOnThisDay"/>).
+    /// for all dates following <see cref="EffectiveFrom"/> (<see cref="ValidityMode.Regular"/>)
+    /// or only temporarily until <see cref="EffectiveUntil"/> (<see cref="ValidityMode.Temporary"/>).
     /// </summary>
-    public ValidityMode ValidityMode { get; }
+    public ValidityMode ValidityMode => EffectiveUntil is null ? ValidityMode.Regular : ValidityMode.Temporary;
 
     /// <summary>
     /// All lines, indexed by their ID.

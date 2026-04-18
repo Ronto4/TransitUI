@@ -237,6 +237,7 @@ public class VipHistory : IHistory<VipHistory>
         new HistoryEntry(new DateOnly(2025, 3, 8),
             "Aufgrund des Feiertages in Berlin gibt es eine zusätzliche Fahrt der Linie N16."),
         new HistoryEntry(new DateOnly(2025, 3, 9), "Der reguläre Fahrplan auf der Linie N16 gilt wieder."),
+        new HistoryEntry(new DateOnly(2025, 4, 4), new DateOnly(2025, 4, 5), "Gleisbauarbeiten S Hbf"),
         new HistoryEntry(new DateOnly(2025, 4, 7), "Nach Ende der vorlesungsfreien Zeit verkehrt die Linie X5 wieder."),
         new HistoryEntry(new DateOnly(2025, 4, 18),
             """
@@ -244,13 +245,13 @@ public class VipHistory : IHistory<VipHistory>
             Darüberhinaus kommt es zu Änderungen der Betriebszeiten der F1; diese werden an Wochenenden um eine Stunde nach hinten verschoben.
             """
         ),
-        new HistoryEntry(new DateOnly(2025, 5, 2), ValidityMode.OnlyOnThisDay,
+        new HistoryEntry(new DateOnly(2025, 5, 2), new DateOnly(2025, 5, 2),
             "Am Brückentag nach dem Ersten Mai verkehrt die Linie X15 anstelle der Linie X5."),
-        new HistoryEntry(new DateOnly(2025, 5, 8), ValidityMode.OnlyOnThisDay,
+        new HistoryEntry(new DateOnly(2025, 5, 8), new DateOnly(2025, 5, 8),
             "Wegen des Feiertags in Berlin gibt es Zusatzfahrten auf der Linie N16."),
-        new HistoryEntry(new DateOnly(2025, 5, 30), ValidityMode.OnlyOnThisDay,
+        new HistoryEntry(new DateOnly(2025, 5, 30), new DateOnly(2025, 5, 30),
             "Am Brückentag nach Christi Himmelfahrt verkehrt die Linie X15 anstelle der Linie X5."),
-        new HistoryEntry(new DateOnly(2025, 6, 14), ValidityMode.OnlyOnThisDay,
+        new HistoryEntry(new DateOnly(2025, 6, 14), new DateOnly(2025, 6, 14),
             """
             Aufgrund des Tages der offenen Tür in Krampnitz wird
             die Linie 609 tagsüber durch das Kasernengelände geleitet

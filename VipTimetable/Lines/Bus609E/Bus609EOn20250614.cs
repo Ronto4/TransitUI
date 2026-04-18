@@ -6,7 +6,7 @@ namespace VipTimetable.Lines.Bus609E;
 public class Bus609EOn20250614 : ILineInstance
 {
     public DateOnly ValidFrom { get; } = new(2025, 6, 14);
-    public ValidityMode ValidityMode() => Timetable.ValidityMode.OnlyOnThisDay;
+    public DateOnly? ValidUntilInclusive() => ValidFrom;
 
     public Line Line { get; } = new()
     {
