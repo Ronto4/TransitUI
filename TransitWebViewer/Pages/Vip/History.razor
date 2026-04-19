@@ -367,11 +367,14 @@
                 var previousFrequencies = GetFrequencies(entry, _previous.OrderedLinesById.Single(pair => pair.Key == lineId).Value, lineId, false);
                 return frequencies.Where(frequency =>
                 {
+                  return !previousFrequencies.Any(previous => frequency.Key.LooselyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value));
+                  /*
                   var value = previousFrequencies.Where(previous => frequency.Key.LooselyIsSame(previous.Key) && frequency.Value.SequenceEqual(previous.Value)).ToDictionary();
                   var ret = value.Count == 0;
                   // Console.Error.WriteLine(frequency.Key);
                   // Console.Error.WriteLine(string.Join(" | ", value.Select(val => $"{val.Key}: {string.Join(", ", val.Value)}")));
                   return ret;
+                  */
                 });
               }
 

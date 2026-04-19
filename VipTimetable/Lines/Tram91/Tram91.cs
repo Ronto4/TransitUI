@@ -12,5 +12,6 @@ internal class Tram91 : ICompleteLine
         new Tram91From20241215(),
         new Tram91From20250110Until20250112(),
         new Tram91From20250203(),
+        new Tram91From20250404Until20250405(),
     ];
 }

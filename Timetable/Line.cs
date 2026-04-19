@@ -24,7 +24,8 @@ public partial record Line
         get => _routes;
         init
         {
-            _routes = value;
+            // Deep-copy to prevent influence between routes in the history view.
+            _routes = value.Select(route => route with { }).ToArray();
             foreach (var route in Routes)
             {
                 route.Line = this;
