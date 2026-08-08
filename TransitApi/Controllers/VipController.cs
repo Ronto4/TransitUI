@@ -140,6 +140,32 @@ public class VipController : ControllerBase
             return NotFound(json);
         }
     }
+
+    [HttpGet("{stopId:int}/flat-json")]
+    public async Task<IActionResult> GetFlatJsonById(int stopId, [FromQuery(Name = "limit")] int? maybeLimit, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var request = new StopPassagesRequest
+            {
+                PassageMode = Mode.Departure,
+                StopName = stopId.ToString(),
+            };
+            var response = await _ttssApi.GetStopPassagesAsync(request, cancellationToken);
+            var relevant = response.Actual.AsEnumerable();
+            if (maybeLimit is int limit) {
+                relevant = relevant.Take(limit);
+            }
+            var flatResponse = relevant.SelectMany<Passage, string>(actual =>
+                [actual.PatternText ?? "?", actual.Direction, actual.MixedTime.Replace("%UNIT_MIN%", "min")]);
+            return Content(JsonSerializer.Serialize(flatResponse), "application/json");
+        }
+        catch (WebException ex)
+        {
+            var json = JsonSerializer.Serialize(ex);
+            return NotFound(json);
+        }
+    }
 }
 
 file static class TtssExtensions

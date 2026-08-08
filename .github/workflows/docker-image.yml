@@ -13,7 +13,7 @@ name: Publish Docker image
 
 on:
   push:
-    branches: [ "master" ]
+    # branches: [ "master" ]
 
 jobs:
   push_to_registry:
@@ -22,7 +22,8 @@ jobs:
     strategy:
       matrix:
         project: [TransitApi, TransitWebViewer]
-        tag: [latest, arm]
+        tag: [latest]
+        # tag: [latest, arm]
     permissions:
       packages: write
       contents: read
