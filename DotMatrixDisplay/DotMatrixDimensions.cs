@@ -2,6 +2,6 @@ namespace DotMatrixDisplay;
 
 public readonly record struct DotMatrixDimensions
 {
-    public required int Width { get; init; }
-    public required int Height { get; init; }
+    public required uint Width { get; init; }
+    public required uint Height { get; init; }
 }
