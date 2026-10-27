@@ -6,7 +6,7 @@ public readonly record struct DotMatrixCharacter
 
     public static DotMatrixCharacter EmptyPixel { get; } = new() {ActivePixels = Pixels.None};
 
-    public static Dictionary<char, DotMatrixCharacter> DotMatrixCharacters = new()
+    public static readonly Dictionary<char, DotMatrixCharacter> DotMatrixCharacters = new()
     {
         {
             'a',
@@ -717,13 +717,66 @@ public readonly record struct DotMatrixCharacter
                 ActivePixels = Pixels.Row0Col1 | Pixels.Row1Col2 | Pixels.Row2Col3 | Pixels.Row3Col3 | Pixels.Row4Col3 | Pixels.Row5Col2 | Pixels.Row6Col1
             }
         },
+        /*
+        {
+            'ä',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x04AA2AAA1E
+            }
+        },
+        {
+            'Ä',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x1EA424A41E
+            }
+        },
         {
             'ö',
             new DotMatrixCharacter
             {
                 ActivePixels = (Pixels)0x1CA222A21C
             }
-        }
+        },
+        {
+            'Ö',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x1CA222A21C // = ö
+            }
+        },
+        {
+            'ü',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x3C8202843E
+            }
+        },
+        {
+            'Ü',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x3C8202823C
+            }
+        },
+        {
+            'ß',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x3E40542800
+                // Alternative: 0x3E404A3400
+            }
+        },
+        {
+            'ẞ',
+            new DotMatrixCharacter
+            {
+                ActivePixels = (Pixels)0x7E8092926C
+                // Alternative: 0x3E404A4A34
+            }
+        },
+        */
     };
 }
 

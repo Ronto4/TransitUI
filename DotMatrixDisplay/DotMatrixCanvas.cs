@@ -1,13 +1,11 @@
 using System.Diagnostics;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Bmp;
-// Does not work in the browser
-// using SixLabors.ImageSharp.Formats.Tiff;
-using SixLabors.ImageSharp.PixelFormats;
+using ImageMagick;
+
+using Quantum = byte;
 
 namespace DotMatrixDisplay;
 
-public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
+public class DotMatrixCanvas<TColor> where TColor : IMagickColor<Quantum>
 {
     private const int PixelPerDotMatrixPixel = 12;
     private const int GapBetweenDotMatrixPixels = 2;
@@ -21,9 +19,13 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
 
     private const int CharacterHeight = PixelPerDotMatrixPixel * DotMatrixPixelsPerCharacterVertical +
                                         (DotMatrixPixelsPerCharacterVertical - 1) * GapBetweenDotMatrixPixels;
-    private Image<TColor> Canvas { get; }
-    private int Width { get; }
-    private int Height { get; }
+    private MagickImage Canvas { get; }
+    /// <summary>
+    /// A cached reference to the Pixels of the <see cref="Canvas"/>.
+    /// </summary>
+    private IPixelCollection<Quantum> Pixels => field ??= Canvas.GetPixels();
+    private uint Width { get; }
+    private uint Height { get; }
     private TColor InactivePixelColor { get; }
     private TColor ActivePixelColor { get; }
     private DotMatrixCharacter?[,] Characters { get; set; }
@@ -43,13 +45,12 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
                 dimensions.Width < 1 ? nameof(dimensions.Width) : nameof(dimensions.Height),
                 "At least on row and column is required.");
         var (pixelWidth, pixelHeight) = PixelsForCharacterDimensions(dimensions);
-        Canvas = new Image<TColor>(pixelWidth, pixelHeight, backgroundColor);
+        Canvas = new MagickImage(backgroundColor, pixelWidth, pixelHeight);
         Width = dimensions.Width;
         Height = dimensions.Height;
         InactivePixelColor = inactivePixelColor;
         ActivePixelColor = activePixelColor;
         Characters = new DotMatrixCharacter?[dimensions.Height, dimensions.Width];
-        // WriteCharacters();
     }
 
     private static (int pixelWidth, int pixelHeight) PixelsForCharacterPosition(int width, int height)
@@ -65,9 +66,9 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
         return (pixelWidth, pixelHeight);
     }
 
-    private static (int pixelWidth, int pixelHeight) PixelsForCharacterDimensions(DotMatrixDimensions dimensions)
+    private static (uint pixelWidth, uint pixelHeight) PixelsForCharacterDimensions(DotMatrixDimensions dimensions)
     {
-        static int PixelForCharacters(int characters, int dotMatrixPixel, int gapPixel) =>
+        static uint PixelForCharacters(uint characters, uint dotMatrixPixel, uint gapPixel) =>
             (dotMatrixPixel /* dotMatrixPixel dot matrix pixels per character */ *
              PixelPerDotMatrixPixel +
              (dotMatrixPixel - 1) * GapBetweenDotMatrixPixels +
@@ -78,37 +79,19 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
         return (pixelWidth, pixelHeight);
     }
 
-    public void SaveToStream(Stream target)
-    {
-        Stopwatch sw = new();
-        sw.Start();
-        Canvas.SaveAsPng(target);
-        sw.Stop();
-        Console.WriteLine($"Saving took {sw.Elapsed} for {Canvas.Width} * {Canvas.Height}");
-    }
+    public void SaveToStream(Stream target) => target.Write(Canvas.ToByteArray(MagickFormat.Png));
 
-    public string ToBase64()
-    {
-        var sw = new Stopwatch();
-        sw.Start();
-        var result = Canvas.ToBase64String(BmpFormat.Instance);
-        sw.Stop();
-        Console.WriteLine($"Simple took {sw.Elapsed}");
-        return result;
-        // using var stream = new MemoryStream();
-        // SaveToStream(stream);
-        // return Convert.ToBase64String(stream.ToArray());
-    }
+    public string ToBase64() => Canvas.ToBase64(MagickFormat.Bmp);
 
     private void WriteCharacters(Stopwatch? sw = null)
     {
         for (var width = 0; width < Width; width++)
         {
-            if (sw is not null) Console.WriteLine($"1: {width}: {sw.ElapsedMilliseconds}");
             for (var height = 0; height < Height; height++)
             {
                 var character = Characters[height, width];
                 WriteCharacter(character ?? DotMatrixCharacter.EmptyPixel, width, height);
+                if (sw is not null) Console.WriteLine($"after char (row:coloumn) @ {width}:{height}: {sw.ElapsedMilliseconds}");
             }
         }
     }
@@ -135,14 +118,28 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
 
     private void WriteDotMatrixPixel(TColor color, int horizontalPixel, int verticalPixel)
     {
-        for (var x = horizontalPixel; x < horizontalPixel + PixelPerDotMatrixPixel; x++)
-        for (var y = verticalPixel; y < verticalPixel + PixelPerDotMatrixPixel; y++)
+        const int channels = 3;
+        Span<Quantum> colors = stackalloc Quantum[PixelPerDotMatrixPixel * PixelPerDotMatrixPixel * channels];
+        Pixels.SetArea(horizontalPixel, verticalPixel, PixelPerDotMatrixPixel, PixelPerDotMatrixPixel, GetColorSpan(color, colors));
+        return;
+
+        // ImageMagick requires a 3-channel color for all pixels in the area.
+        static ReadOnlySpan<Quantum> GetColorSpan(TColor color, Span<Quantum> colors)
         {
-            Canvas[x, y] = color;
+            var colorBytes = color.ToByteArray();
+            for (var pixelIndex = 0; pixelIndex < PixelPerDotMatrixPixel * PixelPerDotMatrixPixel; ++pixelIndex)
+            {
+                for (var channel = 0; channel < channels; ++channel)
+                {
+                    colors[pixelIndex * channels + channel] = colorBytes[channel];
+                }
+            }
+
+            return colors;
         }
     }
 
-    public void WriteText(List<List<DotMatrixCharacter>> text, Stopwatch? sw = null)
+    private void WriteText(List<List<DotMatrixCharacter>> text, Stopwatch? sw = null)
     {
         if (text.Count > Height || !text.TrueForAll(line => line.Count <= Width))
         {
@@ -173,7 +170,6 @@ public class DotMatrixCanvas<TColor> where TColor : unmanaged, IPixel<TColor>
                 }
 
                 return dmiChar;
-                // return DotMatrixCharacter.DotMatrixCharacters[character];
             }).ToList()).ToList();
         WriteText(dotMatrixCharacterText, sw);
     }

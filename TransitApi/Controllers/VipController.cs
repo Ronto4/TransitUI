@@ -4,7 +4,6 @@ using System.Text.Json;
 using DotMatrixDisplay;
 using Microsoft.AspNetCore.Mvc;
 using R4Utils.Uri;
-using SixLabors.ImageSharp.PixelFormats;
 using TtssClient;
 using TtssClient.Dtos;
 using TtssClient.Dtos.Requests;
@@ -23,9 +22,9 @@ public class VipController : ControllerBase
     {
         _ttssApi = ttssApi;
     }
-    private static Rgb24 BackgroundColor { get; } = new(0x23, 0x29, 0x23); 
-    private static Rgb24 InactivePixelColor { get; } = new(0x23, 0x2d, 0x23);
-    private static Rgb24 ActivePixelColor { get; } = new(0xd1, 0x5a, 0x1a);
+    private static ImageMagick.MagickColor BackgroundColor { get; } = new(0x23, 0x29, 0x23);
+    private static ImageMagick.MagickColor InactivePixelColor { get; } = new(0x23, 0x2d, 0x23);
+    private static ImageMagick.MagickColor ActivePixelColor { get; } = new(0xd1, 0x5a, 0x1a);
 
     [HttpGet("{stopId:int}")]
     public async Task<IActionResult> CheckIfStopExists(int stopId, CancellationToken cancellationToken)
@@ -84,7 +83,7 @@ public class VipController : ControllerBase
 
             var requiredPage = pages[page - 1]; // -1 because `page` is 1-indexed.
             var dotMatrixCanvas =
-                new DotMatrixCanvas<Rgb24>(dimensions, BackgroundColor, InactivePixelColor, ActivePixelColor);
+                new DotMatrixCanvas<ImageMagick.MagickColor>(dimensions, BackgroundColor, InactivePixelColor, ActivePixelColor);
             dotMatrixCanvas.WriteText(requiredPage);
             var ms = new MemoryStream();
             dotMatrixCanvas.SaveToStream(ms);

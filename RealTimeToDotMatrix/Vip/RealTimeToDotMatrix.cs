@@ -166,6 +166,6 @@ public static class RealTimeToDotMatrix
         var (messages, dimensions) = GenerateTarget(stopPassages);
         return Task.FromResult((messages.ToList(),
             new DotMatrixDimensions
-                {Width = int.CreateChecked(dimensions.cols), Height = int.CreateChecked(dimensions.rows)}));
+                { Width = dimensions.cols, Height = dimensions.rows }));
     }
 }
