@@ -319,7 +319,11 @@ internal static class Stops
 
     public static Stop BerlinRodensteinstr { get; } = new() { InitialName = "Rodensteinstr.", City = Berlin };
     public static Stop RobertBaberskeStr { get; } = new() { City = Potsdam, InitialName = "Robert-Baberske-Str." };
-    public static Stop Römerschanze { get; } = new() { City = Potsdam, InitialName = "Römerschanze" };
+
+    public static Stop Römerschanze { get; } = new()
+    {
+        City = Potsdam, InitialName = "Römerschanze", NameChanges = [(new DateOnly(2025, 8, 4), "Insel Neu Fahrland")]
+    };
     public static Stop RoteKaserne { get; } = new() { City = Potsdam, InitialName = "Rote Kaserne" };
     public static Stop Rotkehlchenweg { get; } = new() { City = Potsdam, InitialName = "Rotkehlchenweg" };
     public static Stop Rückerstr { get; } = new() { City = Potsdam, InitialName = "Rückerstr." };
