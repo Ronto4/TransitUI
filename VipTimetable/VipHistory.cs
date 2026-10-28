@@ -248,6 +248,12 @@ public class VipHistory : IHistory<VipHistory>
             "Am Brückentag nach dem Ersten Mai verkehrt die Linie X15 anstelle der Linie X5."),
         new HistoryEntry(new DateOnly(2025, 5, 8), ValidityMode.OnlyOnThisDay,
             "Wegen des Feiertags in Berlin gibt es Zusatzfahrten auf der Linie N16."),
+        new HistoryEntry(new DateOnly(2025, 5, 26),
+            """
+            Aufgrund von Bauarbeiten in der Amundsenstraße werden die Linien 612 und 697 bis auf Weiteres
+            in Richtung Abzweig nach Eiche über die Maulbeerallee umgeleitet.
+            """
+            ),
         new HistoryEntry(new DateOnly(2025, 5, 30), ValidityMode.OnlyOnThisDay,
             "Am Brückentag nach Christi Himmelfahrt verkehrt die Linie X15 anstelle der Linie X5."),
         new HistoryEntry(new DateOnly(2025, 6, 14), ValidityMode.OnlyOnThisDay,

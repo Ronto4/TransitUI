@@ -35,17 +35,6 @@ public partial record Line
         public required DaysOfOperation DaysOfOperation { get; init; }
 
         /// <summary>
-        /// Use <see cref="AnnotationSymbols"/> instead.
-        /// <br/><br/>Was:<br/>
-        /// Specify the symbol of the annotation that should be used for the annotation of this trip.
-        /// </summary>
-        [Obsolete($"Use {nameof(AnnotationSymbols)} instead.", false)]
-        public string AnnotationSymbol
-        {
-            init => AnnotationSymbols.Add(value);
-        }
-
-        /// <summary>
         /// The symbols (defined as the keys of <see cref="Line.Annotations"/>) of the annotations this trip has.
         /// </summary>
         public List<string> AnnotationSymbols { get; init; } = [];

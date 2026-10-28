@@ -375,6 +375,7 @@ internal static class Stops
     public static Stop SchlossCharlottenhof { get; } = new() { City = Potsdam, InitialName = "Schloss Charlottenhof" };
     public static Stop SchlossSacrow { get; } = new() { City = Potsdam, InitialName = "Schloss Sacrow" };
     public static Stop SchlossSanssouci { get; } = new() { City = Potsdam, InitialName = "Schloss Sanssouci" };
+    public static Stop SchlossSanssouciBornstedterStr { get; } = new() { City = Potsdam, InitialName = "Schloss Sanssouci/Bornstedter Str." };
     public static Stop Katharinenholzstr { get; } = new() { City = Potsdam, InitialName = "Katharinenholzstr." };
     public static Stop Schlossstr { get; } = new() { City = Potsdam, InitialName = "Schlossstr." };
     public static Stop SchlüterstrForststr { get; } = new() { City = Potsdam, InitialName = "Schlüterstr./Forststr." };

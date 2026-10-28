@@ -169,8 +169,26 @@ public partial record Line
         /// if those two stations exist and are next to each other.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false)
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime,
+            TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false) => WithStopBetween(before, inserted, after,
+            Enumerable.Repeat(firstTime, TimeProfiles.Length).ToArray(),
+            Enumerable.Repeat(secondTime, TimeProfiles.Length).ToArray(), skipUpdatingCommonStopIndex);
+
+        /// <summary>
+        /// Return this same <see cref="Line.Route"/>, with <paramref name="inserted"/>
+        /// between <paramref name="before"/> and <paramref name="after"/>,
+        /// if those two stations exist and are next to each other.
+        /// The times are accessed per <see cref="Line.Route.TimeProfile"/> of the <see cref="Line.Route"/>.
+        /// </summary>
+        /// <returns></returns>
+        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after,
+            IReadOnlyList<TimeSpan> firstTimes, IReadOnlyList<TimeSpan> secondTimes,
+            bool skipUpdatingCommonStopIndex = false)
         {
+            if (firstTimes.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} firstTimes, received {firstTimes.Count}.");
+            if (secondTimes.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} secondTimes, received {secondTimes.Count}.");
             var beforeIndex = Array.IndexOf(StopPositions, before);
             if (beforeIndex == -1) return this;
             var afterIndex = Array.IndexOf(StopPositions, after);
@@ -178,19 +196,22 @@ public partial record Line
             if (afterIndex != beforeIndex + 1) return this;
             Stop.Position[] insertedPositions =
                 [..StopPositions[..(beforeIndex + 1)], inserted, ..StopPositions[afterIndex..]];
-            var timeProfiles = TimeProfiles.Select(timeProfile => new TimeProfile
+            var timeProfiles = TimeProfiles.Index().Select(timeProfile => new TimeProfile
             {
                 StopDistances =
                 [
-                    ..timeProfile.StopDistances[..beforeIndex], firstTime, secondTime,
-                    ..timeProfile.StopDistances[afterIndex..]
+                    ..timeProfile.Item.StopDistances[..beforeIndex], firstTimes[timeProfile.Index],
+                    secondTimes[timeProfile.Index],
+                    ..timeProfile.Item.StopDistances[afterIndex..]
                 ]
             }).ToArray();
             return this with
             {
                 StopPositions = insertedPositions,
                 TimeProfiles = timeProfiles,
-                CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
+                CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex
+                    ? CommonStopIndex + 1
+                    : CommonStopIndex,
             };
         }
 
