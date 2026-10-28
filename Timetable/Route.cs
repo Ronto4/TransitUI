@@ -169,8 +169,26 @@ public partial record Line
         /// if those two stations exist and are next to each other.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime, TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false)
+        public Route WithStopBetween(Stop.Position before, Stop.Position inserted, Stop.Position after, TimeSpan firstTime,
+            TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false) => WithStopBetween(before, inserted, after,
+            Enumerable.Repeat(firstTime, TimeProfiles.Length).ToArray(),
+            Enumerable.Repeat(secondTime, TimeProfiles.Length).ToArray(), skipUpdatingCommonStopIndex);
+
+        /// <summary>
+        /// Return this same <see cref="Line.Route"/>, with <paramref name="inserted"/>
+        /// between <paramref name="before"/> and <paramref name="after"/>,
+        /// if those two stations exist and are next to each other.
+        /// The times are accessed per <see cref="Line.Route.TimeProfile"/> of the <see cref="Line.Route"/>.
+        /// </summary>
+        /// <returns></returns>
+        public Route WithStopBetween(Stop.Position before, Stop.Position inserted, Stop.Position after,
+            IReadOnlyList<TimeSpan> firstTimes, IReadOnlyList<TimeSpan> secondTimes,
+            bool skipUpdatingCommonStopIndex = false)
         {
+            if (firstTimes.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} firstTimes, received {firstTimes.Count}.");
+            if (secondTimes.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} secondTimes, received {secondTimes.Count}.");
             var beforeIndex = Array.IndexOf(StopPositions, before);
             if (beforeIndex == -1) return this;
             var afterIndex = Array.IndexOf(StopPositions, after);
@@ -178,19 +196,61 @@ public partial record Line
             if (afterIndex != beforeIndex + 1) return this;
             Stop.Position[] insertedPositions =
                 [..StopPositions[..(beforeIndex + 1)], inserted, ..StopPositions[afterIndex..]];
-            var timeProfiles = TimeProfiles.Select(timeProfile => new TimeProfile
+            var timeProfiles = TimeProfiles.Index().Select(timeProfile => new TimeProfile
             {
                 StopDistances =
                 [
-                    ..timeProfile.StopDistances[..beforeIndex], firstTime, secondTime,
-                    ..timeProfile.StopDistances[afterIndex..]
+                    ..timeProfile.Item.StopDistances[..beforeIndex], firstTimes[timeProfile.Index],
+                    secondTimes[timeProfile.Index],
+                    ..timeProfile.Item.StopDistances[afterIndex..]
                 ]
             }).ToArray();
             return this with
             {
                 StopPositions = insertedPositions,
                 TimeProfiles = timeProfiles,
-                CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex ? CommonStopIndex + 1 : CommonStopIndex,
+                CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex
+                    ? CommonStopIndex + 1
+                    : CommonStopIndex,
+            };
+        }
+
+        /// <summary>
+        /// Replace the first time between <paramref name="before"/> and <paramref name="after"/> with <paramref name="time"/>.
+        /// </summary>
+        public Route ReplaceTimeInterval(Stop.Position before, Stop.Position after, TimeSpan time) =>
+            ReplaceTimeInterval(before, after, Enumerable.Repeat(time, TimeProfiles.Length).ToArray());
+
+        /// <summary>
+        /// Replace the first time between <paramref name="before"/> and <paramref name="after"/> with
+        /// the i-th entry from <paramref name="times"/> for the i-th <see cref="Line.Route.TimeProfile"/>.
+        /// </summary>
+        public Route ReplaceTimeInterval(Stop.Position before, Stop.Position after, IReadOnlyList<TimeSpan> times)
+        {
+            if (times.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} times, received {times.Count}.");
+            var gapIndex = -1;
+            for (var i = 0; i < StopPositions.Length - 1; ++i)
+            {
+                if (StopPositions[i] == before && StopPositions[i + 1] == after)
+                {
+                    gapIndex = i;
+                    break;
+                }
+            }
+
+            if (gapIndex < 0) return this;
+
+            return this with
+            {
+                TimeProfiles = TimeProfiles.Index().Select(timeProfile => timeProfile.Item with
+                {
+                    StopDistances =
+                    [
+                        ..timeProfile.Item.StopDistances[..gapIndex], times[timeProfile.Index],
+                        ..timeProfile.Item.StopDistances[(gapIndex + 1)..]
+                    ],
+                }).ToArray(),
             };
         }
 

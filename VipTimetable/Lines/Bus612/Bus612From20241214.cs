@@ -238,7 +238,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(4, 37),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -253,7 +253,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(6, 2),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -282,7 +282,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 2,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(7, 32),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -318,7 +318,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(18, 47),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -333,7 +333,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(20, 38),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -348,7 +348,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(22, 38),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -384,7 +384,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 0,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(5, 14),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -399,7 +399,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 1,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(6, 44),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -428,7 +428,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 2,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(19, 48),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -443,7 +443,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 2,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(21, 48),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             new Line.TripCreate
             {
@@ -458,7 +458,7 @@ public class Bus612From20241214 : ILineInstance
                 TimeProfileIndex = 2,
                 DaysOfOperation = DaysOfOperation.Weekday,
                 StartTime = new TimeOnly(23, 48),
-                AnnotationSymbol = "KB",
+                AnnotationSymbols = ["KB"],
             },
             ..new Line.TripCreate
             {
