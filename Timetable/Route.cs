@@ -169,7 +169,7 @@ public partial record Line
         /// if those two stations exist and are next to each other.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after, TimeSpan firstTime,
+        public Route WithStopBetween(Stop.Position before, Stop.Position inserted, Stop.Position after, TimeSpan firstTime,
             TimeSpan secondTime, bool skipUpdatingCommonStopIndex = false) => WithStopBetween(before, inserted, after,
             Enumerable.Repeat(firstTime, TimeProfiles.Length).ToArray(),
             Enumerable.Repeat(secondTime, TimeProfiles.Length).ToArray(), skipUpdatingCommonStopIndex);
@@ -181,7 +181,7 @@ public partial record Line
         /// The times are accessed per <see cref="Line.Route.TimeProfile"/> of the <see cref="Line.Route"/>.
         /// </summary>
         /// <returns></returns>
-        public Route WithStopBetween(Stop before, Stop.Position inserted, Stop after,
+        public Route WithStopBetween(Stop.Position before, Stop.Position inserted, Stop.Position after,
             IReadOnlyList<TimeSpan> firstTimes, IReadOnlyList<TimeSpan> secondTimes,
             bool skipUpdatingCommonStopIndex = false)
         {
@@ -212,6 +212,45 @@ public partial record Line
                 CommonStopIndex = !skipUpdatingCommonStopIndex && CommonStopIndex > beforeIndex
                     ? CommonStopIndex + 1
                     : CommonStopIndex,
+            };
+        }
+
+        /// <summary>
+        /// Replace the first time between <paramref name="before"/> and <paramref name="after"/> with <paramref name="time"/>.
+        /// </summary>
+        public Route ReplaceTimeInterval(Stop.Position before, Stop.Position after, TimeSpan time) =>
+            ReplaceTimeInterval(before, after, Enumerable.Repeat(time, TimeProfiles.Length).ToArray());
+
+        /// <summary>
+        /// Replace the first time between <paramref name="before"/> and <paramref name="after"/> with
+        /// the i-th entry from <paramref name="times"/> for the i-th <see cref="Line.Route.TimeProfile"/>.
+        /// </summary>
+        public Route ReplaceTimeInterval(Stop.Position before, Stop.Position after, IReadOnlyList<TimeSpan> times)
+        {
+            if (times.Count != TimeProfiles.Length)
+                throw new Exception($"Expected {TimeProfiles.Length} times, received {times.Count}.");
+            var gapIndex = -1;
+            for (var i = 0; i < StopPositions.Length - 1; ++i)
+            {
+                if (StopPositions[i] == before && StopPositions[i + 1] == after)
+                {
+                    gapIndex = i;
+                    break;
+                }
+            }
+
+            if (gapIndex < 0) return this;
+
+            return this with
+            {
+                TimeProfiles = TimeProfiles.Index().Select(timeProfile => timeProfile.Item with
+                {
+                    StopDistances =
+                    [
+                        ..timeProfile.Item.StopDistances[..gapIndex], times[timeProfile.Index],
+                        ..timeProfile.Item.StopDistances[(gapIndex + 1)..]
+                    ],
+                }).ToArray(),
             };
         }
 
