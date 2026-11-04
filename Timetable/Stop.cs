@@ -17,12 +17,12 @@ public partial record Stop
     /// <summary>
     /// The name of this <see cref="Stop"/>, without any city names.
     /// </summary>
-    public required string InitialName { internal get; init; }
+    public required IName InitialName { internal get; init; }
 
     /// <summary>
     /// Maps the <see cref="DateOnly"/> of a change of name of this <see cref="Stop"/> to its new name.
     /// </summary>
-    public List<(DateOnly Date, string Name)> NameChanges { get; init; } = [];
+    public List<(DateOnly Date, IName Name)> NameChanges { get; init; } = [];
 
     /// <summary>
     /// The <see cref="City"/> of this <see cref="Stop"/>.
@@ -32,22 +32,24 @@ public partial record Stop
     /// <summary>
     /// Get the non-<see cref="City"/>-prepended name of this <see cref="Stop"/> at day <paramref name="date"/>.
     /// </summary>
-    public string NameAt(DateOnly date) => NameChanges.Count == 0 || NameChanges[0].Date > date
+    public string NameAt(DateOnly date) => NameObjectAt(date).GetCityInternalName(City);
+
+    /// <summary>
+    /// Get the <see cref="IName"/> of this <see cref="Stop"/> at day <paramref name="date"/>.
+    /// </summary>
+    public IName NameObjectAt(DateOnly date) => NameChanges.Count == 0 || NameChanges[0].Date > date
         ? InitialName
         : NameChanges.Last(change => change.Date <= date).Name;
 
     /// <summary>
     /// The name of this <see cref="Stop"/> including its <see cref="City"/>, as it was on <paramref name="date"/>.
     /// </summary>
-    public string FullName(DateOnly date) => $"{City.Name}, {NameAt(date)}";
+    public string FullName(DateOnly date) => NameObjectAt(date).GetCityExternalName(City);
 
     /// <summary>
     /// The name of this <see cref="Stop"/> as it should be shown to users on <paramref name="date"/> in city <paramref name="referenceCity"/>.
     /// </summary>
-    public string DisplayName(DateOnly date, City referenceCity) => DisplayNameFor(NameAt(date), referenceCity);
-
-    private string DisplayNameFor(string name, City referenceCity) =>
-        referenceCity == City ? name : $"{City.Name}, {name}";
+    public string DisplayName(DateOnly date, City referenceCity) => NameObjectAt(date).GetName(City, referenceCity != City);
 
     private readonly Position[] _positions = null!; // Will be set below.
 

@@ -116,6 +116,7 @@ public partial record Line
                         : trip.ConnectionId == connection.ConnectingId);
 
                 bool TripMatchesContinuing(Trip trip) =>
+                    trip.GetConnections(allLines).Count(connectionOfRemote => connectionOfRemote.Type is ConnectionType.ComesAs) == 1 && 
                     trip.StartTime == TimeAtStop(Route.StopPositions.Length - 1).Add(connection.Delay) &&
                     (connection.ConnectingId is 0
                         ? (trip.DaysOfOperation & DaysOfOperation) == DaysOfOperation

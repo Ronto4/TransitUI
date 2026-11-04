@@ -273,9 +273,6 @@ public class VipHistory : IHistory<VipHistory>
             Die Linie wird an der Kirschallee mit der 692 verknüpft.
             Dazu verkehrt sie stündlich zwischen Fahrland und Marquardt.
             Die Linien 694 und 699 werden im Spätverkehr am Johannes-Kepler-Platz verknüpft und einige kleineren Änderungen werden umgesetzt.
-            Hinweis zum hinterlegten Fahrplan der 662: Unter dieser Liniennummer werden neben den Fahrten der Relation
-            Bhf Elstal <> Campus Jungfernsee Schülerfahrten zwischen Wustermark und Elstal angeboten.
-            Diese werden hier zur Zeit nicht dargestellt.
             """
             ),
         new HistoryEntry(new DateOnly(2025, 10, 11),
