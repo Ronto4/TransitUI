@@ -37,11 +37,24 @@ public class BusN15From20250203 : ILineInstance
                     },
                 ],
             },
-            ..Previous.Line.Routes[3..]
+            ..Previous.Line.Routes[3..4],
+            Previous.Line.Routes[4] with
+            {
+                TimeProfiles =
+                [
+                    new Line.Route.TimeProfile
+                    {
+                        StopDistances = [M2, M1, M1, M1, M1, M1, M2, M2,],
+                    },
+                ],
+            },
+            ..Previous.Line.Routes[5..],
         ],
         TripsCreate = Previous.Line.TripsCreate.Select(trip =>
             trip.RouteIndex.Equals(0) || trip.RouteIndex.Equals(1)
                 ? trip with { StartTime = trip.StartTime.AddMinutes(-2) }
-                : trip).ToArray(),
+                : trip.RouteIndex.Equals(4)
+                    ? trip with { StartTime = trip.StartTime.AddMinutes(-1), }
+                    : trip).ToArray(),
     };
 }
