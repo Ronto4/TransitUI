@@ -3,5 +3,5 @@ namespace VipTimetable.Lines.Bus699;
 internal class Bus699 : ICompleteLine
 {
     public IEnumerable<ILineInstance> LineInstances { get; } =
-        [new Bus699From20241214(), new Bus699From20241215(), new Bus699From20250203()];
+        [new Bus699From20241214(), new Bus699From20241215(), new Bus699From20250203(), new Bus699From20250804()];
 }

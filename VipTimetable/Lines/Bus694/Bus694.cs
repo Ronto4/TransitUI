@@ -2,5 +2,5 @@ namespace VipTimetable.Lines.Bus694;
 
 internal class Bus694 : ICompleteLine
 {
-    public IEnumerable<ILineInstance> LineInstances { get; } = [new Bus694From20241214()];
+    public IEnumerable<ILineInstance> LineInstances { get; } = [new Bus694From20241214(), new Bus694From20250804()];
 }
