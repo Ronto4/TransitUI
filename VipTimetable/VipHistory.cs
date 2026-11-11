@@ -265,6 +265,16 @@ public class VipHistory : IHistory<VipHistory>
             """
         ),
         new HistoryEntry(new DateOnly(2025, 7, 21), "Während der vorlesungsfreien Zeit verkehrt die Linie X5 nicht."),
+        new HistoryEntry(new DateOnly(2025, 8, 4),
+            """
+            Anlässlich der Eröffnung von Krampnitz gibt es einen Fahrplanwechsel.
+            Die Linien 609, 662 (verlängert von Priort) und N15 binden Krampnitz an den ÖPNV an.
+            Die Linie 619 verbindet im Berufs- und Schülerverkehr Fahrland und Marquardt mit der Innenstadt.
+            Die Linie wird an der Kirschallee mit der 692 verknüpft.
+            Dazu verkehrt sie stündlich zwischen Fahrland und Marquardt.
+            Die Linien 694 und 699 werden im Spätverkehr am Johannes-Kepler-Platz verknüpft und einige kleineren Änderungen werden umgesetzt.
+            """
+            ),
         new HistoryEntry(new DateOnly(2025, 10, 11),
             "Während des Winters fährt die Linie X15 nicht."),
         new HistoryEntry(new DateOnly(2025, 10, 13),
